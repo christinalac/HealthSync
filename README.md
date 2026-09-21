@@ -8,3 +8,7 @@ Balancing working out and physical health is super important when keeping your b
 - Finish Project Plan (PP) Document
 - Show what the application result will be
 - Split up the work, make sure everyone has a role of who is coding what
+
+#### Week 6 Goals(9/21)
+- Finish SRS
+- Initialize global variables 

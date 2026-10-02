@@ -9,15 +9,15 @@ package myjavapackage;
 public class Account{
 
     //variables
-    private String email;
-    private String username;
-    private String password;
-    private String firstName;
-    private String lastName;
-    private float userHeight;
-    private float userWeight;
-    private int accountID;
-    private String userExperienceLevel;
+    private String email = null;
+    private String username = null;
+    private String password = null;
+    private String firstName = null;
+    private String lastName = null;
+    private float userHeight = 0.0;
+    private float userWeight = 0.0;
+    private int accountID = 0;
+    private String userExperienceLevel = null;
 
     // constructor methods
     Account(String email, String username, String password, String firstName, String lastName, float userHeight, float userWeight, int accountID, String userExperienceLevel){

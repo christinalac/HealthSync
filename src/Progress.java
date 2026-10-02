@@ -9,17 +9,19 @@ package myjavapackage;
 public class Progress{
 
     // variables
-    private int weeklyCaloriesIntake;
-    private int monthlyCaloriesIntake;
-    private float weeklyWaterIntake;
-    private float monthlyWaterIntake;
-    private int weeklyWorkoutTimes;
-    private int monthlyWorkoutTimes;
-    private float weeklyAmountOfSleep;
-    private float monthlyAmountOfSleep;
+    private int weeklyCaloriesIntake = 0;
+    private int monthlyCaloriesIntake = 0;
+    private float weeklyWaterIntake = 0.0;
+    private float monthlyWaterIntake = 0.0;
+    private int weeklyWorkoutTimes = 0;
+    private int monthlyWorkoutTimes = 0;
+    private float weeklyAmountOfSleep = 0.0;
+    private float monthlyAmountOfSleep = 0.0;
 
     //constructor
+    Progress(){
 
+    }
     //getter methods
     public int getWeeklyCaloriesIntake() {
         return weeklyCaloriesIntake;
@@ -44,6 +46,31 @@ public class Progress{
     }
     public float getMonthlyAmountOfSleep() {
         return monthlyAmountOfSleep;
+    }
+    //setter methods
+    public void setWeeklyCaloriesIntake(int weeklyCaloriesIntake) {
+        this.weeklyCaloriesIntake = weeklyCaloriesIntake;
+    }
+    public void setMonthlyCaloriesIntake(int monthlyCaloriesIntake) {
+        this.monthlyCaloriesIntake = monthlyCaloriesIntake;
+    }
+    public void setWeeklyWaterIntake(float weeklyWaterIntake) {
+        this.weeklyWaterIntake = weeklyWaterIntake;
+    }
+    public void setMonthlyWaterIntake(float monthlyWaterIntake) {
+        this.monthlyWaterIntake = monthlyWaterIntake;
+    }
+    public void setWeeklyWorkoutTimes(int weeklyWorkoutTimes) {
+        this.weeklyWorkoutTimes = weeklyWorkoutTimes;
+    }
+    public void setMonthlyWorkoutTimes(int monthlyWorkoutTimes) {
+        this.monthlyWorkoutTimes = monthlyWorkoutTimes;
+    }
+    public void setWeeklyAmountOfSleep(float weeklyAmountOfSleep) {
+        this.weeklyAmountOfSleep = weeklyAmountOfSleep;
+    }
+    public void setMonthlyAmountOfSleep(float monthlyAmountOfSleep) {
+        this.monthlyAmountOfSleep = monthlyAmountOfSleep;
     }
 
     public void displayWeeklyChart(){}

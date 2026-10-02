@@ -5,15 +5,24 @@
  */
 
 package myjavapackage;
+import java.util.ArrayList;
 
 public class Workout{
 
     //variables
-    private String workoutName;
-    private String muscleGroup;
-    private String workoutDate;
+    private String workoutName = null;
+    private String muscleGroup = null;
+    private String workoutDate = null;
     private ArrayList<String> workoutPlan;
 
+    //constructor methods
+    Workout(ArrayList<String> workoutPlan){
+        this.workoutPlan = workoutPlan;
+    }
+    Workout(){
+
+    }
+        
     //getter methods
     public ArrayList<String> getWorkoutPlan() {
         return workoutPlan;

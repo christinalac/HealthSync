@@ -19,29 +19,41 @@ public class Account{
     private int accountID;
     private String userExperienceLevel;
 
+    // constructor methods
+    Account(String email, String username, String password, String firstName, String lastName, float userHeight, float userWeight, int accountID, String userExperienceLevel){
+        this.email = email;
+        this.username = username;
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.accountID = accountID;
+        this.userHeight = userHeight;
+        this.userWeight = userWeight;
+        this.userExperienceLevel = userExperienceLevel;
+    }
     // getter methods
     public String getEmail(){
         return email;
     }
-    public String getUsername() {
+    public String getUsername(){
         return username;
     }
-    public String getPassword() {
+    public String getPassword(){
         return password;
     }
-    public String getFirstName() {
+    public String getFirstName(){
         return firstName;
     }
     public String getLastName(){
         return lastName;
     }
-    public float getUserHeight() {
+    public float getUserHeight(){
         return userHeight;
     }
-    public float getUserWeight() {
+    public float getUserWeight(){
         return userWeight;
     }
-    public String getUserExperienceLevel() {
+    public String getUserExperienceLevel(){
         return userExperienceLevel;
     }
 
@@ -55,22 +67,22 @@ public class Account{
     public void setPassword(String password){
         this.password = password;
     }
-    public void setFirstName(String firstName) {
+    public void setFirstName(String firstName){
         this.firstName = firstName;
     }
-    public void setLastName(String lastName) {
+    public void setLastName(String lastName){
         this.lastName = lastName;
     }
-    public void setAccountID(int accountID) {
+    public void setAccountID(int accountID){
         this.accountID = accountID;
     }
-    public void setUserHeight(float userHeight) {
+    public void setUserHeight(float userHeight){
         this.userHeight = userHeight;
     }
-    public void setUserWeight(float userWeight) {
+    public void setUserWeight(float userWeight){
         this.userWeight = userWeight;
     }
-    public void setUserExperienceLevel(String userExperienceLevel) {
+    public void setUserExperienceLevel(String userExperienceLevel){
         this.userExperienceLevel = userExperienceLevel;
     }
 } //end of account class

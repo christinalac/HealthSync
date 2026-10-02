@@ -9,13 +9,15 @@ package myjavapackage;
 public class Home{
 
     //variables
-    private int dailyCalories;
-    private float dailyWaterIntake;
-    private float dailySleep;
-    private int weeklyStreak;
+    private int dailyCalories = 0;
+    private float dailyWaterIntake = 0.0;
+    private float dailySleep = 0.0;
+    private int weeklyStreak = 0;
 
     //constructor
-
+    Home(){
+        
+    }
     // shows a circle graph of the amount of calories a user has consumed for current day
     public void calorieGoalGraph(float dailyCalories){
     }

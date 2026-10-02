@@ -9,11 +9,16 @@ package myjavapackage;
 public class Sleep{
 
     //variables
-    private int bedTime;
-    private int wakeTime;
-    private String alarmSound;
-    private boolean alarmEnabled;
+    private int bedTime = 0;
+    private int wakeTime = 0;
+    private String alarmSound = null;
+    private boolean alarmEnabled = false;
 
+    // constructor method
+    Sleep(){
+
+    }
+    
     // getter methods
     public int getBedTime() {
         return bedTime;

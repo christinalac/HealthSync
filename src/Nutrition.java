@@ -9,10 +9,17 @@ package myjavapackage;
 public class Nutrition{
 
     //variables
-    private int calories;
-    private float waterIntake;
-    private int calorieGoal;
+    private int calories = 0;
+    private float waterIntake = 0.0;
+    private int calorieGoal = 0;
 
+    //constructor methods
+    Nutrition(int calorieGoal){
+        this.calorieGoal = calorieGoal;
+    }
+    Nutrition(){
+
+    }
     //getter methods
     public int getCalorieGoal() {
         return calorieGoal;

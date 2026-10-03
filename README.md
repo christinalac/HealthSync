@@ -12,3 +12,8 @@ Balancing working out and physical health is super important when keeping your b
 #### Week 6 Goals(9/21)
 - Finish SRS
 - Initialize global variables 
+
+#### Week 7 Goals (9/28)
+- Start Initial Code
+- Initialized basic UML tables
+- Find API's to use

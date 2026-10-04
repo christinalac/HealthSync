@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+    account_activity.xml
+    This is the Account / Profile screen (Tab 5 — last tab).
+    Placeholder layout showing:
+      - Profile header (name, email, stats row)
+      - Account Settings section (Username, Email, Password rows)
+      - Log Out button — this one IS wired up in AccountActivity.kt
+        and will return the user to the Splash/Login screen
+-->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -7,13 +17,130 @@
     android:layout_height="match_parent"
     tools:context=".AccountActivity">
 
-    <!--adding the bottom navigation button to account tab-->
+    <!-- Screen title -->
+    <TextView
+        android:id="@+id/textScreenTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="My Profile"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Profile name placeholder -->
+    <TextView
+        android:id="@+id/textProfileName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="First Last"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toBottomOf="@id/textScreenTitle"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Profile email placeholder -->
+    <TextView
+        android:id="@+id/textProfileEmail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="user@email.com"
+        android:textSize="14sp"
+        android:layout_marginTop="4dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toBottomOf="@id/textProfileName"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Stats row: Age, Height, Weight, Level -->
+    <TextView
+        android:id="@+id/textStatsRow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Age: --  |  Height: --  |  Weight: --  |  Level: Active"
+        android:textSize="13sp"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toBottomOf="@id/textProfileEmail"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Section: Account Settings header -->
+    <TextView
+        android:id="@+id/textSettingsHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Account Settings"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginTop="32dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toBottomOf="@id/textStatsRow"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Placeholder row: Change Username -->
+    <TextView
+        android:id="@+id/textChangeUsername"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Change Username"
+        android:textSize="15sp"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toBottomOf="@id/textSettingsHeader"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Placeholder row: Change Email -->
+    <TextView
+        android:id="@+id/textChangeEmail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Change Email"
+        android:textSize="15sp"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toBottomOf="@id/textChangeUsername"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Placeholder row: Change Password -->
+    <TextView
+        android:id="@+id/textChangePassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Change Password"
+        android:textSize="15sp"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toBottomOf="@id/textChangeEmail"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!--
+        Log Out button — this IS wired up in AccountActivity.kt.
+        Tapping it clears the back stack and returns to SplashActivity.
+        The ID here must match R.id.buttonLogout in the Kotlin file.
+    -->
+    <Button
+        android:id="@+id/buttonLogout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Log Out"
+        android:layout_marginTop="32dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp"
+        app:layout_constraintTop_toBottomOf="@id/textChangePassword"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Bottom nav bar pinned to the bottom -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        app:menu="@menu/bottom_nav_menu" />
-
+        app:menu="@menu/bottom_nav_menu"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

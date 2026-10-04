@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+    workout_activity.xml
+    This is the Workout screen (Tab 3).
+    Placeholder layout showing:
+      - A weekly plan section with a few dummy exercise entries
+      - A "+" button (does nothing yet)
+    Real workout data and API integration comes later.
+-->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -7,12 +16,92 @@
     android:layout_height="match_parent"
     tools:context=".WorkoutActivity">
 
-    <!--adding the bottom navigation button to workout tab-->
+    <!-- Screen title -->
+    <TextView
+        android:id="@+id/textScreenTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Workout"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Section: Weekly Plan header -->
+    <TextView
+        android:id="@+id/textWeeklyPlanHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Today's Plan"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toBottomOf="@id/textScreenTitle"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Dummy exercise entry 1 -->
+    <TextView
+        android:id="@+id/textExercise1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Bench Press — Chest — 3 sets x 10 reps"
+        android:textSize="14sp"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toBottomOf="@id/textWeeklyPlanHeader"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Dummy exercise entry 2 -->
+    <TextView
+        android:id="@+id/textExercise2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Squat — Legs — 4 sets x 8 reps"
+        android:textSize="14sp"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toBottomOf="@id/textExercise1"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Dummy exercise entry 3 -->
+    <TextView
+        android:id="@+id/textExercise3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pull-Up — Back — 3 sets x 8 reps"
+        android:textSize="14sp"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toBottomOf="@id/textExercise2"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!--
+        Floating "+" button — placeholder for adding a workout.
+        Positioned bottom-right above the nav bar.
+        No click logic yet.
+    -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAddWorkout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="Add workout"
+        android:src="@android:drawable/ic_input_add"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="80dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <!-- Bottom nav bar pinned to the bottom -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        app:menu="@menu/bottom_nav_menu" />
+        app:menu="@menu/bottom_nav_menu"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+    sleep_activity.xml
+    This is the Sleep screen (Tab 4).
+    Placeholder layout showing:
+      - A circular Sleep Score placeholder (just text for now)
+      - Last Night's Stats (Bedtime, Wake Time)
+      - An "Add Sleep Entry" button (does nothing yet)
+    Real sleep data and score calculation comes later.
+-->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -7,12 +17,107 @@
     android:layout_height="match_parent"
     tools:context=".SleepActivity">
 
-    <!--adding the bottom navigation button to sleep tab-->
+    <!-- Screen title -->
+    <TextView
+        android:id="@+id/textScreenTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sleep"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!--
+        Sleep Score placeholder — eventually this will be a custom circular view.
+        For now it's just a large number centered on screen.
+    -->
+    <TextView
+        android:id="@+id/textSleepScore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="78"
+        android:textSize="64sp"
+        android:textStyle="bold"
+        android:layout_marginTop="32dp"
+        app:layout_constraintTop_toBottomOf="@id/textScreenTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Status label below the score -->
+    <TextView
+        android:id="@+id/textSleepStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Good — Aim for 8+ hours for peak recovery"
+        android:textSize="14sp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/textSleepScore"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Section: Last Night's Stats -->
+    <TextView
+        android:id="@+id/textLastNightHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Last Night's Stats"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginTop="32dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toBottomOf="@id/textSleepStatus"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/textBedtime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Bedtime:    --:--"
+        android:textSize="14sp"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toBottomOf="@id/textLastNightHeader"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/textWakeTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Wake Time:  --:--"
+        android:textSize="14sp"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toBottomOf="@id/textBedtime"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!--
+        Add Sleep Entry button — placeholder.
+        When tapped this will eventually open a form to enter bedtime/wake time.
+        The ID is here so it can be wired up in SleepActivity.kt later.
+    -->
+    <Button
+        android:id="@+id/buttonAddSleep"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Add Sleep Entry"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp"
+        app:layout_constraintTop_toBottomOf="@id/textWakeTime"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Bottom nav bar pinned to the bottom -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        app:menu="@menu/bottom_nav_menu" />
+        app:menu="@menu/bottom_nav_menu"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,10 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+    splash_activity.xml
+    This is the first screen the user sees when they open the app.
+    It contains the app name, a tagline, and two buttons:
+      - Log In     → takes the user to the Home/Progress screen
+      - Create Account → placeholder for now (no registration screen yet)
+
+    ConstraintLayout is used here — each View needs app:layout_constraint*
+    attributes to position it. Think of them as anchors that say
+    "attach this edge to that edge of another view or the parent."
+-->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".SplashActivity">
+
+    <!-- App name displayed at the top center of the screen -->
+    <TextView
+        android:id="@+id/textAppName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="HealthSync"
+        android:textSize="36sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="120dp" />
+
+    <!-- Short tagline shown below the app name -->
+    <TextView
+        android:id="@+id/textTagline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Track. Improve. Thrive."
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/textAppName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12dp" />
+
+    <!--
+        Log In button — tapping this calls the setOnClickListener in
+        SplashActivity.kt which launches ProgressActivity
+        The ID must match what's used in findViewById() in the Kotlin file
+    -->
+    <Button
+        android:id="@+id/buttonLogin"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Log In"
+        app:layout_constraintTop_toBottomOf="@id/textTagline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="60dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp" />
+
+    <!--
+        Create Account button — placeholder for now.
+        No Kotlin logic is wired to this yet, but it needs to exist in the XML
+        so the layout looks complete during the demo walkthrough.
+    -->
+    <Button
+        android:id="@+id/buttonCreateAccount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Create an Account"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        app:layout_constraintTop_toBottomOf="@id/buttonLogin"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

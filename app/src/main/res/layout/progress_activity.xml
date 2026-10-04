@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+    progress_activity.xml
+    This is the Home / Progress screen (Tab 1).
+    For now it shows placeholder section titles and text only —
+    no real data, no charts yet. The goal is just to have something
+    visible when the user taps this tab.
+
+    The BottomNavigationView is pinned to the bottom of the screen using
+    constraints. The scrollable content sits above it.
+-->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -7,12 +18,105 @@
     android:layout_height="match_parent"
     tools:context=".ProgressActivity">
 
-    <!--adding the bottom navigation button to progress tab-->
+    <!-- Screen title at the top -->
+    <TextView
+        android:id="@+id/textScreenTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Home / Progress"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Section: Today's Goals — placeholder for 4 circular progress rings -->
+    <TextView
+        android:id="@+id/textGoalsHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Today's Goals"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toBottomOf="@id/textScreenTitle"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Placeholder text for the 4 goal circles (Steps, Calories, Water, Sleep) -->
+    <TextView
+        android:id="@+id/textGoalsPlaceholder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="[ Steps ]  [ Calories ]  [ Water ]  [ Sleep ]"
+        android:textSize="14sp"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toBottomOf="@id/textGoalsHeader"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Section: Quick Stats — placeholder bars -->
+    <TextView
+        android:id="@+id/textQuickStatsHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Quick Stats"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toBottomOf="@id/textGoalsPlaceholder"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/textQuickStatsPlaceholder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Active Calories: --  |  Hydration: --  |  Weekly Streak: --"
+        android:textSize="14sp"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toBottomOf="@id/textQuickStatsHeader"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Section: Weekly Progress — placeholder chart area -->
+    <TextView
+        android:id="@+id/textWeeklyHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Weekly Progress"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toBottomOf="@id/textQuickStatsPlaceholder"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/textWeeklyPlaceholder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="[ Chart: Steps | Calories | Sleep ]"
+        android:textSize="14sp"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toBottomOf="@id/textWeeklyHeader"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!--
+        BottomNavigationView — pinned to the bottom of the screen.
+        app:layout_constraintBottom_toBottomOf="parent" is what keeps it there.
+        app:menu points to the menu XML file that defines the 5 tabs.
+        The ID "bottomNav" must match what's used in findViewById() in the Kotlin file.
+    -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        app:menu="@menu/bottom_nav_menu" />
+        app:menu="@menu/bottom_nav_menu"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

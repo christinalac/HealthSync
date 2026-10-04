@@ -2,4 +2,6 @@
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.kotlin.compose) apply false
+    implementation(libs.androidx.compose.material3)
+    implementation("androidx.navigation:navigation-compose:2.8.0")
 }

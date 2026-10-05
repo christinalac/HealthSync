@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="Theme.HealthSync" parent="android:Theme.Material.Light.NoActionBar" />
+    <!--
+        Theme.HealthSync — app-wide theme applied to all Activities via AndroidManifest.xml.
+        Must extend an AppCompat theme because all our Activities extend AppCompatActivity.
+        Theme.MaterialComponents.DayNight.NoActionBar gives us:
+          - AppCompat compatibility (required)
+          - Material Design components like BottomNavigationView and FloatingActionButton
+          - No default action bar (we don't want a title bar on every screen)
+    -->
+    <style name="Theme.HealthSync" parent="Theme.MaterialComponents.DayNight.NoActionBar" />
 </resources>

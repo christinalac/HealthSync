@@ -1,12 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    workout_activity.xml
-    This is the Workout screen (Tab 3).
-    Placeholder layout showing:
-      - A weekly plan section with a few dummy exercise entries
-      - A "+" button (does nothing yet)
-    Real workout data and API integration comes later.
--->
+
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -17,91 +10,296 @@
     tools:context=".WorkoutActivity">
 
     <!-- Screen title -->
-    <TextView
-        android:id="@+id/textScreenTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Workout"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_marginTop="24dp"
-        android:layout_marginStart="16dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 
     <!-- Section: Weekly Plan header -->
+
     <TextView
-        android:id="@+id/textWeeklyPlanHeader"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Today's Plan"
-        android:textSize="18sp"
+        android:id="@+id/textScreenTitle"
+        android:layout_width="240dp"
+        android:layout_height="43dp"
+        android:layout_marginTop="28dp"
+        android:background="#101E62"
+        android:text="workout planner"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
         android:textStyle="bold"
-        android:layout_marginTop="24dp"
-        android:layout_marginStart="16dp"
-        app:layout_constraintTop_toBottomOf="@id/textScreenTitle"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Dummy exercise entry 1 -->
-    <TextView
-        android:id="@+id/textExercise1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Bench Press — Chest — 3 sets x 10 reps"
-        android:textSize="14sp"
-        android:layout_marginTop="12dp"
-        android:layout_marginStart="16dp"
-        app:layout_constraintTop_toBottomOf="@id/textWeeklyPlanHeader"
-        app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Dummy exercise entry 2 -->
-    <TextView
-        android:id="@+id/textExercise2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Squat — Legs — 4 sets x 8 reps"
-        android:textSize="14sp"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="16dp"
-        app:layout_constraintTop_toBottomOf="@id/textExercise1"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <!-- Dummy exercise entry 3 -->
-    <TextView
-        android:id="@+id/textExercise3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Pull-Up — Back — 3 sets x 8 reps"
-        android:textSize="14sp"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="16dp"
-        app:layout_constraintTop_toBottomOf="@id/textExercise2"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <!--
-        Floating "+" button — placeholder for adding a workout.
-        Positioned bottom-right above the nav bar.
-        No click logic yet.
-    -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAddWorkout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="Add workout"
-        android:src="@android:drawable/ic_input_add"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="80dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
-
-    <!-- Bottom nav bar pinned to the bottom -->
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNav"
+    <!-- 1. MONDAY'S PLAN CARD CONTAINER -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardMondayPlan"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:menu="@menu/bottom_nav_menu"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:cardBackgroundColor="#FFFDF0"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="0dp"
+        app:layout_constraintTop_toBottomOf="@id/textScreenTitle"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Inside a CardView, use a ConstraintLayout to arrange the items inside it -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+            <!-- Card Section Header -->
+            <TextView
+                android:id="@+id/textWeeklyPlanHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Wednesday's Plan"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <!-- Exercise Entry 1 (Bench Press) -->
+            <TextView
+                android:id="@+id/textExercise1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Bench Press"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#000000"
+                app:layout_constraintTop_toBottomOf="@id/textWeeklyPlanHeader"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/textExercise1Sub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Chest · 4x10 · 135 lbs"
+                android:textSize="12sp"
+                android:textColor="#666666"
+                app:layout_constraintTop_toBottomOf="@id/textExercise1"
+                app:layout_constraintStart_toStartOf="parent" />
+
+
+            <TextView
+                android:id="@+id/textExercise2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Pull-Ups"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#000000"
+                app:layout_constraintTop_toBottomOf="@id/textExercise1Sub"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/textExercise2Sub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Back Biceps · 3x8"
+                android:textSize="12sp"
+                android:textColor="#666666"
+                app:layout_constraintTop_toBottomOf="@id/textExercise2"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/textExercise3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Squats"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#000000"
+                app:layout_constraintTop_toBottomOf="@id/textExercise2Sub"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/textExercise3Sub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Legs . 4x12 . 185 lbs"
+                android:textSize="12sp"
+                android:textColor="#666666"
+                app:layout_constraintTop_toBottomOf="@id/textExercise3"
+                app:layout_constraintStart_toStartOf="parent" />
+
+
+            <TextView
+                android:id="@+id/textExercise4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Plank Holds"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#000000"
+                app:layout_constraintTop_toBottomOf="@id/textExercise3Sub"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/textExercise4Sub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Core . 3x60 sec"
+                android:textSize="12sp"
+                android:textColor="#666666"
+                app:layout_constraintTop_toBottomOf="@id/textExercise4"
+                app:layout_constraintStart_toStartOf="parent" />
+
+
+
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- 2. EXERCISE INFO CARD CONTAINER -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardExerciseInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:cardBackgroundColor="#EFECCE"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="0dp"
+        app:layout_constraintTop_toBottomOf="@id/cardMondayPlan"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/textExerciseInfoTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="EXERCISE INFO - BENCH PRESS"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <!-- Muscle Anatomy Diagram Placeholder Icon -->
+            <ImageView
+                android:id="@+id/imageMuscleDiagram"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/sports_gym"
+                android:contentDescription="Muscle diagram"
+                app:layout_constraintTop_toBottomOf="@id/textExerciseInfoTitle"
+                app:layout_constraintStart_toStartOf="parent" />
+            <!-- Subheading: Primary Muscles -->
+            <TextView
+                android:id="@+id/textPrimaryMusclesTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="Primary Muscles"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#444444"
+                app:layout_constraintTop_toTopOf="@id/imageMuscleDiagram"
+                app:layout_constraintStart_toEndOf="@id/imageMuscleDiagram" />
+            <!-- Tag 1: Pectorals -->
+            <TextView
+                android:id="@+id/tagPectorals"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="16dp"
+                android:text="Pectorals"
+                android:textSize="12sp"
+                android:textColor="#111111"
+                android:background="@android:color/transparent"
+                app:layout_constraintTop_toBottomOf="@id/textPrimaryMusclesTitle"
+                app:layout_constraintStart_toEndOf="@id/imageMuscleDiagram" />
+            <!-- Tag 2: Triceps -->
+            <!-- Tag 3: Front Deltoid (Sits cleanly right under Pectorals) -->
+            <!-- Subheading: Tips -->
+            <TextView
+                android:id="@+id/tagTriceps"
+                android:layout_width="102dp"
+                android:layout_height="70dp"
+                android:layout_marginStart="8dp"
+                android:background="@android:color/transparent"
+                android:text="Triceps"
+                android:textColor="#111111"
+                android:textSize="12sp"
+                app:layout_constraintStart_toEndOf="@id/tagPectorals"
+                app:layout_constraintTop_toTopOf="@id/tagPectorals" />
+
+            <TextView
+                android:id="@+id/tagDeltoid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="@android:color/transparent"
+                android:text="Front Deltoid"
+                android:textColor="#111111"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@id/tagPectorals"
+                app:layout_constraintTop_toBottomOf="@id/tagPectorals" />
+
+            <TextView
+                android:id="@+id/textTipsTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Tips"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#444444"
+                app:layout_constraintTop_toBottomOf="@id/imageMuscleDiagram"
+                app:layout_constraintStart_toStartOf="parent" />
+            <!-- Instructional description paragraph -->
+            <TextView
+                android:id="@+id/textTipsDescription"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Keep back flat, grip shoulder-width, controlled descent to chest."
+                android:textSize="13sp"
+                android:textColor="#555555"
+                android:lineSpacingMultiplier="1.2"
+                app:layout_constraintTop_toBottomOf="@id/textTipsTitle"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabAddWorkout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="Add Workout"
+                android:src="@android:drawable/ic_input_add"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="88dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+
+
+
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+

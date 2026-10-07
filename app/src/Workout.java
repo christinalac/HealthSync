@@ -14,6 +14,14 @@ public class Workout{
     private String workoutDate;
     private ArrayList<String> workoutPlan;
 
+    public class Workout(String workoutName, String muscleGroup, String workoutDate, boolean isCompleted){
+        this.workoutName=workoutName;
+        this.muscleGroup=muscleGroup;
+        this.workoutDate-workouDate;
+        this.isCompleted = isCompleted;
+    }
+
+
     //getter methods
     public ArrayList<String> getWorkoutPlan() {
         return workoutPlan;

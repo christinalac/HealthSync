@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">HealthSync</string>
+    <string name="monday_s_plan">📋 MONDAY\'S PLAN</string>
+    <string name="workout_planner">Workout Planner</string>
+    <string name="feature_2_amp_6"><![CDATA[Feature 2 & 6]]></string>
+    <string name="bench_press">Bench Press</string>
+    <string name="chest_4x10_135_lbs">Chest · 4x10 · 135 lbs</string>
+    <string name="week_of_sep_14">Week of Sep 14</string>
+    <string name="arm">💪</string>
+    <string name="pull_up_back_3_sets_x_8_reps">Pull-Up — Back — 3 sets x 8 reps</string>
+    <string name="squat_legs_4_sets_x_8_reps">Squat — Legs — 4 sets x 8 reps</string>
+    <string name="add_workout">Add workout</string>
+    <string name="bench_press_n_chest_3_sets_x_10_reps">Bench Press \n — Chest — 3 sets x 10 reps</string>
+    <string name="workout_planner1">Workout Planner</string>
+    <string name="wednesday_s_plan">Wednesday\'s Plan</string>
 </resources>

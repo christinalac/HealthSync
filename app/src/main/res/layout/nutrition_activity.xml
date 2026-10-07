@@ -1,130 +1,234 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    nutrition_activity.xml
-    This is the Nutrition screen (Tab 2).
-    Placeholder layout showing section titles for:
-      - Calorie Summary
-      - Hydration
-      - Today's Meals
-    The "+" button is present but does nothing yet.
-    Real data and API integration comes later.
--->
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".NutritionActivity">
+    android:background="@color/nutrition_cream">
 
-    <!-- Screen title -->
-    <TextView
-        android:id="@+id/textScreenTitle"
-        android:layout_width="wrap_content"
+    <!-- ===== Header ===== -->
+    <LinearLayout
+        android:id="@+id/header"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Nutrition"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_marginTop="24dp"
-        android:layout_marginStart="16dp"
+        android:orientation="vertical"
+        android:background="@color/nutrition_navy"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="40dp"
+        android:paddingBottom="24dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- Section: Calorie Summary placeholder -->
-    <TextView
-        android:id="@+id/textCalorieHeader"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Calorie Summary"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginTop="24dp"
-        android:layout_marginStart="16dp"
-        app:layout_constraintTop_toBottomOf="@id/textScreenTitle"
-        app:layout_constraintStart_toStartOf="parent" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nutrition &amp; Hydration"
+            android:textColor="@android:color/white"
+            android:textSize="26sp"
+            android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/textCaloriePlaceholder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Goal: --  |  Eaten: --  |  Left: --"
-        android:textSize="14sp"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="16dp"
-        app:layout_constraintTop_toBottomOf="@id/textCalorieHeader"
-        app:layout_constraintStart_toStartOf="parent" />
+        <TextView
+            android:id="@+id/tvHeaderKcal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_pill"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="6dp"
+            android:textColor="@color/nutrition_green_light"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+    </LinearLayout>
 
-    <!-- Section: Hydration placeholder -->
-    <TextView
-        android:id="@+id/textHydrationHeader"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hydration"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginTop="24dp"
-        android:layout_marginStart="16dp"
-        app:layout_constraintTop_toBottomOf="@id/textCaloriePlaceholder"
-        app:layout_constraintStart_toStartOf="parent" />
+    <!-- ===== Scrolling content ===== -->
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="96dp"
+        app:layout_constraintTop_toBottomOf="@id/header"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <TextView
-        android:id="@+id/textHydrationPlaceholder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0.0L / 2.5L"
-        android:textSize="14sp"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="16dp"
-        app:layout_constraintTop_toBottomOf="@id/textHydrationHeader"
-        app:layout_constraintStart_toStartOf="parent" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <!-- Section: Today's Meals placeholder -->
-    <TextView
-        android:id="@+id/textMealsHeader"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Today's Meals"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginTop="24dp"
-        android:layout_marginStart="16dp"
-        app:layout_constraintTop_toBottomOf="@id/textHydrationPlaceholder"
-        app:layout_constraintStart_toStartOf="parent" />
+            <!-- ===== Calorie Summary card ===== -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@android:color/white">
 
-    <TextView
-        android:id="@+id/textMealsPlaceholder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="No meals logged yet."
-        android:textSize="14sp"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="16dp"
-        app:layout_constraintTop_toBottomOf="@id/textMealsHeader"
-        app:layout_constraintStart_toStartOf="parent" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
 
-    <!--
-        Floating "+" button — placeholder for adding a meal.
-        Positioned in the bottom-right corner above the nav bar.
-        No click logic yet — that comes when the Nutrition screen is fully built.
-    -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="CALORIE SUMMARY"
+                        android:textColor="@color/nutrition_navy_text"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <!-- Goal − Eaten = Left -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <LinearLayout style="@style/CalorieColumn">
+                            <TextView android:id="@+id/tvGoal" style="@style/CalorieNumber"
+                                android:textColor="@color/nutrition_navy" />
+                            <TextView style="@style/CalorieLabel" android:text="Goal" />
+                        </LinearLayout>
+
+                        <TextView style="@style/CalorieOperator" android:text="−" />
+
+                        <LinearLayout style="@style/CalorieColumn">
+                            <TextView android:id="@+id/tvEaten" style="@style/CalorieNumber"
+                                android:textColor="@color/nutrition_green_light" />
+                            <TextView style="@style/CalorieLabel" android:text="Eaten" />
+                        </LinearLayout>
+
+                        <TextView style="@style/CalorieOperator" android:text="=" />
+
+                        <LinearLayout style="@style/CalorieColumn">
+                            <TextView android:id="@+id/tvLeft" style="@style/CalorieNumber"
+                                android:textColor="@color/nutrition_green_dark" />
+                            <TextView style="@style/CalorieLabel" android:text="Left" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <ProgressBar
+                        android:id="@+id/calorieProgress"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="12dp"
+                        android:layout_marginTop="16dp"
+                        android:max="100"
+                        android:progressDrawable="@drawable/progress_calories" />
+
+                    <!-- Macros -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="horizontal">
+
+                        <LinearLayout style="@style/CalorieColumn">
+                            <TextView android:id="@+id/tvCarbs" style="@style/MacroValue"
+                                android:textColor="#8FA8C8" />
+                            <TextView style="@style/CalorieLabel" android:text="Carbs" />
+                        </LinearLayout>
+                        <LinearLayout style="@style/CalorieColumn">
+                            <TextView android:id="@+id/tvProtein" style="@style/MacroValue"
+                                android:textColor="@color/nutrition_navy" />
+                            <TextView style="@style/CalorieLabel" android:text="Protein" />
+                        </LinearLayout>
+                        <LinearLayout style="@style/CalorieColumn">
+                            <TextView android:id="@+id/tvFat" style="@style/MacroValue"
+                                android:textColor="@color/nutrition_green_dark" />
+                            <TextView style="@style/CalorieLabel" android:text="Fat" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ===== Hydration card (tap = +1 glass) ===== -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/hydrationCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@android:color/white">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:id="@+id/tvHydrationTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/nutrition_navy_text"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <!-- Animated water bar: fills left -> right as glasses are logged -->
+                    <com.example.healthsync.WaterProgressBar
+                        android:id="@+id/waterBar"
+                        android:layout_width="match_parent"
+                        android:layout_height="38dp"
+                        android:layout_marginTop="16dp" />
+
+                    <TextView
+                        android:id="@+id/tvGlassCount"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="end"
+                        android:textColor="@color/nutrition_navy_text"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:gravity="center"
+                        android:text="Tap to log a glass (250ml) · Long-press to undo"
+                        android:textColor="#8A8A8A"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- TODO: Today's Meals card goes here when meal tracking is built -->
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- ===== "+" FAB (not wired up yet; will open meal picker) ===== -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAddMeal"
+        android:id="@+id/fabAdd"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="16dp"
         android:contentDescription="Add meal"
         android:src="@android:drawable/ic_input_add"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="80dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:backgroundTint="@color/nutrition_green_dark"
+        app:tint="@android:color/white"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Bottom nav bar pinned to the bottom -->
+    <!-- ===== Bottom tab bar ===== -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:background="@color/nutrition_navy"
         app:menu="@menu/bottom_nav_menu"
+        app:labelVisibilityMode="labeled"
+        app:itemIconTint="@android:color/white"
+        app:itemTextColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

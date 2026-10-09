@@ -11,23 +11,51 @@
 
     <!-- Screen title -->
 
-    <!-- Section: Weekly Plan header -->
+
+    <View
+        android:id="@+id/header_background"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:background="#001254"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
+
 
     <TextView
+
         android:id="@+id/textScreenTitle"
-        android:layout_width="240dp"
-        android:layout_height="43dp"
-        android:layout_marginTop="28dp"
-        android:background="#101E62"
-        android:text="workout planner"
-        android:textColor="#FFFFFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Workout Planner"
+        android:textColor="@color/white"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
-    <!-- 1. MONDAY'S PLAN CARD CONTAINER -->
+
+
+    <TextView
+        android:id="@+id/textWorkoutPlannerPlaceholder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0.0L / 2.5L"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toBottomOf="@id/textWorkoutPlannerPlaceholder"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
+
+    <!-- 1. MONDAY'S PLAN CARD part -->
     <androidx.cardview.widget.CardView
         android:id="@+id/cardMondayPlan"
         android:layout_width="match_parent"
@@ -42,7 +70,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Inside a CardView, use a ConstraintLayout to arrange the items inside it -->
+        <!--  arrange the items inside it -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -60,7 +88,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
-            <!-- Exercise Entry 1 (Bench Press) -->
+            <!-- Exercises -->
             <TextView
                 android:id="@+id/textExercise1"
                 android:layout_width="wrap_content"
@@ -158,7 +186,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- 2. EXERCISE INFO CARD CONTAINER -->
+    <!-- 2. EXERCISE INFO CARD part-->
     <androidx.cardview.widget.CardView
         android:id="@+id/cardExerciseInfo"
         android:layout_width="match_parent"
@@ -189,7 +217,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
-            <!-- Muscle Anatomy Diagram Placeholder Icon -->
+            <!-- Diagram Placeholder Icon -->
             <ImageView
                 android:id="@+id/imageMuscleDiagram"
                 android:layout_width="60dp"
@@ -225,7 +253,7 @@
                 app:layout_constraintTop_toBottomOf="@id/textPrimaryMusclesTitle"
                 app:layout_constraintStart_toEndOf="@id/imageMuscleDiagram" />
             <!-- Tag 2: Triceps -->
-            <!-- Tag 3: Front Deltoid (Sits cleanly right under Pectorals) -->
+
             <!-- Subheading: Tips -->
             <TextView
                 android:id="@+id/tagTriceps"
@@ -294,10 +322,32 @@
 
 
 
-
 </androidx.constraintlayout.widget.ConstraintLayout>
 
+
+
+
     </androidx.cardview.widget.CardView>
+
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:background="#001254"
+        android:layout_height="wrap_content"
+        app:menu="@menu/bottom_nav_menu"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:itemIconTint="@color/white"
+        app:itemTextColor="@color/white"/>
+
+
+
+
+
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

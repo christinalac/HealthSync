@@ -101,8 +101,9 @@
                                     <ProgressBar
                                         android:id="@+id/progressBar"
                                         style="?android:attr/progressBarStyle"
-                                        android:layout_width="81dp"
-                                        android:layout_height="50dp" />
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1" />
 
                                     <TextView
                                         style="@style/CalorieLabel"
@@ -112,7 +113,7 @@
 
                                 <TextView
                                     style="@style/CalorieOperator"
-                                    android:text="−" />
+                                    android:text="|" />
 
                                 <LinearLayout style="@style/CalorieColumn">
 
@@ -129,7 +130,7 @@
 
                                 <TextView
                                     style="@style/CalorieOperator"
-                                    android:text="=" />
+                                    android:text="|" />
 
                                 <LinearLayout style="@style/CalorieColumn">
 
@@ -143,6 +144,7 @@
                                         style="@style/CalorieLabel"
                                         android:text="Sleep" />
                                 </LinearLayout>
+
                             </LinearLayout>
 
                             <!-- Macros -->
@@ -150,44 +152,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="12dp"
-                                android:orientation="horizontal">
-
-                                <LinearLayout style="@style/CalorieColumn">
-
-                                    <TextView
-                                        android:id="@+id/tvCarbs"
-                                        style="@style/MacroValue"
-                                        android:textColor="#8FA8C8" />
-
-                                    <TextView
-                                        style="@style/CalorieLabel"
-                                        android:text="placeholder" />
-                                </LinearLayout>
-
-                                <LinearLayout style="@style/CalorieColumn">
-
-                                    <TextView
-                                        android:id="@+id/tvProtein"
-                                        style="@style/MacroValue"
-                                        android:textColor="@color/nutrition_navy" />
-
-                                    <TextView
-                                        style="@style/CalorieLabel"
-                                        android:text="placeholder" />
-                                </LinearLayout>
-
-                                <LinearLayout style="@style/CalorieColumn">
-
-                                    <TextView
-                                        android:id="@+id/tvFat"
-                                        style="@style/MacroValue"
-                                        android:textColor="@color/nutrition_green_dark" />
-
-                                    <TextView
-                                        style="@style/CalorieLabel"
-                                        android:text="placeholder" />
-                                </LinearLayout>
-                            </LinearLayout>
+                                android:orientation="horizontal"/>
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
@@ -197,6 +162,62 @@
 
                 </LinearLayout>
             </ScrollView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="142dp"
+                android:orientation="vertical" >
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:cardBackgroundColor="@color/nutrition_green_light"
+                    app:cardCornerRadius="24dp"
+                    app:cardElevation="4dp">
+
+                    <LinearLayout
+                        android:layout_width="370dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="You're on a 6 day streak!"
+                            android:textColor="@color/nutrition_navy_text"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <!-- Goal − Eaten = Left -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <LinearLayout style="@style/CalorieColumn"/>
+
+                            <LinearLayout style="@style/CalorieColumn"/>
+
+                            <LinearLayout style="@style/CalorieColumn"/>
+                        </LinearLayout>
+
+                        <!-- Macros -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:orientation="horizontal" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="88dp"
+                    android:orientation="vertical"/>
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 

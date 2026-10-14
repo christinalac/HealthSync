@@ -3,21 +3,30 @@ package com.example.healthsync
 // Intent lets us launch other Activities (screens)
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 // BottomNavigationView is the Material component that renders the tab bar at the bottom
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 // WorkoutActivity is the Workout screen — Tab 3.
 // Shows placeholder exercise entries for today's plan.
-// The "+" FAB is visible in the layout but not yet wired to any action.
 class WorkoutActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Link to the XML layout for this screen
+
+        // FIX: Replaced layout binding with lowercase resource ID reference
         setContentView(R.layout.workout_activity)
 
-        // Find the BottomNavigationView in the XML layout
+        // 1. Find the "+" FAB Button by its XML ID and make it functional
+        val fabAddWorkout = findViewById<FloatingActionButton>(R.id.fabAddWorkout)
+        fabAddWorkout.setOnClickListener {
+            // This safely shows a small temporary bubble message instead of taking you Home
+            Toast.makeText(this, "Add Workout Button Pressed!", Toast.LENGTH_SHORT).show()
+        }
+
+        // 2. Find the BottomNavigationView in the XML layout
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
 
         // Highlight the Workout tab so the user knows which screen they're on
@@ -35,7 +44,7 @@ class WorkoutActivity : AppCompatActivity() {
                     true
                 }
                 R.id.nav_workout -> {
-                    // Already on this screen — do nothing
+                    // Already on this screen — safely do nothing
                     true
                 }
                 R.id.nav_sleep -> {

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="nutrition_navy">#1F2A63</color>
+    <color name="nutrition_navy_text">#3A4468</color>
+    <color name="nutrition_cream">#F4F1DC</color>
+    <color name="nutrition_green_light">#B5D57A</color>
+    <color name="nutrition_green_dark">#4F7A2A</color>
+    <color name="nutrition_track">#E6E6E6</color>
+    <color name="nutrition_pill">#4A5A7A</color>
+</resources>

@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/nutrition_cream">
+    android:background="@color/background_cream">
 
     <!-- ===== Header ===== -->
     <LinearLayout
@@ -12,7 +12,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@color/nutrition_navy"
+        android:background="@color/main_navy"
         android:paddingHorizontal="24dp"
         android:paddingTop="40dp"
         android:paddingBottom="24dp"
@@ -36,7 +36,7 @@
             android:background="@drawable/bg_pill"
             android:paddingHorizontal="14dp"
             android:paddingVertical="6dp"
-            android:textColor="@color/nutrition_green_light"
+            android:textColor="@color/text_light_green"
             android:textSize="15sp"
             android:textStyle="bold" />
     </LinearLayout>
@@ -77,7 +77,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="CALORIE SUMMARY"
-                        android:textColor="@color/nutrition_navy_text"
+                        android:textColor="@color/navy_text"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
@@ -91,7 +91,7 @@
 
                         <LinearLayout style="@style/CalorieColumn">
                             <TextView android:id="@+id/tvGoal" style="@style/CalorieNumber"
-                                android:textColor="@color/nutrition_navy" />
+                                android:textColor="@color/main_navy" />
                             <TextView style="@style/CalorieLabel" android:text="Goal" />
                         </LinearLayout>
 
@@ -99,7 +99,7 @@
 
                         <LinearLayout style="@style/CalorieColumn">
                             <TextView android:id="@+id/tvEaten" style="@style/CalorieNumber"
-                                android:textColor="@color/nutrition_green_light" />
+                                android:textColor="@color/text_light_green" />
                             <TextView style="@style/CalorieLabel" android:text="Eaten" />
                         </LinearLayout>
 
@@ -107,7 +107,7 @@
 
                         <LinearLayout style="@style/CalorieColumn">
                             <TextView android:id="@+id/tvLeft" style="@style/CalorieNumber"
-                                android:textColor="@color/nutrition_green_dark" />
+                                android:textColor="@color/text_dark_green" />
                             <TextView style="@style/CalorieLabel" android:text="Left" />
                         </LinearLayout>
                     </LinearLayout>
@@ -135,12 +135,12 @@
                         </LinearLayout>
                         <LinearLayout style="@style/CalorieColumn">
                             <TextView android:id="@+id/tvProtein" style="@style/MacroValue"
-                                android:textColor="@color/nutrition_navy" />
+                                android:textColor="@color/main_navy" />
                             <TextView style="@style/CalorieLabel" android:text="Protein" />
                         </LinearLayout>
                         <LinearLayout style="@style/CalorieColumn">
                             <TextView android:id="@+id/tvFat" style="@style/MacroValue"
-                                android:textColor="@color/nutrition_green_dark" />
+                                android:textColor="@color/text_dark_green" />
                             <TextView style="@style/CalorieLabel" android:text="Fat" />
                         </LinearLayout>
                     </LinearLayout>
@@ -169,7 +169,7 @@
                         android:id="@+id/tvHydrationTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/nutrition_navy_text"
+                        android:textColor="@color/navy_text"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
@@ -186,7 +186,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:gravity="end"
-                        android:textColor="@color/nutrition_navy_text"
+                        android:textColor="@color/navy_text"
                         android:textSize="14sp"
                         android:textStyle="bold" />
 
@@ -214,7 +214,7 @@
         android:layout_margin="16dp"
         android:contentDescription="Add meal"
         android:src="@android:drawable/ic_input_add"
-        app:backgroundTint="@color/nutrition_green_dark"
+        app:backgroundTint="@color/text_dark_green"
         app:tint="@android:color/white"
         app:layout_constraintBottom_toTopOf="@id/bottomNav"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -224,7 +224,7 @@
         android:id="@+id/bottomNav"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/nutrition_navy"
+        android:background="@color/main_navy"
         app:menu="@menu/bottom_nav_menu"
         app:labelVisibilityMode="labeled"
         app:itemIconTint="@android:color/white"

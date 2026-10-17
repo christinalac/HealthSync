@@ -92,7 +92,28 @@
         android:layout_marginStart="16dp"
         app:layout_constraintTop_toBottomOf="@id/textBedtime"
         app:layout_constraintStart_toStartOf="parent" />
+    <!-- Weekly schedule -->
+    <TextView
+        android:id="@+id/textScheduleHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Weekly Schedule"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toBottomOf="@id/buttonAddSleep"
+        app:layout_constraintStart_toStartOf="parent" />
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/sleepList"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/textScheduleHeader"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
     <!--
         Add Sleep Entry button — placeholder.
         When tapped this will eventually open a form to enter bedtime/wake time.

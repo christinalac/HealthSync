@@ -47,10 +47,14 @@ class AlarmService : Service() {
         }
 
         createChannel()
-        ServiceCompat.startForeground(
-            this, NOTIF_ID, buildNotification(),
-            ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
-        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ServiceCompat.startForeground(
+                this, NOTIF_ID, buildNotification(),
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+            )
+        } else {
+            startForeground(NOTIF_ID, buildNotification())
+        }
 
         startSound()
         startVibration()
@@ -90,8 +94,13 @@ class AlarmService : Service() {
             @Suppress("DEPRECATION")
             getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         }
-        // pattern: wait 0ms, buzz 600ms, pause 400ms; the 0 means "repeat from the start"
-        vibrator?.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 600, 400), 0))
+        val pattern = longArrayOf(0, 600, 400)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator?.vibrate(VibrationEffect.createWaveform(pattern, 0))
+        } else {
+            @Suppress("DEPRECATION")
+            vibrator?.vibrate(pattern, 0) // 0 = repeat from the start
+        }
     }
 
     private fun stopSound() {
@@ -119,6 +128,8 @@ class AlarmService : Service() {
 
     // Silent channel: the service plays the sound itself, so the notification must not also beep
     private fun createChannel() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return  // NEW: channels don't exist before Android 8
+
         val channel = NotificationChannel(
             CHANNEL_ID, "Alarm ringing", NotificationManager.IMPORTANCE_HIGH
         ).apply {

@@ -2,6 +2,7 @@ package com.example.healthsync
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import java.util.Locale
 import com.example.healthsync.databinding.ItemSleepDayBinding  // change to your package
 
 class SleepAdapter(
@@ -50,6 +51,6 @@ class SleepAdapter(
         val m = minutes % 60
         val amPm = if (h < 12) "AM" else "PM"
         val h12 = if (h % 12 == 0) 12 else h % 12
-        return String.format("%d:%02d %s", h12, m, amPm)
+        return String.format(Locale.getDefault(), "%d:%02d %s", h12, m, amPm)
     }
 }

@@ -201,12 +201,54 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- TODO: Today's Meals card goes here when meal tracking is built -->
+            <!-- ===== Today's Meals card ===== -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@android:color/white">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="TODAY'S MEALS"
+                        android:textColor="@color/navy_text"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvMealsEmpty"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:gravity="center"
+                        android:paddingVertical="16dp"
+                        android:text="No meals logged yet.\nTap the green + to add a food."
+                        android:textColor="#8A8A8A"
+                        android:textSize="14sp" />
+
+                    <!-- Meal rows are added here from MealsListController; the card grows with them -->
+                    <LinearLayout
+                        android:id="@+id/mealsContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:orientation="vertical" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
     </ScrollView>
 
-    <!-- ===== "+" FAB (not wired up yet; will open meal picker) ===== -->
+    <!-- ===== "+" FAB: opens the food search ===== -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAdd"
         android:layout_width="wrap_content"

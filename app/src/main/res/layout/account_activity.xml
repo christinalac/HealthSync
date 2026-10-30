@@ -138,7 +138,7 @@
         android:id="@+id/bottomNav"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/nutrition_navy"
+        android:background="@color/main_navy"
         app:menu="@menu/bottom_nav_menu"
         app:labelVisibilityMode="labeled"
         app:itemIconTint="@android:color/white"

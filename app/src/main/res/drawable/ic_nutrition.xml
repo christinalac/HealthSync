@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Nutrition tab icon: crossed fork and knife, outline style.
+     The stroke is white here; BottomNavigationView tints it (selected/unselected),
+     so the color in this file doesn't matter. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Fork: drawn upright, then rotated so the head points top-right -->
+    <group
+        android:rotation="45"
+        android:pivotX="12"
+        android:pivotY="12">
+        <path
+            android:pathData="M9.8,2 V6.5 C9.8,8 10.6,9 12,9 C13.4,9 14.2,8 14.2,6.5 V2 M12,2 V9.8 M12,14.2 V22"
+            android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="1.5"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+    </group>
+
+    <!-- Knife: drawn upright, then rotated so the blade points top-left -->
+    <group
+        android:rotation="-45"
+        android:pivotX="12"
+        android:pivotY="12">
+        <path
+            android:pathData="M10.5,2 C13.1,3.6 13.5,8 13.5,12 V20.5 C13.5,21.4 12.9,22 12,22 C11.1,22 10.5,21.4 10.5,20.5 Z"
+            android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="1.4"
+            android:fillColor="#FFFFFFFF"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+    </group>
+</vector>

@@ -19,8 +19,8 @@ import kotlin.coroutines.cancellation.CancellationException
 //    never while the user is typing.
 object OpenFoodFactsApi {
 
-    // TODO: replace with your real contact email (Open Food Facts asks for this)
-    private const val USER_AGENT = "HealthSync/1.0 (OurBoyRoy3@gmail.com)"
+    // User agent the api asks for
+    private const val USER_AGENT = "HealthSync/1.0 (healthsync0708@gmail.com)"
     private const val PAGE_SIZE = 20
     private const val FIELDS =
         "code,product_name,brands,image_front_small_url,image_small_url,image_front_url," +

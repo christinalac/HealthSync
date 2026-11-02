@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    login_screen.xml
-    This is the first screen the user sees when they open the app.
-    It contains the app name, a tagline, and two buttons:
-      - Log In     → takes the user to the Home/Progress screen
-      - Create Account → placeholder for now (no registration screen yet)
+<!-- Program Name: login_screen.xml-->
+<!-- Developer: Christina LaCombe-->
+<!-- Date Created: 10/12/2026-->
+<!-- Version: 1.0-->
+<!-- This is the first screen the user sees when they open the app.-->
 
-    ConstraintLayout is used here — each View needs app:layout_constraint*
-    attributes to position it. Think of them as anchors that say
-    "attach this edge to that edge of another view or the parent."
--->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -84,7 +79,8 @@
                 android:background="@drawable/custom_edittext"
                 android:drawableLeft="@drawable/ic_baseline_lock_24"
                 android:drawablePadding="8dp"
-                android:hint="Username"
+                android:hint="Email"
+                android:inputType="textEmailAddress"
                 android:padding="8dp"
                 android:textColor="@color/black"
                 android:textColorHighlight="@color/main_navy"

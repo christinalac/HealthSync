@@ -8,6 +8,8 @@ import androidx.appcompat.app.AppCompatActivity
 // BottomNavigationView is the Material component that renders the tab bar at the bottom
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 // WorkoutActivity is the Workout screen — Tab 3.
 // Shows placeholder exercise entries for today's plan.
@@ -18,6 +20,21 @@ class WorkoutActivity : AppCompatActivity() {
 
         // FIX: Replaced layout binding with lowercase resource ID reference
         setContentView(R.layout.workout_activity)
+// Inside your onCreate function, after setContentView(R.layout.workout_activity)
+        val rvExercises = findViewById<RecyclerView>(R.id.rvExercises)
+
+// 1. Tell it how to layout items vertically
+        rvExercises.layoutManager = LinearLayoutManager(this)
+
+// 2. Set up your custom adapter with your dummy workout item data list
+        val exerciseList = listOf(
+            Exercise("Bench Press", "Chest", "4x10 · 135 lbs"),
+            Exercise("Pull-Ups", "Back & Biceps", "3x8 "),
+            Exercise("Squat", "Legs", "4x12 · 185 lbs"),
+            Exercise("Plank Hold", "Core", "3x60 sec")
+        )
+        val adapter = ExerciseAdapter(exerciseList) // Use whatever your adapter name is
+        rvExercises.adapter = adapter
 
         // 1. Find the "+" FAB Button by its XML ID and make it functional
         val fabAddWorkout = findViewById<FloatingActionButton>(R.id.fabAddWorkout)

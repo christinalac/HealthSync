@@ -1,35 +1,27 @@
 package com.example.healthsync
 
-// Intent lets us launch other Activities (screens)
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-// BottomNavigationView is the Material component that renders the tab bar at the bottom
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.button.MaterialButtonToggleGroup
 
-// ProgressActivity is the Home / Progress screen — Tab 1.
-// It shows today's goals, quick stats, and weekly progress (all placeholder for now).
-// It also owns the bottom nav bar logic that all screens share.
 class ProgressActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Link to the XML layout for this screen
         setContentView(R.layout.progress_activity)
 
-        // Find the BottomNavigationView in the XML layout
+        // Find bottom nav view
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
-
-        // Highlight the Home tab so the user knows which screen they're on
         bottomNav.selectedItemId = R.id.nav_home
 
-        // Listen for tab taps and navigate to the matching Activity
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.nav_home -> {
-                    // Already on this screen — do nothing
-                    true
-                }
+                R.id.nav_home -> true
                 R.id.nav_nutrition -> {
                     startActivity(Intent(this, NutritionActivity::class.java))
                     true
@@ -47,6 +39,70 @@ class ProgressActivity : AppCompatActivity() {
                     true
                 }
                 else -> false
+            }
+        }
+
+        setupToggleListeners()
+    }
+
+    private fun setupToggleListeners() {
+        // Calorie Graph Toggle
+        val toggleCaloriesGroup = findViewById<MaterialButtonToggleGroup>(R.id.toggleCaloriesGroup)
+        val layoutCaloriesWeekly = findViewById<LinearLayout>(R.id.layoutCaloriesWeekly)
+        val layoutCaloriesMonthly = findViewById<LinearLayout>(R.id.layoutCaloriesMonthly)
+        val tvCaloriesSubtitle = findViewById<TextView>(R.id.tvCaloriesSubtitle)
+
+        toggleCaloriesGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                if (checkedId == R.id.btnCaloriesWeekly) {
+                    layoutCaloriesWeekly.visibility = View.VISIBLE
+                    layoutCaloriesMonthly.visibility = View.GONE
+                    tvCaloriesSubtitle.text = "Avg: 2,135 kcal / day"
+                } else if (checkedId == R.id.btnCaloriesMonthly) {
+                    layoutCaloriesWeekly.visibility = View.GONE
+                    layoutCaloriesMonthly.visibility = View.VISIBLE
+                    tvCaloriesSubtitle.text = "Avg: 2,135 kcal / week"
+                }
+            }
+        }
+
+        // Water Graph Toggle
+        val toggleWaterGroup = findViewById<MaterialButtonToggleGroup>(R.id.toggleWaterGroup)
+        val layoutWaterWeekly = findViewById<LinearLayout>(R.id.layoutWaterWeekly)
+        val layoutWaterMonthly = findViewById<LinearLayout>(R.id.layoutWaterMonthly)
+        val tvWaterSubtitle = findViewById<TextView>(R.id.tvWaterSubtitle)
+
+        toggleWaterGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                if (checkedId == R.id.btnWaterWeekly) {
+                    layoutWaterWeekly.visibility = View.VISIBLE
+                    layoutWaterMonthly.visibility = View.GONE
+                    tvWaterSubtitle.text = "Avg: 2.6 L / day"
+                } else if (checkedId == R.id.btnWaterMonthly) {
+                    layoutWaterWeekly.visibility = View.GONE
+                    layoutWaterMonthly.visibility = View.VISIBLE
+                    tvWaterSubtitle.text = "Avg: 2.6 L / week"
+                }
+            }
+        }
+
+        // Sleep Graph Toggle
+        val toggleSleepGroup = findViewById<MaterialButtonToggleGroup>(R.id.toggleSleepGroup)
+        val layoutSleepWeekly = findViewById<LinearLayout>(R.id.layoutSleepWeekly)
+        val layoutSleepMonthly = findViewById<LinearLayout>(R.id.layoutSleepMonthly)
+        val tvSleepSubtitle = findViewById<TextView>(R.id.tvSleepSubtitle)
+
+        toggleSleepGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                if (checkedId == R.id.btnSleepWeekly) {
+                    layoutSleepWeekly.visibility = View.VISIBLE
+                    layoutSleepMonthly.visibility = View.GONE
+                    tvSleepSubtitle.text = "Avg: 7.6 hrs / night"
+                } else if (checkedId == R.id.btnSleepMonthly) {
+                    layoutSleepWeekly.visibility = View.GONE
+                    layoutSleepMonthly.visibility = View.VISIBLE
+                    tvSleepSubtitle.text = "Avg: 7.6 hrs / week"
+                }
             }
         }
     }

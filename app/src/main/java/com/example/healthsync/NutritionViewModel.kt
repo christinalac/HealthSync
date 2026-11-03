@@ -20,17 +20,29 @@ class NutritionViewModel(app: Application) : AndroidViewModel(app) {
 
     fun removeGlass() = update { it.copy(hydrationMl = (it.hydrationMl - it.glassMl).coerceAtLeast(0)) }
 
-    // ----- Calories -----
-    // Not called by the UI yet. Your future meal-logging code will call this
-    // when the user logs a meal, and the summary card updates automatically.
-    fun addFood(calories: Int, carbsG: Int = 0, proteinG: Int = 0, fatG: Int = 0) = update {
-        it.copy(
-            caloriesEaten = it.caloriesEaten + calories,
-            carbsG = it.carbsG + carbsG,
-            proteinG = it.proteinG + proteinG,
-            fatG = it.fatG + fatG
-        )
+    // ----- Meals -----
+    // Adding a food that's already in today's list bumps its servings instead of duplicating it.
+    fun addMeal(food: FoodItem) = update { s ->
+        val i = s.meals.indexOfFirst { it.code.isNotBlank() && it.code == food.code }
+        val meals = if (i >= 0) {
+            s.meals.toMutableList().also { it[i] = it[i].copy(servings = it[i].servings + 1.0) }
+        } else {
+            s.meals + food.toMeal()
+        }
+        s.copy(meals = meals)
     }
+
+    // delta is +0.5 / -0.5 from the stepper buttons; never goes below 0.5 (use delete to remove)
+    fun changeServings(id: String, delta: Double) = update { s ->
+        s.copy(meals = s.meals.map {
+            if (it.id == id) it.copy(servings = (it.servings + delta).coerceAtLeast(0.5)) else it
+        })
+    }
+
+    fun removeMeal(id: String) = update { s -> s.copy(meals = s.meals.filterNot { it.id == id }) }
+
+    // For testing: wipes today's meals and water
+    fun resetToday() = update { it.copy(meals = emptyList(), hydrationMl = 0) }
 
     private fun update(change: (NutritionState) -> NutritionState) {
         val next = change(current)

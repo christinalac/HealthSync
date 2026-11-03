@@ -2,17 +2,20 @@ package com.example.healthsync
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.Locale
 
 // Nutrition screen — Tab 2.
-// Shows the calorie summary and hydration tracker.
-// The "+" FAB and the meals list are placeholders for the meal-tracking feature.
+// Calorie summary, hydration tracker, and Today's Meals.
+// The green "+" opens a food search; picking a food adds it to Today's Meals.
 class NutritionActivity : AppCompatActivity() {
 
     private val viewModel: NutritionViewModel by viewModels()
@@ -30,19 +33,22 @@ class NutritionActivity : AppCompatActivity() {
     private lateinit var tvGlassCount: TextView
     private lateinit var hydrationCard: MaterialCardView
 
+    // --- MEALS ---
+    private lateinit var tvMealsEmpty: TextView
+    private lateinit var mealsContainer: LinearLayout
+    private lateinit var mealsController: MealsListController
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.nutrition_activity)
 
         bindViews()
         setupHydrationTaps()
+        setupMeals()
         setupBottomNav()
 
         // Redraw whenever the data changes
         viewModel.state.observe(this) { render(it) }
-
-        //Test calories
-        viewModel.addFood(220, 105, 32, 28)
     }
 
     private fun bindViews() {
@@ -58,6 +64,8 @@ class NutritionActivity : AppCompatActivity() {
         waterBar = findViewById(R.id.waterBar)
         tvGlassCount = findViewById(R.id.tvGlassCount)
         hydrationCard = findViewById(R.id.hydrationCard)
+        tvMealsEmpty = findViewById(R.id.tvMealsEmpty)
+        mealsContainer = findViewById(R.id.mealsContainer)
     }
 
     // Tap anywhere on the hydration card = +1 glass. Long-press = undo a glass.
@@ -66,6 +74,21 @@ class NutritionActivity : AppCompatActivity() {
         hydrationCard.setOnLongClickListener {
             viewModel.removeGlass()
             true
+        }
+    }
+
+    // --- MEALS ---
+    private fun setupMeals() {
+        mealsController = MealsListController(
+            container = mealsContainer,
+            onIncrease = { viewModel.changeServings(it.id, +0.5) },
+            onDecrease = { viewModel.changeServings(it.id, -0.5) },
+            onDelete = { viewModel.removeMeal(it.id) }
+        )
+
+        // The green "+" opens the food search pop-up
+        findViewById<FloatingActionButton>(R.id.fabAdd).setOnClickListener {
+            FoodSearchBottomSheet().show(supportFragmentManager, "food_search")
         }
     }
 
@@ -87,8 +110,13 @@ class NutritionActivity : AppCompatActivity() {
         waterBar.setProgress(s.hydrationProgress)
         waterBar.contentDescription = "Hydration ${s.hydrationPercent} percent of daily goal"
         tvGlassCount.text = "${s.glassesDrunk} / ${s.totalGlasses} glasses · ${s.hydrationPercent}%"
+
+        // Today's meals
+        mealsController.submit(s.meals)
+        tvMealsEmpty.visibility = if (s.meals.isEmpty()) View.VISIBLE else View.GONE
     }
 
+    // If you've moved this into your own BottomNavHelper, keep that and delete this function.
     private fun setupBottomNav() {
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
         bottomNav.selectedItemId = R.id.nav_nutrition

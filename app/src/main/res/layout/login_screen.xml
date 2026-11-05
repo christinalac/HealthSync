@@ -42,6 +42,7 @@
         android:textColor="@color/navy_text"/>
 
 
+    <!-- Card: Login -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -57,11 +58,6 @@
             android:orientation="vertical"
             android:padding="24dp">
 
-            <!--
-        Log In button — tapping this calls the setOnClickListener in
-        SplashActivity.kt which launches ProgressActivity
-        The ID must match what's used in findViewById() in the Kotlin file
-    -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -71,7 +67,7 @@
                 android:textAlignment="center"
                 android:textStyle="bold"
                 android:textColor="@color/text_dark_green"/>
-
+            <!-- Enter Text: Email -->
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
@@ -85,7 +81,7 @@
                 android:textColor="@color/black"
                 android:textColorHighlight="@color/main_navy"
                 android:layout_marginTop="20dp"/>
-
+            <!-- Enter Text: Password -->
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
@@ -115,14 +111,8 @@
 
         </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
-
-
-    <!--
-Create Account button — placeholder for now.
-No Kotlin logic is wired to this yet, but it needs to exist in the XML
-so the layout looks complete during the demo walkthrough.
--->
+    </androidx.cardview.widget.CardView> <!-- end of login card -->
+    <!-- Button: Redirect to Signup-->
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -135,5 +125,5 @@ so the layout looks complete during the demo walkthrough.
         android:backgroundTint="@color/main_navy"
         android:layout_marginBottom="20dp"/>
 
-</LinearLayout>
+</LinearLayout> <!-- end of whole layout -->
 

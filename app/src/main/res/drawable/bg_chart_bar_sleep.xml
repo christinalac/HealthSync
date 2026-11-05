@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Bar fill drawable for the sleep chart in progress_activity -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:startColor="#5C7AE8"
+        android:endColor="#1F2A63"
+        android:angle="90" />
+    <corners
+        android:topLeftRadius="6dp"
+        android:topRightRadius="6dp"
+        android:bottomLeftRadius="2dp"
+        android:bottomRightRadius="2dp" />
+</shape>

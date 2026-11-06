@@ -61,7 +61,7 @@ class ProgressActivity : AppCompatActivity() {
                 } else if (checkedId == R.id.btnCaloriesMonthly) {
                     layoutCaloriesWeekly.visibility = View.GONE
                     layoutCaloriesMonthly.visibility = View.VISIBLE
-                    tvCaloriesSubtitle.text = "Avg: 2,135 kcal / week"
+                    tvCaloriesSubtitle.text = "Avg: 14,945 kcal / week"
                 }
             }
         }
@@ -81,7 +81,7 @@ class ProgressActivity : AppCompatActivity() {
                 } else if (checkedId == R.id.btnWaterMonthly) {
                     layoutWaterWeekly.visibility = View.GONE
                     layoutWaterMonthly.visibility = View.VISIBLE
-                    tvWaterSubtitle.text = "Avg: 2.6 L / week"
+                    tvWaterSubtitle.text = "Avg: 18.4 L / week"
                 }
             }
         }
@@ -101,7 +101,7 @@ class ProgressActivity : AppCompatActivity() {
                 } else if (checkedId == R.id.btnSleepMonthly) {
                     layoutSleepWeekly.visibility = View.GONE
                     layoutSleepMonthly.visibility = View.VISIBLE
-                    tvSleepSubtitle.text = "Avg: 7.6 hrs / week"
+                    tvSleepSubtitle.text = "Avg: 53.0 hrs / week"
                 }
             }
         }

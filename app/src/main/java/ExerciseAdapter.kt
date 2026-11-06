@@ -1,24 +1,23 @@
 package com.example.healthsync
-
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class ExerciseAdapter(private val exerciseList: List<Exercise>) :
-    RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder>() {
+class ExerciseAdapter(
+    private val exerciseList: MutableList<Exercise>,
+    private val onItemClick: (Exercise) -> Unit // 1. Added click listener lambda parameter
+) : RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder>() {
 
     class ExerciseViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        // Replace these IDs with the actual IDs inside your item layout XML (e.g., bg_axcercie_item.xml)
         val tvName: TextView = itemView.findViewById(R.id.tvExerciseName)
         val tvCategory: TextView = itemView.findViewById(R.id.tvExerciseDetails)
-        val checkbox: TextView = itemView.findViewById(R.id.cbExerciseStatus)
+        val checkBox: CheckBox = itemView.findViewById(R.id.cbExerciseStatus)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ExerciseViewHolder {
-        // Infates a simple default list layout. Swap 'android.R.layout.simple_list_item_2'
-        // with your own XML layout (like R.layout.bg_axcercie_item) when ready.
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_exercise, parent, false)
         return ExerciseViewHolder(view)
@@ -26,13 +25,38 @@ class ExerciseAdapter(private val exerciseList: List<Exercise>) :
 
     override fun onBindViewHolder(holder: ExerciseViewHolder, position: Int) {
         val exercise = exerciseList[position]
+
         holder.tvName.text = exercise.name
-        holder.checkbox
         holder.tvCategory.text = "${exercise.category} | ${exercise.setsReps}"
+
+        // 2. Triggers when the user taps on the exercise name text
+        holder.tvName.setOnClickListener {
+            val actualPosition = holder.adapterPosition
+            if (actualPosition != RecyclerView.NO_POSITION) {
+                onItemClick(exerciseList[actualPosition])
+            }
+        }
+
+        // Reset listener to null first to avoid weird scrolling recycling bugs
+        holder.checkBox.setOnCheckedChangeListener(null)
+        holder.checkBox.isChecked = exercise.isChecked
+
+        // Set up the delete-on-click action
+        holder.checkBox.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                val actualPosition = holder.adapterPosition
+                if (actualPosition != RecyclerView.NO_POSITION) {
+                    // Remove from data source
+                    exerciseList.removeAt(actualPosition)
+
+                    // Trigger the sleek item vanishing animation
+                    notifyItemRemoved(actualPosition)
+                    notifyItemRangeChanged(actualPosition, exerciseList.size)
+                }
+            }
+        }
     }
 
-    override fun getItemCount(): Int {
-        return exerciseList.size
-    }
+    override fun getItemCount(): Int = exerciseList.size
 }
 

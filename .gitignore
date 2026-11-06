@@ -13,3 +13,8 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# JDK installations — never commit these
+oracleJdk-27/
+jdk*/
+*.jmod

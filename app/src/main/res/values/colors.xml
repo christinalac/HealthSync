@@ -1,5 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Backgrounds -->
+    <color name="workout_bg_dark_blue">#1D2A63</color> <!-- The deep blue phone/header wrap -->
+    <color name="workout_bg_beige">#F5F4E8</color>     <!-- The warm off-white main background -->
+    <color name="workout_card_white">#FFFFFF</color>   <!-- The flat white rounded background card -->
+
+    <!-- Card Item Components -->
+    <color name="workout_item_bg">#F2F4F7</color>      <!-- The soft gray background inside each workout item -->
+    <color name="workout_text_main">#111111</color>     <!-- Flat black text for main exercise titles -->
+    <color name="workout_text_sub">#7E8B9B</color>      <!-- Slate gray text for exercise details -->
+
+    <!-- Checkbox States -->
+    <color name="workout_check_green">#58C145</color>   <!-- The vibrant green when checked -->
+    <color name="workout_check_empty">#D1D5DB</color>   <!-- The crisp gray box border when unchecked -->
+
+    <!-- Category Dot Indicators -->
+    <color name="dot_chest_blue">#121F64</color>       <!-- Deep blue dot for Bench Press -->
+    <color name="dot_back_light_blue">#8EAFDB</color>  <!-- Pale blue dot for Pull-Ups -->
+    <color name="dot_legs_green">#B6D36E</color>       <!-- Light lime green dot for Squats -->
+    <color name="dot_core_dark_green">#4A7822</color>  <!-- Forest green dot for Plank Hold -->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>

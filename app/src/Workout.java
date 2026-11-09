@@ -21,7 +21,16 @@ public class Workout{
         this.isCompleted = isCompleted;
     }
 
+    public class Exercise {
+        private String name, category, setsReps;
+        private boolean isChecked;
 
+        public Exercise(String name, String category, String setsReps, boolean isChecked) {
+            this.name = name;
+            this.category = category;
+            this.setsReps = setsReps;
+            this.isChecked = isChecked;
+        }
     //getter methods
     public ArrayList<String> getWorkoutPlan() {
         return workoutPlan;

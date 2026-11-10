@@ -1,5 +1,6 @@
 package com.example.healthsync;
 
+import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-// Shows the exercise list. Tapping a name shows its info; checking the box removes it.
+// Shows the exercise list. Tapping a name shows its info; checking the box marks it done
+// (strike-through) and leaves it in the list.
 public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder> {
 
     public interface OnExerciseClickListener {
@@ -64,17 +66,30 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
         // Clear the old listener before setting state so recycled rows don't fire it
         holder.checkBox.setOnCheckedChangeListener(null);
         holder.checkBox.setChecked(exercise.isChecked());
+        applyCompletedStyle(holder.tvName, exercise.isChecked());
 
-        // Checking an exercise marks it done and removes it from the list
+        // Spoken name for screen readers (the checkbox has no visible text)
+        holder.checkBox.setContentDescription(holder.itemView.getContext()
+                .getString(R.string.workout_mark_complete, exercise.getName()));
+
+        // Checking an exercise marks it done but keeps it in the list.
+        // Unchecking puts it back to not done.
         holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (!isChecked) return;
             int pos = holder.getBindingAdapterPosition();
             if (pos != RecyclerView.NO_POSITION) {
-                exerciseList.remove(pos);
-                notifyItemRemoved(pos);
-                notifyItemRangeChanged(pos, exerciseList.size());
+                exerciseList.get(pos).setChecked(isChecked);
+                applyCompletedStyle(holder.tvName, isChecked);
             }
         });
+    }
+
+    // Completed exercises get a strike-through on the name
+    private static void applyCompletedStyle(TextView name, boolean done) {
+        if (done) {
+            name.setPaintFlags(name.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        } else {
+            name.setPaintFlags(name.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
+        }
     }
 
     @Override

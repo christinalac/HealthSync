@@ -2,7 +2,7 @@
 // Program Name: SignupActicvity.java
 // Developer: Christina LaCombe
 // Date Created: 10/12/2026
-// Version: 1.0
+// Version: 1.1 (accessibility: field errors, headings)
 // Purpose: This collects the data of all information
 // when the user signs up for their account
 //******************************************
@@ -16,12 +16,16 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
+
+import com.google.android.material.textfield.TextInputLayout;
 
 public class SignupActivity extends AppCompatActivity {
 
     private EditText username, emailAddress, password, confirmPassword;
     public Button signupButton;
     public Button loginRedirectText;
+    private TextInputLayout usernameLayout, emailLayout, passwordLayout, confirmLayout;
     private DatabaseHelper databaseHelper;
 
     @Override
@@ -41,6 +45,15 @@ public class SignupActivity extends AppCompatActivity {
         // "Already have an account? Login"
         loginRedirectText = findViewById(R.id.signupText);
 
+        usernameLayout = findViewById(R.id.usernameLayout);
+        emailLayout    = findViewById(R.id.emailLayout);
+        passwordLayout = findViewById(R.id.passwordLayout);
+        confirmLayout  = findViewById(R.id.confirmLayout);
+
+        // Mark the app name and "Sign up" title as headings for TalkBack
+        ViewCompat.setAccessibilityHeading(findViewById(R.id.textAppName), true);
+        ViewCompat.setAccessibilityHeading(findViewById(R.id.loginText), true);
+
         signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -49,27 +62,45 @@ public class SignupActivity extends AppCompatActivity {
                 String enteredPassword = password.getText().toString().trim();
                 String enteredConfirm = confirmPassword.getText().toString().trim();
 
-                if (enteredUsername.isEmpty() || enteredEmail.isEmpty() || enteredPassword.isEmpty() || enteredConfirm.isEmpty()) {
-                    Toast.makeText(SignupActivity.this, "All fields are required", Toast.LENGTH_SHORT).show();
+                // Clear any previous errors
+                usernameLayout.setError(null);
+                emailLayout.setError(null);
+                passwordLayout.setError(null);
+                confirmLayout.setError(null);
+
+                // Field errors stay on screen and are announced by screen readers,
+                // unlike a Toast which disappears quickly
+                if (enteredUsername.isEmpty()) {
+                    usernameLayout.setError(getString(R.string.signup_error_username_required));
+                    username.requestFocus();
                 } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(enteredEmail).matches()) {
-                    Toast.makeText(SignupActivity.this, "Please enter a valid email address", Toast.LENGTH_SHORT).show();
+                    emailLayout.setError(getString(R.string.signup_error_email_invalid));
+                    emailAddress.requestFocus();
+                } else if (enteredPassword.isEmpty()) {
+                    passwordLayout.setError(getString(R.string.signup_error_password_required));
+                    password.requestFocus();
+                } else if (enteredConfirm.isEmpty()) {
+                    confirmLayout.setError(getString(R.string.signup_error_confirm_required));
+                    confirmPassword.requestFocus();
                 } else if (!enteredPassword.equals(enteredConfirm)) {
-                    Toast.makeText(SignupActivity.this, "Passwords do not match!", Toast.LENGTH_SHORT).show();
+                    confirmLayout.setError(getString(R.string.signup_error_mismatch));
+                    confirmPassword.requestFocus();
                 } else {
                     Boolean userExists = databaseHelper.checkEmail(enteredEmail);
                     if (userExists) {
-                        Toast.makeText(SignupActivity.this, "Email already registered! Please login", Toast.LENGTH_SHORT).show();
+                        emailLayout.setError(getString(R.string.signup_error_email_exists));
+                        emailAddress.requestFocus();
                     } else {
                         Boolean inserted = databaseHelper.insertData(enteredEmail, enteredPassword);
                         if (inserted) {
-                            Toast.makeText(SignupActivity.this, "Signup successful!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SignupActivity.this, R.string.signup_success, Toast.LENGTH_SHORT).show();
                             // Pass the email along so SignupInformationActivity can save the profile
                             Intent intent = new Intent(SignupActivity.this, SignupInformationActivity.class);
                             intent.putExtra("USER_EMAIL", enteredEmail);
                             startActivity(intent);
                             finish();
                         } else {
-                            Toast.makeText(SignupActivity.this, "Signup failed. Try again.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SignupActivity.this, R.string.signup_error_failed, Toast.LENGTH_SHORT).show();
                         }
                     }
                 }

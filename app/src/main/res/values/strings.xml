@@ -13,4 +13,47 @@
     <string name="bench_press_n_chest_3_sets_x_10_reps">Bench Press \n — Chest — 3 sets x 10 reps</string>
     <string name="workout_planner1">Workout Planner</string>
     <string name="wednesday_s_plan">Wednesday\'s Plan</string>
+
+    <!-- Login screen -->
+    <string name="login_tagline">Meet your body goals</string>
+    <string name="login_title">Login</string>
+    <string name="login_email_hint">Email</string>
+    <string name="login_password_hint">Password</string>
+    <string name="login_button">Login</string>
+    <string name="login_signup_redirect">Not yet registered? SignUp Now</string>
+    <string name="login_error_email_required">Please enter your email</string>
+    <string name="login_error_password_required">Please enter your password</string>
+    <string name="login_error_invalid">Invalid email or password</string>
+    <string name="login_success">Login Successful!</string>
+
+    <!-- Signup screen -->
+    <string name="signup_title">Sign up</string>
+    <string name="signup_username_hint">Username</string>
+    <string name="signup_confirm_hint">Confirm Password</string>
+    <string name="signup_button">Sign up</string>
+    <string name="signup_login_redirect">Already have an account? Login</string>
+    <string name="signup_error_username_required">Please enter a username</string>
+    <string name="signup_error_email_invalid">Please enter a valid email address</string>
+    <string name="signup_error_password_required">Please enter a password</string>
+    <string name="signup_error_confirm_required">Please confirm your password</string>
+    <string name="signup_error_mismatch">Passwords do not match</string>
+    <string name="signup_error_email_exists">Email already registered. Please login</string>
+    <string name="signup_error_failed">Signup failed. Try again.</string>
+    <string name="signup_success">Signup successful!</string>
+
+    <!-- Workout search -->
+    <string name="workout_search_title">Add exercise</string>
+    <string name="workout_search_hint">Search exercises (e.g. curls)</string>
+    <string name="workout_search_button">Search</string>
+    <string name="workout_filter_all">All</string>
+    <string name="workout_filter_arms">Arms</string>
+    <string name="workout_filter_legs">Legs</string>
+    <string name="workout_filter_back">Back</string>
+    <string name="workout_filter_chest">Chest</string>
+    <string name="workout_filter_shoulders">Shoulders</string>
+    <string name="workout_filter_core">Core</string>
+    <string name="workout_add">Add</string>
+    <string name="workout_no_results">No exercises found. Try different words or another filter.</string>
+    <string name="workout_already_added">Already in your plan</string>
+    <string name="workout_mark_complete">Mark %1$s complete</string>
 </resources>

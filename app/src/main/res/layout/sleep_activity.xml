@@ -93,27 +93,6 @@
         app:layout_constraintTop_toBottomOf="@id/textBedtime"
         app:layout_constraintStart_toStartOf="parent" />
     <!-- Weekly schedule -->
-    <TextView
-        android:id="@+id/textScheduleHeader"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Weekly Schedule"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginTop="24dp"
-        android:layout_marginStart="16dp"
-        app:layout_constraintTop_toBottomOf="@id/buttonAddSleep"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/sleepList"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/textScheduleHeader"
-        app:layout_constraintBottom_toTopOf="@id/bottomNav"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
     <!--
         Add Sleep Entry button — placeholder.
         When tapped this will eventually open a form to enter bedtime/wake time.
@@ -130,7 +109,54 @@
         app:layout_constraintTop_toBottomOf="@id/textWakeTime"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+    <!-- Add button -->
+    <Button
+        android:id="@+id/buttonAddDay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="+ Add day"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintTop_toBottomOf="@id/buttonAddSleep"
+        app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Header, vertically centered on the button -->
+    <TextView
+        android:id="@+id/textScheduleHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Weekly Schedule"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toTopOf="@id/buttonAddDay"
+        app:layout_constraintBottom_toBottomOf="@id/buttonAddDay"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Shown only when there are no cards -->
+    <TextView
+        android:id="@+id/textEmpty"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="No days added yet. Tap “+ Add day” to set up a bedtime or wake-up time."
+        android:textAlignment="center"
+        android:visibility="gone"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintTop_toBottomOf="@id/buttonAddDay"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/sleepList"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/buttonAddDay"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
     <!-- Bottom nav bar pinned to the bottom -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"

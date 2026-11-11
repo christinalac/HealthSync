@@ -1,83 +1,89 @@
 package com.example.healthsync;
 
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.healthsync.databinding.ItemSleepDayBinding;
+import com.example.healthsync.databinding.ItemSleepEntryBinding;
 
 import java.util.List;
 import java.util.Locale;
 
 public class SleepAdapter extends RecyclerView.Adapter<SleepAdapter.VH> {
 
-    // (day, isWake)
-    public interface OnPickTime {
-        void onPickTime(SleepDay day, boolean isWake);
-    }
-
-    // (day, isWake, enabled)
-    public interface OnToggleAlarm {
-        void onToggleAlarm(SleepDay day, boolean isWake, boolean enabled);
-    }
-
-    private final List<SleepDay> days;
-    private final OnPickTime onPickTime;
-    private final OnToggleAlarm onToggleAlarm;
-
-    public SleepAdapter(List<SleepDay> days, OnPickTime onPickTime, OnToggleAlarm onToggleAlarm) {
-        this.days = days;
-        this.onPickTime = onPickTime;
-        this.onToggleAlarm = onToggleAlarm;
+    // Everything a card can ask the screen to do. SleepActivity implements this.
+    public interface Actions {
+        void onPickTime(SleepEntry entry, boolean isWake);
+        void onClearTime(SleepEntry entry, boolean isWake);
+        void onToggleAlarm(SleepEntry entry, boolean isWake, boolean enabled);
+        void onEditDays(SleepEntry entry);
+        void onRemove(SleepEntry entry);
     }
 
     static class VH extends RecyclerView.ViewHolder {
-        final ItemSleepDayBinding b;
+        final ItemSleepEntryBinding b;
 
-        VH(ItemSleepDayBinding b) {
+        VH(ItemSleepEntryBinding b) {
             super(b.getRoot());
             this.b = b;
         }
     }
 
+    private final List<SleepEntry> entries;
+    private final Actions actions;
+
+    public SleepAdapter(List<SleepEntry> entries, Actions actions) {
+        this.entries = entries;
+        this.actions = actions;
+    }
+
     @NonNull
     @Override
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new VH(ItemSleepDayBinding.inflate(
+        return new VH(ItemSleepEntryBinding.inflate(
                 LayoutInflater.from(parent.getContext()), parent, false));
     }
 
     @Override
     public int getItemCount() {
-        return days.size();
+        return entries.size();
     }
 
     @Override
     public void onBindViewHolder(@NonNull VH holder, int position) {
-        final SleepDay day = days.get(position);
-        ItemSleepDayBinding b = holder.b;
+        SleepEntry entry = entries.get(position);
+        ItemSleepEntryBinding b = holder.b;
 
-        b.dayName.setText(day.getName());
-        b.bedTimeButton.setText(formatTime(day.getBedMinutes(), "Set bedtime"));
-        b.wakeTimeButton.setText(formatTime(day.getWakeMinutes(), "Set wake-up"));
+        b.dayLabel.setText(entry.label());
+        b.editDaysButton.setOnClickListener(v -> actions.onEditDays(entry));
+        b.removeButton.setOnClickListener(v -> actions.onRemove(entry));
 
-        b.bedTimeButton.setOnClickListener(v -> onPickTime.onPickTime(day, false));
-        b.wakeTimeButton.setOnClickListener(v -> onPickTime.onPickTime(day, true));
+        bindTime(b.bedTimeButton, b.bedAlarmSwitch, b.bedClearButton, entry, false);
+        bindTime(b.wakeTimeButton, b.wakeAlarmSwitch, b.wakeClearButton, entry, true);
+    }
 
-        // Clear old listeners before setting isChecked, or rows being reused fire false events
-        b.bedAlarmSwitch.setOnCheckedChangeListener(null);
-        b.bedAlarmSwitch.setChecked(day.isBedAlarm());
-        b.bedAlarmSwitch.setEnabled(day.getBedMinutes() != null);
-        b.bedAlarmSwitch.setOnCheckedChangeListener(
-                (buttonView, checked) -> onToggleAlarm.onToggleAlarm(day, false, checked));
+    // Same setup for bedtime and wake-up, so it's written once
+    private void bindTime(Button timeButton, SwitchCompat alarmSwitch, View clearButton,
+                          SleepEntry entry, boolean isWake) {
+        Integer minutes = entry.getMinutes(isWake);
 
-        b.wakeAlarmSwitch.setOnCheckedChangeListener(null);
-        b.wakeAlarmSwitch.setChecked(day.isWakeAlarm());
-        b.wakeAlarmSwitch.setEnabled(day.getWakeMinutes() != null);
-        b.wakeAlarmSwitch.setOnCheckedChangeListener(
-                (buttonView, checked) -> onToggleAlarm.onToggleAlarm(day, true, checked));
+        timeButton.setText(formatTime(minutes, isWake ? "Add wake-up" : "Add bedtime"));
+        timeButton.setOnClickListener(v -> actions.onPickTime(entry, isWake));
+
+        clearButton.setVisibility(minutes == null ? View.GONE : View.VISIBLE);
+        clearButton.setOnClickListener(v -> actions.onClearTime(entry, isWake));
+
+        // Clear the old listener before setChecked, or reused rows fire false events
+        alarmSwitch.setOnCheckedChangeListener(null);
+        alarmSwitch.setChecked(entry.isAlarmOn(isWake));
+        alarmSwitch.setEnabled(minutes != null);
+        alarmSwitch.setOnCheckedChangeListener((button, checked) ->
+                actions.onToggleAlarm(entry, isWake, checked));
     }
 
     private String formatTime(Integer minutes, String placeholder) {

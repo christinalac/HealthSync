@@ -1,3 +1,11 @@
+//******************************************
+// Program Name: SearchUiState.java
+// Developer: Maximiliano Salinas
+// Date Created: 10/12/2026
+// Version: 2.0
+// Purpose: Describes what the food search pop-up should show: idle, loading, results, no results, or an error.
+//******************************************
+
 package com.example.healthsync;
 
 import java.util.Collections;

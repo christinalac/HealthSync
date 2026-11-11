@@ -1,3 +1,11 @@
+//******************************************
+// Program Name: DailyGoals.java
+// Developer: Maximiliano Salinas
+// Date Created: 10/12/2026
+// Version: 3.0
+// Purpose: Calculates the daily calorie goal and water goal (in cups) from a user's profile using PersonalizedCalculations.
+//******************************************
+
 package com.example.healthsync;
 
 // Turns a UserProfile into today's calorie and water goals using PersonalizedCalculations.

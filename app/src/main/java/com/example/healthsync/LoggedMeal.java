@@ -1,3 +1,11 @@
+//******************************************
+// Program Name: LoggedMeal.java
+// Developer: Maximiliano Salinas
+// Date Created: 10/12/2026
+// Version: 2.0
+// Purpose: Model for one entry in Today's Meals: a food's per-serving nutrition plus the number of servings eaten.
+//******************************************
+
 package com.example.healthsync;
 
 // One entry in "Today's Meals". Stores per-serving values + how many servings were eaten.

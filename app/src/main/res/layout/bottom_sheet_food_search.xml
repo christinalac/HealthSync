@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+//******************************************
+// Program Name: bottom_sheet_food_search.xml
+// Developer: Maximiliano Salinas
+// Date Created: 10/12/2026
+// Version: 2.0
+// Purpose: Layout for the food search pop-up: title, search bar, loading spinner, status message, and results list.
+//******************************************
+-->
+
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"

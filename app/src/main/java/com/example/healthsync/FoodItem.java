@@ -1,3 +1,11 @@
+//******************************************
+// Program Name: FoodItem.java
+// Developer: Maximiliano Salinas
+// Date Created: 10/12/2026
+// Version: 2.0
+// Purpose: Model for a food search result from Open Food Facts, with nutrition values per serving.
+//******************************************
+
 package com.example.healthsync;
 
 import java.util.UUID;

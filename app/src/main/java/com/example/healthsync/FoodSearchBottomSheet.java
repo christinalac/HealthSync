@@ -1,3 +1,11 @@
+//******************************************
+// Program Name: FoodSearchBottomSheet.java
+// Developer: Maximiliano Salinas
+// Date Created: 10/12/2026
+// Version: 2.0
+// Purpose: Pop-up opened by the + button. Provides the search bar and results list, and adds the chosen food to Today's Meals.
+//******************************************
+
 package com.example.healthsync;
 
 import android.os.Bundle;

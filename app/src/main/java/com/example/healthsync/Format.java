@@ -1,3 +1,11 @@
+//******************************************
+// Program Name: Format.java
+// Developer: Maximiliano Salinas
+// Date Created: 10/12/2026
+// Version: 2.0
+// Purpose: Text formatting helpers for servings and nutrition lines, such as "120 kcal · C 20g · P 3g · F 4g".
+//******************************************
+
 package com.example.healthsync;
 
 import java.util.Locale;

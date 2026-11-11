@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+//******************************************
+// Program Name: nutrition_activity.xml
+// Developer: Maximiliano Salinas
+// Date Created: 10/12/2026
+// Version: 3.0
+// Purpose: Layout for the Nutrition screen: header, Calorie Summary card, Hydration card, Today's Meals card, + button, and bottom navigation.
+//******************************************
+-->
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"

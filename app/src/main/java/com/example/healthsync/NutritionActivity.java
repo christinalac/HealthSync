@@ -1,3 +1,11 @@
+//******************************************
+// Program Name: NutritionActivity.java
+// Developer: Maximiliano Salinas
+// Date Created: 10/12/2026
+// Version: 3.0
+// Purpose: Nutrition screen (Tab 2). Shows the calorie summary, hydration tracker, and Today's Meals, and opens the food search from the + button.
+//******************************************
+
 package com.example.healthsync;
 
 import android.content.Intent;

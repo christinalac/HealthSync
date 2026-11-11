@@ -1,3 +1,11 @@
+//******************************************
+// Program Name: NutritionRepository.java
+// Developer: Maximiliano Salinas
+// Date Created: 10/12/2026
+// Version: 3.0
+// Purpose: Saves and loads today's meals and water intake on the device, and resets them when a new day starts.
+//******************************************
+
 package com.example.healthsync;
 
 import android.content.Context;

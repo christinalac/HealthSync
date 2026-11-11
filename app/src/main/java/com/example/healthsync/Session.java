@@ -1,3 +1,11 @@
+//******************************************
+// Program Name: Session.java
+// Developer: Maximiliano Salinas
+// Date Created: 10/12/2026
+// Version: 3.0
+// Purpose: Remembers which user is logged in so any screen can load that user's profile.
+//******************************************
+
 package com.example.healthsync;
 
 import android.content.Context;

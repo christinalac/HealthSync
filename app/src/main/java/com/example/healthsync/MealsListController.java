@@ -1,3 +1,11 @@
+//******************************************
+// Program Name: MealsListController.java
+// Developer: Maximiliano Salinas
+// Date Created: 10/12/2026
+// Version: 2.1
+// Purpose: Builds and updates the rows in Today's Meals so the card grows with each meal. Handles the servings stepper and delete button.
+//******************************************
+
 package com.example.healthsync;
 
 import android.view.LayoutInflater;

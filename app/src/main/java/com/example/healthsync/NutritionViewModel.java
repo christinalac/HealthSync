@@ -1,3 +1,11 @@
+//******************************************
+// Program Name: NutritionViewModel.java
+// Developer: Maximiliano Salinas
+// Date Created: 10/12/2026
+// Version: 3.0
+// Purpose: Holds the Nutrition screen's data and handles actions: adding cups of water, adding and removing meals, changing servings, and refreshing goals from the user's profile.
+//******************************************
+
 package com.example.healthsync;
 
 import android.app.Application;

@@ -1,3 +1,11 @@
+//******************************************
+// Program Name: UserProfile.java
+// Developer: Maximiliano Salinas
+// Date Created: 10/12/2026
+// Version: 3.0
+// Purpose: Model holding the user's profile (gender, age, height, weight, activity level, and goal) used to personalize calculations.
+//******************************************
+
 package com.example.healthsync;
 
 // Everything PersonalizedCalculations needs to know about the user.

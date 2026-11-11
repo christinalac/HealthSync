@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Shown while a food photo loads, or when a product has no photo -->
+<!--
+//******************************************
+// Program Name: bg_food_placeholder.xml
+// Developer: Maximiliano Salinas
+// Date Created: 10/12/2026
+// Version: 2.0
+// Purpose: Placeholder shown while a food photo loads or when a product has no photo.
+//******************************************
+-->
+
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape android:shape="rectangle">

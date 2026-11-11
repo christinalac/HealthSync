@@ -1,3 +1,11 @@
+//******************************************
+// Program Name: FoodSearchViewModel.java
+// Developer: Maximiliano Salinas
+// Date Created: 10/12/2026
+// Version: 2.0
+// Purpose: Runs food searches on a background thread and exposes the search state to the search pop-up.
+//******************************************
+
 package com.example.healthsync;
 
 import androidx.lifecycle.LiveData;

@@ -1,3 +1,11 @@
+//******************************************
+// Program Name: NutritionState.java
+// Developer: Maximiliano Salinas
+// Date Created: 10/12/2026
+// Version: 3.0
+// Purpose: Immutable snapshot of the Nutrition screen: goals, today's meals, and cups of water. Calculates calories eaten and left, macros, and hydration progress.
+//******************************************
+
 package com.example.healthsync;
 
 import java.util.ArrayList;

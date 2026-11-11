@@ -1,3 +1,11 @@
+//******************************************
+// Program Name: OpenFoodFactsApi.java
+// Developer: Maximiliano Salinas
+// Date Created: 10/12/2026
+// Version: 2.0
+// Purpose: Searches the Open Food Facts API and converts the results into FoodItem objects with calories, macros, and photos per serving.
+//******************************************
+
 package com.example.healthsync;
 
 import android.net.Uri;

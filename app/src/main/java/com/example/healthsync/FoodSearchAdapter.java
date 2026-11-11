@@ -1,3 +1,11 @@
+//******************************************
+// Program Name: FoodSearchAdapter.java
+// Developer: Maximiliano Salinas
+// Date Created: 10/12/2026
+// Version: 2.0
+// Purpose: RecyclerView adapter that displays food search results with a photo, nutrition info, and an Add button.
+//******************************************
+
 package com.example.healthsync;
 
 import android.view.LayoutInflater;

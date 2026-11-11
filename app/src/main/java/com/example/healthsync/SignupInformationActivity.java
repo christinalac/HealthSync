@@ -192,6 +192,8 @@ public class SignupInformationActivity extends AppCompatActivity {
                         goal, activityLevel, isPregnant, isBreastfeeding);
 
                 if (saved) {
+                    Session.setEmail(SignupInformationActivity.this, userEmail);
+
                     Toast.makeText(SignupInformationActivity.this,
                             "Profile saved!", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(SignupInformationActivity.this, ProgressActivity.class);

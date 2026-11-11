@@ -105,4 +105,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         long result = db.insert("user_profile", null, values);
         return result != -1;
     }
+    // Returns the saved profile for this email, or null if there isn't one yet
+    public UserProfile getUserProfile(String email) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(
+                "SELECT gender, weightLbs, heightFt, heightIn, age, activityLevel, goal, " +
+                        "isPregnant, isBreastfeeding FROM user_profile WHERE email = ?",
+                new String[]{email});
+        try {
+            if (!c.moveToFirst()) return null;
+            return new UserProfile(
+                    c.getString(0),        // gender
+                    c.getInt(1),           // weightLbs
+                    c.getInt(2),           // heightFt
+                    c.getInt(3),           // heightIn
+                    c.getInt(4),           // age
+                    c.getString(5),        // activityLevel
+                    c.getString(6),        // goal
+                    c.getInt(7) == 1,      // isPregnant
+                    c.getInt(8) == 1,      // isBreastfeeding
+                    false);                // isRestDay (not stored yet)
+        } finally {
+            c.close();
+        }
+    }
 }

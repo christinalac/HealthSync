@@ -29,8 +29,9 @@ public class FoodSearchBottomSheet extends BottomSheetDialogFragment {
 
     private FoodSearchViewModel searchVm;
     private NutritionViewModel nutritionVm;
+    private TextInputEditText etSearch;
 
-    @NonNull
+    @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -46,14 +47,14 @@ public class FoodSearchBottomSheet extends BottomSheetDialogFragment {
         nutritionVm = new ViewModelProvider(requireActivity()).get(NutritionViewModel.class);
 
         TextInputLayout searchLayout = view.findViewById(R.id.searchLayout);
-        final TextInputEditText etSearch = view.findViewById(R.id.etSearch);
+        etSearch = view.findViewById(R.id.etSearch);
         final ProgressBar progress = view.findViewById(R.id.progress);
         final TextView tvMessage = view.findViewById(R.id.tvMessage);
         final RecyclerView list = view.findViewById(R.id.resultsList);
 
         final FoodSearchAdapter adapter = new FoodSearchAdapter(food -> {
             nutritionVm.addMeal(food);
-            Toast.makeText(requireContext(), "Added " + food.getName(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Added " + food.name, Toast.LENGTH_SHORT).show();
             dismiss();
         });
         list.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -61,40 +62,37 @@ public class FoodSearchBottomSheet extends BottomSheetDialogFragment {
 
         // Search only when the user submits (keyboard "search" key or the magnifier icon).
         // Open Food Facts limits searches to ~10/min, so no search-as-you-type.
-        final Runnable doSearch = () -> {
-            hideKeyboard(etSearch);
-            CharSequence text = etSearch.getText();
-            searchVm.search(text != null ? text.toString() : "");
-        };
         etSearch.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                doSearch.run();
+                doSearch();
                 return true;
             }
             return false;
         });
-        searchLayout.setStartIconOnClickListener(v -> doSearch.run());
+        searchLayout.setStartIconOnClickListener(v -> doSearch());
 
         searchVm.getState().observe(getViewLifecycleOwner(), state -> {
-            progress.setVisibility(state instanceof SearchUiState.Loading ? View.VISIBLE : View.GONE);
-            list.setVisibility(state instanceof SearchUiState.Results ? View.VISIBLE : View.GONE);
+            progress.setVisibility(state.type == SearchUiState.Type.LOADING ? View.VISIBLE : View.GONE);
+            list.setVisibility(state.type == SearchUiState.Type.RESULTS ? View.VISIBLE : View.GONE);
 
-            String message;
-            if (state instanceof SearchUiState.Idle) {
-                message = "Search for a food to see its calories and macros.";
-            } else if (state instanceof SearchUiState.Empty) {
-                message = "No foods found. Try different words.";
-            } else if (state instanceof SearchUiState.Error) {
-                message = ((SearchUiState.Error) state).getMessage();
-            } else {
-                message = null;
+            String message = null;
+            switch (state.type) {
+                case IDLE:
+                    message = "Search for a food to see its calories and macros.";
+                    break;
+                case EMPTY:
+                    message = "No foods found. Try different words.";
+                    break;
+                case ERROR:
+                    message = state.message;
+                    break;
+                default:
+                    break;
             }
             tvMessage.setText(message);
             tvMessage.setVisibility(message == null ? View.GONE : View.VISIBLE);
 
-            if (state instanceof SearchUiState.Results) {
-                adapter.submitList(((SearchUiState.Results) state).getFoods());
-            }
+            if (state.type == SearchUiState.Type.RESULTS) adapter.setItems(state.foods);
         });
 
         // Open with the keyboard up, ready to type
@@ -106,6 +104,12 @@ public class FoodSearchBottomSheet extends BottomSheetDialogFragment {
         etSearch.requestFocus();
     }
 
+    private void doSearch() {
+        hideKeyboard(etSearch);
+        CharSequence text = etSearch.getText();
+        searchVm.search(text == null ? "" : text.toString());
+    }
+
     // Open fully expanded and tall, so results have room
     @Override
     public void onStart() {
@@ -113,6 +117,7 @@ public class FoodSearchBottomSheet extends BottomSheetDialogFragment {
         View v = getView();
         if (v != null && v.getLayoutParams() != null) {
             v.getLayoutParams().height = (int) (getResources().getDisplayMetrics().heightPixels * 0.9);
+            v.requestLayout();
         }
         if (getDialog() instanceof BottomSheetDialog) {
             BottomSheetBehavior<?> behavior = ((BottomSheetDialog) getDialog()).getBehavior();
@@ -123,6 +128,6 @@ public class FoodSearchBottomSheet extends BottomSheetDialogFragment {
 
     private void hideKeyboard(View target) {
         InputMethodManager imm = requireContext().getSystemService(InputMethodManager.class);
-        imm.hideSoftInputFromWindow(target.getWindowToken(), 0);
+        if (imm != null) imm.hideSoftInputFromWindow(target.getWindowToken(), 0);
     }
 }

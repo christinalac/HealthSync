@@ -211,7 +211,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:gravity="center"
-                        android:text="Tap to log a glass (250ml) · Long-press to undo"
+                        android:text="Tap to log a cup · Long-press to undo"
                         android:textColor="#8A8A8A"
                         android:textSize="13sp" />
                 </LinearLayout>

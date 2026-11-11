@@ -3,48 +3,23 @@ package com.example.healthsync;
 import java.util.Collections;
 import java.util.List;
 
-// Everything the search sheet can be showing.
-// Replaces the Kotlin sealed interface with a small Java class hierarchy.
-public abstract class SearchUiState {
+// Everything the search sheet can be showing
+public class SearchUiState {
+    public enum Type { IDLE, LOADING, EMPTY, RESULTS, ERROR }
 
-    private SearchUiState() { }
+    public final Type type;
+    public final List<FoodItem> foods;   // only for RESULTS
+    public final String message;         // only for ERROR
 
-    public static final class Idle extends SearchUiState {
-        public static final Idle INSTANCE = new Idle();
-        private Idle() { }
+    private SearchUiState(Type type, List<FoodItem> foods, String message) {
+        this.type = type;
+        this.foods = foods;
+        this.message = message;
     }
 
-    public static final class Loading extends SearchUiState {
-        public static final Loading INSTANCE = new Loading();
-        private Loading() { }
-    }
-
-    public static final class Empty extends SearchUiState {
-        public static final Empty INSTANCE = new Empty();
-        private Empty() { }
-    }
-
-    public static final class Results extends SearchUiState {
-        private final List<FoodItem> foods;
-
-        public Results(List<FoodItem> foods) {
-            this.foods = Collections.unmodifiableList(foods);
-        }
-
-        public List<FoodItem> getFoods() {
-            return foods;
-        }
-    }
-
-    public static final class Error extends SearchUiState {
-        private final String message;
-
-        public Error(String message) {
-            this.message = message;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-    }
+    public static SearchUiState idle()    { return new SearchUiState(Type.IDLE, Collections.<FoodItem>emptyList(), null); }
+    public static SearchUiState loading() { return new SearchUiState(Type.LOADING, Collections.<FoodItem>emptyList(), null); }
+    public static SearchUiState empty()   { return new SearchUiState(Type.EMPTY, Collections.<FoodItem>emptyList(), null); }
+    public static SearchUiState results(List<FoodItem> foods) { return new SearchUiState(Type.RESULTS, foods, null); }
+    public static SearchUiState error(String message) { return new SearchUiState(Type.ERROR, Collections.<FoodItem>emptyList(), message); }
 }

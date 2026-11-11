@@ -14,8 +14,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.util.Locale;
-
 // Nutrition screen — Tab 2.
 // Calorie summary, hydration tracker, and Today's Meals.
 // The green "+" opens a food search; picking a food adds it to Today's Meals.
@@ -23,20 +21,12 @@ public class NutritionActivity extends AppCompatActivity {
 
     private NutritionViewModel viewModel;
 
-    private TextView tvHeaderKcal;
-    private TextView tvGoal;
-    private TextView tvEaten;
-    private TextView tvLeft;
+    private TextView tvHeaderKcal, tvGoal, tvEaten, tvLeft;
     private ProgressBar calorieProgress;
-    private TextView tvCarbs;
-    private TextView tvProtein;
-    private TextView tvFat;
-    private TextView tvHydrationTitle;
+    private TextView tvCarbs, tvProtein, tvFat;
+    private TextView tvHydrationTitle, tvGlassCount;
     private WaterProgressBar waterBar;
-    private TextView tvGlassCount;
     private MaterialCardView hydrationCard;
-
-    // --- MEALS ---
     private TextView tvMealsEmpty;
     private LinearLayout mealsContainer;
     private MealsListController mealsController;
@@ -57,6 +47,13 @@ public class NutritionActivity extends AppCompatActivity {
         viewModel.getState().observe(this, this::render);
     }
 
+    // Recalculate goals when coming back from other tabs (the profile may have changed)
+    @Override
+    protected void onResume() {
+        super.onResume();
+        viewModel.refreshGoals();
+    }
+
     private void bindViews() {
         tvHeaderKcal = findViewById(R.id.tvHeaderKcal);
         tvGoal = findViewById(R.id.tvGoal);
@@ -74,34 +71,31 @@ public class NutritionActivity extends AppCompatActivity {
         mealsContainer = findViewById(R.id.mealsContainer);
     }
 
-    // Tap anywhere on the hydration card = +1 glass. Long-press = undo a glass.
+    // Tap anywhere on the hydration card = +1 cup. Long-press = undo a cup.
     private void setupHydrationTaps() {
-        hydrationCard.setOnClickListener(v -> viewModel.addGlass());
+        hydrationCard.setOnClickListener(v -> viewModel.addCup());
         hydrationCard.setOnLongClickListener(v -> {
-            viewModel.removeGlass();
+            viewModel.removeCup();
             return true;
         });
     }
 
-    // --- MEALS ---
     private void setupMeals() {
-        mealsController = new MealsListController(
-                mealsContainer,
-                meal -> viewModel.changeServings(meal.getId(), +0.5),
-                meal -> viewModel.changeServings(meal.getId(), -0.5),
-                meal -> viewModel.removeMeal(meal.getId())
-        );
+        mealsController = new MealsListController(mealsContainer, new MealsListController.Listener() {
+            @Override public void onIncrease(LoggedMeal meal) { viewModel.changeServings(meal.id, +0.5); }
+            @Override public void onDecrease(LoggedMeal meal) { viewModel.changeServings(meal.id, -0.5); }
+            @Override public void onDelete(LoggedMeal meal)   { viewModel.removeMeal(meal.id); }
+        });
 
         // The green "+" opens the food search pop-up
-        FloatingActionButton fabAdd = findViewById(R.id.fabAdd);
-        fabAdd.setOnClickListener(v ->
-                new FoodSearchBottomSheet().show(getSupportFragmentManager(), "food_search"));
+        FloatingActionButton fab = findViewById(R.id.fabAdd);
+        fab.setOnClickListener(v -> new FoodSearchBottomSheet().show(getSupportFragmentManager(), "food_search"));
     }
 
     private void render(NutritionState s) {
         // Header pill + calorie card
-        tvHeaderKcal.setText(getString(R.string.kcal_progress, s.getCaloriesEaten(), s.getCalorieGoal()));
-        tvGoal.setText(String.valueOf(s.getCalorieGoal()));
+        tvHeaderKcal.setText(getString(R.string.kcal_progress, s.getCaloriesEaten(), s.calorieGoal));
+        tvGoal.setText(String.valueOf(s.calorieGoal));
         tvEaten.setText(String.valueOf(s.getCaloriesEaten()));
         tvLeft.setText(String.valueOf(s.getCaloriesLeft()));
         calorieProgress.setProgress(s.getCalorieProgressPercent());
@@ -109,19 +103,25 @@ public class NutritionActivity extends AppCompatActivity {
         tvProtein.setText(s.getProteinG() + "g");
         tvFat.setText(s.getFatG() + "g");
 
-        // Hydration card
-        tvHydrationTitle.setText(String.format(
-                Locale.US, "HYDRATION – %.1fL / %.1fL", s.getHydrationLiters(), s.getHydrationGoalLiters()));
-        waterBar.setProgress(s.getHydrationProgress());
+        // Hydration card (cups)
+        tvHydrationTitle.setText("HYDRATION – " + s.hydrationCups + " / "
+                + Format.fmt1(s.hydrationGoalCups) + " CUPS");
+        // If your WaterProgressBar only has setProgress(float), drop the second argument
+        waterBar.setProgress(s.getHydrationProgress(), true);
         waterBar.setContentDescription("Hydration " + s.getHydrationPercent() + " percent of daily goal");
-        tvGlassCount.setText(s.getGlassesDrunk() + " / " + s.getTotalGlasses()
-                + " glasses · " + s.getHydrationPercent() + "%");
+        if (s.getCupsRemaining() <= 0.0) {
+            tvGlassCount.setText("Goal reached 🎉");
+        } else {
+            tvGlassCount.setText(Format.fmt1(s.getCupsRemaining()) + " cups to go · "
+                    + s.getHydrationPercent() + "%");
+        }
 
         // Today's meals
-        mealsController.submit(s.getMeals());
-        tvMealsEmpty.setVisibility(s.getMeals().isEmpty() ? View.VISIBLE : View.GONE);
+        mealsController.submit(s.meals);
+        tvMealsEmpty.setVisibility(s.meals.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
+    // If you've moved this into your own BottomNavHelper, keep that and delete this method.
     private void setupBottomNav() {
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
         bottomNav.setSelectedItemId(R.id.nav_nutrition);

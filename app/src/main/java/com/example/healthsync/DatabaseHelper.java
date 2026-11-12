@@ -105,4 +105,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         long result = db.insert("user_profile", null, values);
         return result != -1;
     }
+
+    public UserProfile getLatestUserProfile() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM user_profile ORDER BY rowid DESC LIMIT 1", null);
+        if (cursor != null && cursor.moveToFirst()) {
+            String email = cursor.getString(cursor.getColumnIndexOrThrow("email"));
+            String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
+            int age = cursor.getInt(cursor.getColumnIndexOrThrow("age"));
+            String gender = cursor.getString(cursor.getColumnIndexOrThrow("gender"));
+            int heightFt = cursor.getInt(cursor.getColumnIndexOrThrow("heightFt"));
+            int heightIn = cursor.getInt(cursor.getColumnIndexOrThrow("heightIn"));
+            int weightLbs = cursor.getInt(cursor.getColumnIndexOrThrow("weightLbs"));
+            String goal = cursor.getString(cursor.getColumnIndexOrThrow("goal"));
+            String activityLevel = cursor.getString(cursor.getColumnIndexOrThrow("activityLevel"));
+            boolean isPregnant = cursor.getInt(cursor.getColumnIndexOrThrow("isPregnant")) == 1;
+            boolean isBreastfeeding = cursor.getInt(cursor.getColumnIndexOrThrow("isBreastfeeding")) == 1;
+            cursor.close();
+            return new UserProfile(email, name, age, gender, heightFt, heightIn, weightLbs, goal, activityLevel, isPregnant, isBreastfeeding);
+        }
+        if (cursor != null) {
+            cursor.close();
+        }
+        return new UserProfile("default@healthsync.com", "User", 25, "Female", 5, 6, 150,
+                PersonalizedCalculations.GOAL_MAINTAIN_WEIGHT,
+                PersonalizedCalculations.ACTIVITY_MODERATELY_ACTIVE, false, false);
+    }
 }

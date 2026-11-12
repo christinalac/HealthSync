@@ -26,7 +26,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Home / Progress"
+            android:text="Progress"
             android:textColor="@android:color/white"
             android:textSize="24sp"
             android:textStyle="bold" />
@@ -96,6 +96,7 @@
 
                         <LinearLayout style="@style/CalorieColumn">
                             <TextView
+                                android:id="@+id/tvTodayCalories"
                                 style="@style/CalorieNumber"
                                 android:text="1,850"
                                 android:textColor="@color/nutrition_green_dark" />
@@ -110,6 +111,7 @@
 
                         <LinearLayout style="@style/CalorieColumn">
                             <TextView
+                                android:id="@+id/tvTodayWater"
                                 style="@style/CalorieNumber"
                                 android:text="2.4"
                                 android:textColor="#0288D1" />
@@ -124,6 +126,7 @@
 
                         <LinearLayout style="@style/CalorieColumn">
                             <TextView
+                                android:id="@+id/tvTodaySleep"
                                 style="@style/CalorieNumber"
                                 android:text="7.5"
                                 android:textColor="#3F51B5" />

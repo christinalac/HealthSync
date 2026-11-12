@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Locale;
+import java.util.function.IntConsumer;
 
 // Sleep screen (Tab 4): placeholder score/stats on top, then cards of days with
 // optional bedtime / wake-up times and alarms.
@@ -40,6 +42,8 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
     private List<SleepEntry> entries;
     private RecyclerView sleepList;
     private TextView emptyText;
+    private static final int GOAL_MINUTES = 8 * 60; // sleep goal
+    private TextView textBedtime, textWakeTime, textSleepDuration, textSleepGoal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +67,13 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
         Button addDay = findViewById(R.id.buttonAddDay);
         addDay.setOnClickListener(v -> showDayPicker(null));
         updateEmptyState();
+        textBedtime = findViewById(R.id.textBedtime);
+        textWakeTime = findViewById(R.id.textWakeTime);
+        textSleepDuration = findViewById(R.id.textSleepDuration);
+        textSleepGoal = findViewById(R.id.textSleepGoal);
 
+        findViewById(R.id.buttonAddSleep).setOnClickListener(v -> showSleepEntryDialog());
+        showLastNight(store.loadLastNight()); // restore the saved entry, if any
         // ---- Bottom navigation (unchanged) ----
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
         bottomNav.setSelectedItemId(R.id.nav_sleep);
@@ -257,5 +267,105 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
 
     private void updateEmptyState() {
         emptyText.setVisibility(entries.isEmpty() ? View.VISIBLE : View.GONE);
+    }
+    // ---------- Logging last night's sleep ----------
+
+    private void showSleepEntryDialog() {
+        View view = getLayoutInflater().inflate(R.layout.dialog_sleep_entry, null);
+        Button bedBtn = view.findViewById(R.id.dialogBedButton);
+        Button wakeBtn = view.findViewById(R.id.dialogWakeButton);
+        TextView preview = view.findViewById(R.id.dialogPreview);
+
+        // {bed, wake}; -1 means "not chosen yet". Start from the saved entry if there is one.
+        int[] saved = store.loadLastNight();
+        int[] times = saved != null ? saved.clone() : new int[]{-1, -1};
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("Last night's sleep")
+                .setView(view)
+                .setPositiveButton("Save", (d, which) -> {
+                    store.saveLastNight(times[0], times[1]);
+                    showLastNight(times);
+                })
+                .setNegativeButton("Cancel", null)
+                .create();
+        dialog.show();
+
+        Runnable refresh = () -> {
+            bedBtn.setText(times[0] < 0 ? "Tap to set" : formatTime(times[0]));
+            wakeBtn.setText(times[1] < 0 ? "Tap to set" : formatTime(times[1]));
+
+            boolean ready = times[0] >= 0 && times[1] >= 0 && times[0] != times[1];
+            if (ready) {
+                preview.setText("You slept " + formatDuration(sleepDuration(times[0], times[1])));
+            } else if (times[0] >= 0 && times[0] == times[1]) {
+                preview.setText("Bedtime and wake-up can't be the same");
+            } else {
+                preview.setText("");
+            }
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(ready);
+        };
+
+        bedBtn.setOnClickListener(v -> pickSleepTime(times[0], 22 * 60 + 30, m -> {
+            times[0] = m;
+            refresh.run();
+        }));
+        wakeBtn.setOnClickListener(v -> pickSleepTime(times[1], 7 * 60, m -> {
+            times[1] = m;
+            refresh.run();
+        }));
+        refresh.run();
+    }
+
+    private void pickSleepTime(int current, int fallback, IntConsumer onPicked) {
+        int start = current >= 0 ? current : fallback;
+        new TimePickerDialog(this, (view, hour, minute) -> onPicked.accept(hour * 60 + minute),
+                start / 60, start % 60, false).show();
+    }
+
+    // Minutes slept. If the wake time is earlier on the clock than bedtime, the sleep
+// crossed midnight, so add a day (e.g. 10:30 PM -> 6:30 AM = 8h).
+    private int sleepDuration(int bed, int wake) {
+        int diff = wake - bed;
+        if (diff <= 0) diff += 24 * 60;
+        return diff;
+    }
+
+    private void showLastNight(int[] times) {
+        textSleepGoal.setText("Goal:  " + formatDuration(GOAL_MINUTES));
+        if (times == null) {
+            textBedtime.setText("Bedtime:    --:--");
+            textWakeTime.setText("Wake Time:  --:--");
+            textSleepDuration.setText("Slept:  --");
+            return;
+        }
+
+        int slept = sleepDuration(times[0], times[1]);
+        textBedtime.setText("Bedtime:    " + formatTime(times[0]));
+        textWakeTime.setText("Wake Time:  " + formatTime(times[1]));
+        textSleepDuration.setText("Slept:  " + formatDuration(slept));
+
+        if (slept >= GOAL_MINUTES) {
+            textSleepGoal.setText("Goal:  " + formatDuration(GOAL_MINUTES) + "  -  reached!");
+        } else {
+            textSleepGoal.setText("Goal:  " + formatDuration(GOAL_MINUTES) + "  -  "
+                    + formatDuration(GOAL_MINUTES - slept) + " short");
+        }
+    }
+
+    private String formatTime(int minutes) {
+        int h = minutes / 60;
+        int m = minutes % 60;
+        String amPm = h < 12 ? "AM" : "PM";
+        int h12 = (h % 12 == 0) ? 12 : h % 12;
+        return String.format(Locale.getDefault(), "%d:%02d %s", h12, m, amPm);
+    }
+
+    private String formatDuration(int minutes) {
+        int h = minutes / 60;
+        int m = minutes % 60;
+        if (m == 0) return h + "h";
+        if (h == 0) return m + "m";
+        return h + "h " + m + "m";
     }
 }

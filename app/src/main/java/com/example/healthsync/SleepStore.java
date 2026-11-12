@@ -69,4 +69,19 @@ public class SleepStore {
         }
         prefs.edit().putString("entries", arr.toString()).apply();
     }
+
+    public void saveLastNight(int bedMinutes, int wakeMinutes) {
+        prefs.edit()
+                .putInt("last_bed", bedMinutes)
+                .putInt("last_wake", wakeMinutes)
+                .apply();
+    }
+
+    // Returns {bedMinutes, wakeMinutes}, or null if nothing has been logged yet
+    public int[] loadLastNight() {
+        int bed = prefs.getInt("last_bed", -1);
+        int wake = prefs.getInt("last_wake", -1);
+        if (bed < 0 || wake < 0) return null;
+        return new int[]{bed, wake};
+    }
 }

@@ -84,7 +84,6 @@ public class ExerciseSearchBottomSheet extends BottomSheetDialogFragment {
             tvMessage.setVisibility(empty ? View.VISIBLE : View.GONE);
         };
 
-        // The catalogue is local, so results can update as the user types
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) { }
             @Override public void onTextChanged(CharSequence s, int st, int b, int c) { }
@@ -103,7 +102,7 @@ public class ExerciseSearchBottomSheet extends BottomSheetDialogFragment {
             refresh.run();
         });
 
-        // Filter chips: All / Arms / Legs / Back / Chest / Sholders / Core
+        // Filter chips: All / Arms / Legs / Back / Chest / Shoulders / Core
         chipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> {
             if (checkedIds.isEmpty()) return;
             int id = checkedIds.get(0);
@@ -111,13 +110,13 @@ public class ExerciseSearchBottomSheet extends BottomSheetDialogFragment {
                 currentFilter = ExerciseCatalog.FILTER_ARMS;
             } else if (id == R.id.chipLegs) {
                 currentFilter = ExerciseCatalog.FILTER_LEGS;
-            } else if(id == R.id.chipBack) {
+            } else if (id == R.id.chipBack) {
                 currentFilter = ExerciseCatalog.FILTER_BACK;
-            } else if(id == R.id.chipChest) {
+            } else if (id == R.id.chipChest) {
                 currentFilter = ExerciseCatalog.FILTER_CHEST;
-            } else if(id == R.id.chipShoulders) {
+            } else if (id == R.id.chipShoulders) {
                 currentFilter = ExerciseCatalog.FILTER_SHOULDERS;
-            } else if(id == R.id.chipCore) {
+            } else if (id == R.id.chipCore) {
                 currentFilter = ExerciseCatalog.FILTER_CORE;
             } else {
                 currentFilter = ExerciseCatalog.FILTER_ALL;
@@ -125,8 +124,26 @@ public class ExerciseSearchBottomSheet extends BottomSheetDialogFragment {
             refresh.run();
         });
 
-        // Show the full list straight away
-        refresh.run();
+        // Show loading state while fetching from Free Exercise DB API
+        list.setVisibility(View.GONE);
+        tvMessage.setText("Loading exercises from API...");
+        tvMessage.setVisibility(View.VISIBLE);
+
+        FreeExerciseDbApi.fetchExercises(new FreeExerciseDbApi.Callback() {
+            @Override
+            public void onSuccess(List<ExerciseCatalog.Entry> exercises) {
+                if (!isAdded()) return;
+                ExerciseCatalog.setExercises(exercises);
+                refresh.run();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                if (!isAdded()) return;
+                tvMessage.setText("API Error: " + e.getMessage());
+                tvMessage.setVisibility(View.VISIBLE);
+            }
+        });
 
         // Open with the keyboard up, ready to type
         if (getDialog() != null && getDialog().getWindow() != null) {
@@ -136,6 +153,7 @@ public class ExerciseSearchBottomSheet extends BottomSheetDialogFragment {
         }
         etSearch.requestFocus();
     }
+
 
     // Open fully expanded and tall, so results have room
     @Override

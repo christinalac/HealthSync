@@ -12,8 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-// Shows the exercise list. Tapping a name shows its info; checking the box marks it done
-// (strike-through) and leaves it in the list.
+// Shows the exercise list. Tapping a name shows its info; checking the box removes it
+// from the list and saves the updated list.
 public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder> {
 
     public interface OnExerciseClickListener {
@@ -72,18 +72,24 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
         holder.checkBox.setContentDescription(holder.itemView.getContext()
                 .getString(R.string.workout_mark_complete, exercise.getName()));
 
-        // Checking an exercise marks it done but keeps it in the list.
-        // Unchecking puts it back to not done.
+        // Checking an exercise removes it, saves the list, and resets the info card if empty
         holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             int pos = holder.getBindingAdapterPosition();
-            if (pos != RecyclerView.NO_POSITION) {
-                exerciseList.get(pos).setChecked(isChecked);
-                applyCompletedStyle(holder.tvName, isChecked);
+            if (isChecked && pos != RecyclerView.NO_POSITION) {
+                exerciseList.remove(pos);
+                notifyItemRemoved(pos);
+
+                if (holder.itemView.getContext() instanceof WorkoutActivity) {
+                    WorkoutActivity activity = (WorkoutActivity) holder.itemView.getContext();
+                    activity.saveExercises();
+                    if (exerciseList.isEmpty()) {
+                        activity.resetExerciseInfoCard();
+                    }
+                }
             }
         });
     }
 
-    // Completed exercises get a strike-through on the name
     private static void applyCompletedStyle(TextView name, boolean done) {
         if (done) {
             name.setPaintFlags(name.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);

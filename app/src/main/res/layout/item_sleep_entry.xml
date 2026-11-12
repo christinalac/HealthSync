@@ -4,16 +4,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="16dp"
-    android:layout_marginEnd="16dp"
-    android:layout_marginTop="8dp"
-    app:cardElevation="2dp"
-    app:contentPadding="12dp">
+    android:layout_marginTop="16dp"
+    app:cardBackgroundColor="@android:color/white"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="4dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="20dp">
 
         <!-- Title row: which days, plus edit/remove -->
         <LinearLayout
@@ -27,7 +27,9 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textSize="18sp"
+                android:textAllCaps="true"
+                android:textColor="@color/navy_text"
+                android:textSize="16sp"
                 android:textStyle="bold" />
 
             <Button
@@ -35,71 +37,106 @@
                 style="?attr/borderlessButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Edit days" />
+                android:text="Edit days"
+                android:textColor="@color/text_dark_green" />
 
             <Button
                 android:id="@+id/removeButton"
                 style="?attr/borderlessButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Remove" />
+                android:text="Remove"
+                android:textColor="#B3261E" />
         </LinearLayout>
 
         <!-- Bedtime and wake-up columns -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:baselineAligned="false"
             android:orientation="horizontal">
 
+            <!-- Bedtime column -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
                 android:layout_weight="1"
                 android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Bedtime"
+                    android:textColor="#8A8A8A"
+                    android:textSize="13sp" />
 
                 <Button
                     android:id="@+id/bedTimeButton"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/white"
+                    app:backgroundTint="@color/main_navy"
+                    app:cornerRadius="16dp" />
 
                 <androidx.appcompat.widget.SwitchCompat
                     android:id="@+id/bedAlarmSwitch"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Alarm" />
+                    android:layout_marginTop="4dp"
+                    android:text="Notify"
+                    android:textColor="@color/navy_text"
+                    android:textSize="14sp" />
 
                 <Button
                     android:id="@+id/bedClearButton"
                     style="?attr/borderlessButtonStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Clear time" />
+                    android:text="Clear time"
+                    android:textColor="#8A8A8A" />
             </LinearLayout>
 
+            <!-- Wake-up column -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
                 android:layout_weight="1"
                 android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Wake-up"
+                    android:textColor="#8A8A8A"
+                    android:textSize="13sp" />
 
                 <Button
                     android:id="@+id/wakeTimeButton"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/white"
+                    app:backgroundTint="@color/text_dark_green"
+                    app:cornerRadius="16dp" />
 
                 <androidx.appcompat.widget.SwitchCompat
                     android:id="@+id/wakeAlarmSwitch"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Alarm" />
+                    android:layout_marginTop="4dp"
+                    android:text="Alarm"
+                    android:textColor="@color/navy_text"
+                    android:textSize="14sp" />
 
                 <Button
                     android:id="@+id/wakeClearButton"
                     style="?attr/borderlessButtonStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Clear time" />
+                    android:text="Clear time"
+                    android:textColor="#8A8A8A" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

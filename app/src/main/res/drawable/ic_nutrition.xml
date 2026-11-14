@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+//******************************************
+// Program Name: ic_nutrition.xml
+// Developer: Maximiliano Salinas
+// Date Created: 10/12/2026
+// Version: 1.1
+// Purpose: Crossed fork and knife icon for the Nutrition tab in the bottom navigation.
+//******************************************
+-->
+
 <!-- Nutrition tab icon: crossed fork and knife, outline style.
      The stroke is white here; BottomNavigationView tints it (selected/unselected),
      so the color in this file doesn't matter. -->

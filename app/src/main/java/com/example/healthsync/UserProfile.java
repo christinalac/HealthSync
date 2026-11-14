@@ -1,50 +1,46 @@
 //******************************************
 // Program Name: UserProfile.java
-// Developer: Christina LaCombe
-// Date Created: 11/4/2026
-// Version: 1.0
-// Purpose: Represents the user profile data stored in the database
-// used for personalized health calculations.
+// Developer: Maximiliano Salinas
+// Date Created: 10/12/2026
+// Version: 3.0
+// Purpose: Model holding the user's profile (gender, age, height, weight, activity level, and goal) used to personalize calculations.
 //******************************************
+
 package com.example.healthsync;
 
+// Everything PersonalizedCalculations needs to know about the user.
+// Loaded from the user_profile table by DatabaseHelper.getUserProfile().
 public class UserProfile {
-    private String email;
-    private String name;
-    private int age;
-    private String gender;
-    private int heightFt;
-    private int heightIn;
-    private int weightLbs;
-    private String goal;
-    private String activityLevel;
-    private boolean isPregnant;
-    private boolean isBreastfeeding;
+    public final String gender;          // "Male" or "Female"
+    public final int weightLbs;
+    public final int heightFt;
+    public final int heightIn;
+    public final int age;
+    public final String activityLevel;   // one of PersonalizedCalculations.ACTIVITY_*
+    public final String goal;            // one of PersonalizedCalculations.GOAL_*
+    public final boolean isPregnant;
+    public final boolean isBreastfeeding;
+    // Only matters for the "Improve Endurance" goal. Not stored in the database yet;
+    // meant to come from the Workout tab later.
+    public final boolean isRestDay;
 
-    public UserProfile(String email, String name, int age, String gender, int heightFt, int heightIn,
-                       int weightLbs, String goal, String activityLevel, boolean isPregnant, boolean isBreastfeeding) {
-        this.email = email;
-        this.name = name;
-        this.age = age;
+    public UserProfile(String gender, int weightLbs, int heightFt, int heightIn, int age,
+                       String activityLevel, String goal, boolean isPregnant,
+                       boolean isBreastfeeding, boolean isRestDay) {
         this.gender = gender;
+        this.weightLbs = weightLbs;
         this.heightFt = heightFt;
         this.heightIn = heightIn;
-        this.weightLbs = weightLbs;
-        this.goal = goal;
+        this.age = age;
         this.activityLevel = activityLevel;
+        this.goal = goal;
         this.isPregnant = isPregnant;
         this.isBreastfeeding = isBreastfeeding;
+        this.isRestDay = isRestDay;
     }
 
-    public String getEmail() { return email; }
-    public String getName() { return name; }
-    public int getAge() { return age; }
-    public String getGender() { return gender; }
-    public int getHeightFt() { return heightFt; }
-    public int getHeightIn() { return heightIn; }
-    public int getWeightLbs() { return weightLbs; }
-    public String getGoal() { return goal; }
-    public String getActivityLevel() { return activityLevel; }
-    public boolean isPregnant() { return isPregnant; }
-    public boolean isBreastfeeding() { return isBreastfeeding; }
+    // Enough info to run the formulas?
+    public boolean isComplete() {
+        return gender != null && !gender.trim().isEmpty() && weightLbs > 0 && heightFt > 0 && age > 0;
+    }
 }

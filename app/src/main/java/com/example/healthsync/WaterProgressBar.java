@@ -1,3 +1,11 @@
+//******************************************
+// Program Name: WaterProgressBar.java
+// Developer: Maximiliano Salinas
+// Date Created: 10/12/2026
+// Version: 1.3
+// Purpose: Custom animated progress bar that fills left to right like layered, flowing water. Used for the hydration meter.
+//******************************************
+
 package com.example.healthsync;
 
 import android.animation.ValueAnimator;

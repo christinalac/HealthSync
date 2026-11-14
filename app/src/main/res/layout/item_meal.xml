@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+//******************************************
+// Program Name: item_meal.xml
+// Developer: Maximiliano Salinas
+// Date Created: 10/12/2026
+// Version: 2.0
+// Purpose: Layout for one row in Today's Meals: photo, name, nutrition totals, servings stepper, and delete button.
+//******************************************
+-->
+
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"

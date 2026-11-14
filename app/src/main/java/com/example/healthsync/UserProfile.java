@@ -43,4 +43,44 @@ public class UserProfile {
     public boolean isComplete() {
         return gender != null && !gender.trim().isEmpty() && weightLbs > 0 && heightFt > 0 && age > 0;
     }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public int getWeightLbs() {
+        return weightLbs;
+    }
+
+    public int getHeightFt() {
+        return heightFt;
+    }
+
+    public int getHeightIn() {
+        return heightIn;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public String getActivityLevel() {
+        return activityLevel;
+    }
+
+    public String getGoal() {
+        return goal;
+    }
+
+    public boolean isPregnant() {
+        return isPregnant;
+    }
+
+    public boolean isBreastfeeding() {
+        return isBreastfeeding;
+    }
+
+    public boolean isRestDay() {
+        return isRestDay;
+    }
 }

@@ -1,3 +1,10 @@
+//******************************************
+// Program Name: BootReceiver.java
+// Developer: Anthony Ramirez and Christina LaCombe
+// Date Created: 11/11/2026
+// Version: 1.1
+// Purpose: Re-schedules all enabled sleep alarms after the phone restarts, since Android clears them on reboot.
+//******************************************
 package com.example.healthsync;
 
 import android.content.BroadcastReceiver;

@@ -1,3 +1,10 @@
+//******************************************
+// Program Name: SleepStore.java
+// Developer: Anthony Ramirez and Christina LaCombe
+// Date Created: 11/11/2026
+// Version: 1.1
+// Purpose: Saves the Sleep schedule cards and last night's sleep on the device (SharedPreferences, stored as JSON).
+//******************************************
 package com.example.healthsync;
 
 import android.content.Context;

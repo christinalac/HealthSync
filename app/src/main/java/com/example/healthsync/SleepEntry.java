@@ -1,3 +1,10 @@
+//******************************************
+// Program Name: SleepEntry.java
+// Developer: Anthony Ramirez and Christina LaCombe
+// Date Created: 11/11/2026
+// Version: 1.1
+// Purpose: Data for one Sleep schedule card: a set of days sharing a bedtime and/or wake-up time and their alarm settings.
+//******************************************
 package com.example.healthsync;
 
 import java.util.Arrays;

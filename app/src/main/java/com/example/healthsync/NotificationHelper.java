@@ -1,3 +1,10 @@
+//******************************************
+// Program Name: NotificationHelper.java
+// Developer: Anthony Ramirez and Christina LaCombe
+// Date Created: 11/11/2026
+// Version: 1.1
+// Purpose: Creates the notification channels and shows the bedtime reminder and wake-up notifications.
+//******************************************
 package com.example.healthsync;
 
 import android.Manifest;

@@ -1,3 +1,10 @@
+//******************************************
+// Program Name: SleepAdapter.java
+// Developer: Anthony Ramirez and Christina LaCombe
+// Date Created: 11/11/2026
+// Version: 1.1
+// Purpose: RecyclerView adapter that draws one card per SleepEntry on the Sleep screen.
+//******************************************
 package com.example.healthsync;
 
 import android.view.LayoutInflater;

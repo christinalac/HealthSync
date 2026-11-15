@@ -1,3 +1,10 @@
+//******************************************
+// Program Name: AccountStore.java
+// Developer: Anthony Ramirez and Christina LaCombe
+// Date Created: 11/11/2026
+// Version: 1.1
+// Purpose: Stores which user is logged in (and local profile preferences) on the device for the Account screen.
+//******************************************
 package com.example.healthsync;
 
 import android.content.Context;
@@ -17,6 +24,21 @@ public class AccountStore {
 
     public AccountStore(Context context) {
         prefs = context.getSharedPreferences("account_prefs", Context.MODE_PRIVATE);
+    }
+
+    // The email of whoever is logged in; used to look their profile up in the database
+    public String getCurrentEmail() {
+        return prefs.getString("current_email", null);
+    }
+
+    // Called after a successful login or signup
+    public void setCurrentEmail(String email) {
+        prefs.edit().putString("current_email", email).apply();
+    }
+
+    // Called on log out
+    public void clearCurrentEmail() {
+        prefs.edit().remove("current_email").apply();
     }
 
     public String getUsername() {

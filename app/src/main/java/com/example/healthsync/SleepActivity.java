@@ -1,3 +1,10 @@
+//******************************************
+// Program Name: SleepActivity.java
+// Developer: Anthony Ramirez and Christina LaCombe
+// Date Created: 11/11/2026
+// Version: 1.1
+// Purpose: Sleep screen (Tab 4): last night's sleep stats, plus a weekly schedule of bedtime / wake-up times with optional alarms.
+//******************************************
 package com.example.healthsync;
 
 import android.Manifest;
@@ -9,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
+import android.view.ContextThemeWrapper;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,6 +42,7 @@ import java.util.function.IntConsumer;
 // optional bedtime / wake-up times and alarms.
 public class SleepActivity extends AppCompatActivity implements SleepAdapter.Actions {
 
+    // Dialogs on this screen use ThemeOverlay.HealthSync.SleepDialog (green accents, dark green buttons)
     private final ActivityResultLauncher<String> notifPermission =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> { });
 
@@ -128,7 +137,7 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
             checked[i] = existing != null && existing.days.contains(availIds.get(i));
         }
 
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(this, R.style.ThemeOverlay_HealthSync_SleepDialog)
                 .setTitle(existing == null ? "Add days" : "Edit days")
                 .setMultiChoiceItems(names, checked, (dialog, which, isChecked) -> checked[which] = isChecked)
                 .setPositiveButton("OK", (dialog, which) -> {
@@ -171,7 +180,7 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
 
     @Override
     public void onRemove(SleepEntry entry) {
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(this, R.style.ThemeOverlay_HealthSync_SleepDialog)
                 .setTitle("Remove " + entry.label() + "?")
                 .setMessage("This deletes its times and cancels its alarms.")
                 .setPositiveButton("Remove", (dialog, which) -> {
@@ -194,7 +203,7 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
         Integer saved = entry.getMinutes(isWake);
         int current = saved != null ? saved : (isWake ? 7 * 60 : 22 * 60);
 
-        new TimePickerDialog(this, (view, hour, minute) -> {
+        new TimePickerDialog(timePickerContext(), (view, hour, minute) -> {
             cancelAlarm(entry, isWake); // remove alarms at the old time
             entry.setMinutes(isWake, hour * 60 + minute);
             scheduleAlarm(entry, isWake); // does nothing unless the alarm switch is on
@@ -220,10 +229,23 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
         if (enabled && isWake && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
             if (!am.canScheduleExactAlarms()) {
-                startActivity(new Intent(
-                        Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
-                        Uri.parse("package:" + getPackageName())));
-                adapter.notifyItemChanged(entries.indexOf(entry)); // switch back to off
+                // Explain the extra step, since the settings screen does not say what to do
+                Toast.makeText(this, "Allow \"Alarms & reminders\" for HealthSync, then turn the alarm on again",
+                        Toast.LENGTH_LONG).show();
+                // Open the exact-alarm settings; some devices lack that screen, so fall back to app info
+                try {
+                    startActivity(new Intent(
+                            Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
+                            Uri.parse("package:" + getPackageName())));
+                } catch (RuntimeException e) {
+                    // Some devices have no such settings screen; fall back to the app's info page
+                    startActivity(new Intent(
+                            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                            Uri.parse("package:" + getPackageName())));
+                }
+                // Switch back to off. Posted because we're inside the switch's own listener.
+                int index = entries.indexOf(entry);
+                sleepList.post(() -> adapter.notifyItemChanged(index));
                 return;
             }
         }
@@ -233,7 +255,8 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
             if (!scheduleAlarm(entry, isWake)) {
                 cancelAlarm(entry, isWake);
                 entry.setAlarmOn(isWake, false);
-                adapter.notifyItemChanged(entries.indexOf(entry));
+                int index = entries.indexOf(entry);
+                sleepList.post(() -> adapter.notifyItemChanged(index));
                 return;
             }
         } else {
@@ -265,6 +288,11 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
         }
     }
 
+    // Context whose time pickers use the app's green accent instead of the default light blue
+    private ContextThemeWrapper timePickerContext() {
+        return new ContextThemeWrapper(this, R.style.ThemeOverlay_HealthSync_SleepTimePicker);
+    }
+
     private void updateEmptyState() {
         emptyText.setVisibility(entries.isEmpty() ? View.VISIBLE : View.GONE);
     }
@@ -280,7 +308,7 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
         int[] saved = store.loadLastNight();
         int[] times = saved != null ? saved.clone() : new int[]{-1, -1};
 
-        AlertDialog dialog = new AlertDialog.Builder(this)
+        AlertDialog dialog = new AlertDialog.Builder(this, R.style.ThemeOverlay_HealthSync_SleepDialog)
                 .setTitle("Last night's sleep")
                 .setView(view)
                 .setPositiveButton("Save", (d, which) -> {
@@ -301,7 +329,8 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
             } else if (times[0] >= 0 && times[0] == times[1]) {
                 preview.setText("Bedtime and wake-up can't be the same");
             } else {
-                preview.setText("");
+                // Save stays disabled until both times are set; this tells the user why
+                preview.setText("Tap both buttons to set your times");
             }
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(ready);
         };
@@ -319,7 +348,7 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
 
     private void pickSleepTime(int current, int fallback, IntConsumer onPicked) {
         int start = current >= 0 ? current : fallback;
-        new TimePickerDialog(this, (view, hour, minute) -> onPicked.accept(hour * 60 + minute),
+        new TimePickerDialog(timePickerContext(), (view, hour, minute) -> onPicked.accept(hour * 60 + minute),
                 start / 60, start % 60, false).show();
     }
 

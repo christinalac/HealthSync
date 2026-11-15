@@ -9,4 +9,55 @@
           - No default action bar (we don't want a title bar on every screen)
     -->
     <style name="Theme.HealthSync" parent="Theme.MaterialComponents.DayNight.NoActionBar" />
+
+    <!--
+        Dialogs on the Sleep screen (time pickers, day picker, etc.).
+        Without this they use the default Material accent color (light blue/teal);
+        this makes every accent in them the app's dark green (text_dark_green).
+    -->
+    <style name="ThemeOverlay.HealthSync.SleepDialog" parent="Theme.MaterialComponents.Light.Dialog.Alert">
+        <item name="colorPrimary">@color/text_dark_green</item>
+        <item name="colorSecondary">@color/text_dark_green</item>
+        <item name="colorAccent">@color/text_dark_green</item>
+        <item name="android:colorAccent">@color/text_dark_green</item>
+        <item name="colorControlActivated">@color/text_dark_green</item>
+        <item name="android:colorControlActivated">@color/text_dark_green</item>
+        <item name="buttonBarButtonStyle">@style/Widget.HealthSync.DialogButton</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.HealthSync.DialogButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.HealthSync.DialogButton</item>
+        <item name="buttonBarNeutralButtonStyle">@style/Widget.HealthSync.DialogButton</item>
+    </style>
+
+    <!-- Applied to a ContextThemeWrapper so native time pickers on the Sleep screen are green -->
+    <style name="ThemeOverlay.HealthSync.SleepTimePicker" parent="">
+        <item name="android:timePickerDialogTheme">@style/ThemeOverlay.HealthSync.TimePickerDialog</item>
+    </style>
+
+    <style name="ThemeOverlay.HealthSync.TimePickerDialog" parent="android:Theme.Material.Light.Dialog.Alert">
+        <item name="android:colorAccent">@color/text_dark_green</item>
+        <item name="android:colorControlActivated">@color/text_dark_green</item>
+        <item name="android:buttonBarButtonStyle">@style/Widget.HealthSync.NativeDialogButton</item>
+        <item name="android:buttonBarPositiveButtonStyle">@style/Widget.HealthSync.NativeDialogButton</item>
+        <item name="android:buttonBarNegativeButtonStyle">@style/Widget.HealthSync.NativeDialogButton</item>
+        <item name="android:colorPrimary">@color/text_dark_green</item>
+    </style>
+
+    <!-- Green on/off switches and other controls on the Sleep cards -->
+    <style name="ThemeOverlay.HealthSync.GreenControls" parent="">
+        <item name="colorControlActivated">@color/text_dark_green</item>
+        <item name="colorAccent">@color/text_dark_green</item>
+    </style>
+
+    <!-- Dark green, bold Save/OK/Cancel buttons in dialogs (gray when disabled) -->
+    <style name="Widget.HealthSync.DialogButton" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/dialog_button_text</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="Widget.HealthSync.NativeDialogButton" parent="android:Widget.Material.Button.Borderless.Colored">
+        <item name="android:textColor">@color/dialog_button_text</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">16sp</item>
+    </style>
 </resources>

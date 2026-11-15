@@ -105,4 +105,65 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         long result = db.insert("user_profile", null, values);
         return result != -1;
     }
+
+    /** Returns the saved profile for this email, or null if there isn't one. */
+    @Nullable
+    // Used by the Account screen to show the profile and run the calculations
+    public UserProfile getUserProfile(String email) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        try (Cursor c = db.rawQuery("SELECT * FROM user_profile WHERE email = ?",
+                new String[]{email})) {
+            if (!c.moveToFirst()) return null;
+            // Copy each column into a UserProfile (booleans are stored as 0/1)
+            return new UserProfile(
+                    c.getString(c.getColumnIndexOrThrow("email")),
+                    c.getString(c.getColumnIndexOrThrow("name")),
+                    c.getInt(c.getColumnIndexOrThrow("age")),
+                    c.getString(c.getColumnIndexOrThrow("gender")),
+                    c.getInt(c.getColumnIndexOrThrow("heightFt")),
+                    c.getInt(c.getColumnIndexOrThrow("heightIn")),
+                    c.getInt(c.getColumnIndexOrThrow("weightLbs")),
+                    c.getString(c.getColumnIndexOrThrow("goal")),
+                    c.getString(c.getColumnIndexOrThrow("activityLevel")),
+                    c.getInt(c.getColumnIndexOrThrow("isPregnant")) == 1,
+                    c.getInt(c.getColumnIndexOrThrow("isBreastfeeding")) == 1);
+        }
+    }
+
+    // Changes the name shown on the Account screen. Returns false if no profile row matched.
+    public boolean updateName(String email, String name) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("name", name);
+        return db.update("user_profile", values, "email = ?", new String[]{email}) > 0;
+    }
+
+    // Changes the login password. Returns false if no user row matched.
+    public boolean updatePassword(String email, String password) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("password", password);
+        return db.update("users", values, "email = ?", new String[]{email}) > 0;
+    }
+
+    /** Changes the login email in both tables. Returns false if the new email is taken. */
+    public boolean updateEmail(String oldEmail, String newEmail) {
+        // Refuse if another account already uses the new email
+        if (!oldEmail.equalsIgnoreCase(newEmail) && checkEmail(newEmail)) return false;
+        SQLiteDatabase db = this.getWritableDatabase();
+        // Update both tables together so they never end up with different emails
+        db.beginTransaction();
+        try {
+            ContentValues values = new ContentValues();
+            values.put("email", newEmail);
+            int users = db.update("users", values, "email = ?", new String[]{oldEmail});
+            db.update("user_profile", values, "email = ?", new String[]{oldEmail});
+            // No login row matched, so skip the commit and undo the changes
+            if (users == 0) return false;
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
 }

@@ -79,7 +79,7 @@ public class SplashActivity extends AppCompatActivity {
                 Boolean valid = databaseHelper.checkEmailPassword(enteredEmail, enteredPass);
                 if (valid) {
                     // Remember who logged in so the Account screen can load their profile
-                    new AccountStore(SplashActivity.this).setCurrentEmail(enteredEmail);
+                    Session.setEmail(SplashActivity.this, enteredEmail);
                     Toast.makeText(SplashActivity.this, R.string.login_success, Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(SplashActivity.this, ProgressActivity.class);
                     startActivity(intent);

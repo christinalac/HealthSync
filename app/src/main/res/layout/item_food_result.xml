@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+//******************************************
+// Program Name: item_food_result.xml
+// Developer: [Your Name]
+// Date Created: 10/12/2026
+// Version: 2.0
+// Purpose: Layout for one row in the food search results: photo, name, brand, serving size, nutrition info, and Add button.
+//******************************************
+-->
+
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"

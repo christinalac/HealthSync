@@ -29,8 +29,6 @@ public class AccountActivity extends AppCompatActivity {
     private static final int USERNAME = 0;
     private static final int EMAIL = 1;
     private static final int PASSWORD = 2;
-
-    private AccountStore store;
     // Database access: the profile and login info are read from and saved here
     private DatabaseHelper db;
     // Email of the logged-in user; it is the key used to look up their rows
@@ -48,11 +46,9 @@ public class AccountActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.account_activity);
-
-        store = new AccountStore(this);
         db = new DatabaseHelper(this);
         // Saved at login/signup; null means nobody is logged in
-        currentEmail = store.getCurrentEmail();
+        currentEmail = Session.getEmail(this);
 
         textProfileName = findViewById(R.id.textProfileName);
         textProfileEmail = findViewById(R.id.textProfileEmail);
@@ -96,7 +92,7 @@ public class AccountActivity extends AppCompatActivity {
         Button logoutButton = findViewById(R.id.buttonLogout);
         logoutButton.setOnClickListener(view -> {
             // Forget who was logged in so the next login starts clean
-            store.clearCurrentEmail();
+            Session.clear(this);
             Intent intent = new Intent(AccountActivity.this, SplashActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
@@ -215,7 +211,7 @@ public class AccountActivity extends AppCompatActivity {
                 }
                 // Keep the session pointing at the new email
                 currentEmail = value;
-                store.setCurrentEmail(value);
+                Session.setEmail(this, value);
 
             } else {
                 String password = etNew.getText().toString(); // don't trim passwords

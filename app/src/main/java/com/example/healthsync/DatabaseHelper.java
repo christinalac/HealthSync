@@ -126,7 +126,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     c.getString(c.getColumnIndexOrThrow("goal")),
                     c.getString(c.getColumnIndexOrThrow("activityLevel")),
                     c.getInt(c.getColumnIndexOrThrow("isPregnant")) == 1,
-                    c.getInt(c.getColumnIndexOrThrow("isBreastfeeding")) == 1);
+                    c.getInt(c.getColumnIndexOrThrow("isBreastfeeding")) == 1,
+                    false); // isRestDay is not stored in the database yet
         }
     }
 

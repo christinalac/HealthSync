@@ -193,7 +193,8 @@ public class SignupInformationActivity extends AppCompatActivity {
 
                 if (saved) {
                     // New users are logged in right after signup, so remember them for the Account screen
-                    new AccountStore(SignupInformationActivity.this).setCurrentEmail(userEmail);
+                    Session.setEmail(SignupInformationActivity.this, userEmail);
+
                     Toast.makeText(SignupInformationActivity.this,
                             "Profile saved!", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(SignupInformationActivity.this, ProgressActivity.class);

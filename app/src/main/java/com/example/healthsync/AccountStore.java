@@ -26,21 +26,6 @@ public class AccountStore {
         prefs = context.getSharedPreferences("account_prefs", Context.MODE_PRIVATE);
     }
 
-    // The email of whoever is logged in; used to look their profile up in the database
-    public String getCurrentEmail() {
-        return prefs.getString("current_email", null);
-    }
-
-    // Called after a successful login or signup
-    public void setCurrentEmail(String email) {
-        prefs.edit().putString("current_email", email).apply();
-    }
-
-    // Called on log out
-    public void clearCurrentEmail() {
-        prefs.edit().remove("current_email").apply();
-    }
-
     public String getUsername() {
         return prefs.getString("username", "First Last");
     }

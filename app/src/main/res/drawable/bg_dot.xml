@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Author: Zoey Lira
+  Date: November 16, 2026
+  Class: COSC 3324
+  File: bg_dot.xml
+  Description: Oval shape drawable used as the category indicator dot on each
+               exercise row item in the HealthSync workout list.
+-->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     android:shape="oval"
     <solid android:color="#FFFFFF" />

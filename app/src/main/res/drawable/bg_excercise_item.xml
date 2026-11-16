@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Author: Zoey Lira
+  Date: November 16, 2026
+  Class: COSC 3324
+  File: bg_excercise_item.xml
+  Description: Shape drawable defining the rounded off-white card background
+               used for each exercise row item in the HealthSync workout list.
+-->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
         <!-- Matches the subtle card color in the mockup -->
         <solid android:color="#F4F5F0" />

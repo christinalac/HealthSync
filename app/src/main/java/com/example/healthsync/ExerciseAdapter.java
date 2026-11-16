@@ -1,3 +1,13 @@
+/*
+ * Author: Zoey Lira
+ * Date: November 16, 2026
+ * Class: COSC 3324
+ * File: ExerciseAdapter.java
+ * Description: RecyclerView adapter for the HealthSync workout list. Displays
+ *              exercises, handles completion checkboxes and strikethrough styling,
+ *              opens exercise info on click, and supports long-press removal.
+ */
+
 package com.example.healthsync;
 
 import android.graphics.Paint;

@@ -3,10 +3,19 @@ package com.example.healthsync;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
+import android.graphics.Typeface;
+import android.view.Gravity;
+import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,6 +42,25 @@ public class WorkoutActivity extends AppCompatActivity
     private TextView tvMuscleTag3;
     private TextView tvInfoCardTips;
 
+    // ── Weekly split (what the user trains on each day) ──────
+    // Index 0 = Sunday ... 6 = Saturday, same order as the cells in the card
+    private static final String[] SPLIT_DAY_NAMES = {
+            "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+    };
+
+    // What the user can pick for a day in the edit pop-up
+    private static final String[] SPLIT_OPTIONS = {
+            "Rest", "Chest", "Back", "Legs", "Shoulders", "Arms", "Core", "Cardio", "Full Body"
+    };
+
+    // Starting split for a brand new user (Sunday and Thursday are rest days)
+    private static final String[] DEFAULT_SPLIT = {
+            "Rest", "Legs", "Chest", "Back", "Rest", "Shoulders", "Cardio"
+    };
+
+    private final String[] weeklySplit = new String[7]; // what is shown and saved
+    private final TextView[] splitDayViews = new TextView[7]; // one cell per day in the card
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +83,10 @@ public class WorkoutActivity extends AppCompatActivity
         String weekStart = new java.text.SimpleDateFormat("MMM d", Locale.US)
                 .format(cal.getTime());
         tvWeekOf.setText("Week of " + weekStart);
+
+        // ── Weekly split card ──────────────────────────────────
+        // load what was saved, fill in the cells, and let the Edit button change it
+        setupWeeklySplit();
 
         // Views in the bottom Exercise Info card
         tvInfoCardTitle = findViewById(R.id.textExerciseInfoTitle);
@@ -105,6 +137,140 @@ public class WorkoutActivity extends AppCompatActivity
             return false;
         });
     }
+
+    // ─────────────────────────────────────────────────────────
+    // Weekly split card
+    // ─────────────────────────────────────────────────────────
+
+    // Finds the 7 day cells, loads the saved split, and hooks up the Edit button
+    private void setupWeeklySplit() {
+        splitDayViews[0] = findViewById(R.id.textSplitSunday);
+        splitDayViews[1] = findViewById(R.id.textSplitMonday);
+        splitDayViews[2] = findViewById(R.id.textSplitTuesday);
+        splitDayViews[3] = findViewById(R.id.textSplitWednesday);
+        splitDayViews[4] = findViewById(R.id.textSplitThursday);
+        splitDayViews[5] = findViewById(R.id.textSplitFriday);
+        splitDayViews[6] = findViewById(R.id.textSplitSaturday);
+
+        loadWeeklySplit();
+        showWeeklySplit();
+
+        findViewById(R.id.buttonEditSplit).setOnClickListener(v -> showEditSplitDialog());
+    } // end of setupWeeklySplit
+
+    // Writes "Sunday: Rest" etc. into each cell. Today's cell is bold and green so it stands out
+    private void showWeeklySplit() {
+        // Calendar says Sunday = 1, so subtract 1 to line up with our 0-6 index
+        int today = java.util.Calendar.getInstance().get(java.util.Calendar.DAY_OF_WEEK) - 1;
+
+        for (int i = 0; i < 7; i++) {
+            splitDayViews[i].setText(SPLIT_DAY_NAMES[i] + ": " + weeklySplit[i]);
+
+            if (i == today) {
+                splitDayViews[i].setTypeface(null, Typeface.BOLD);
+                splitDayViews[i].setTextColor(ContextCompat.getColor(this, R.color.text_dark_green));
+            } else {
+                splitDayViews[i].setTypeface(null, Typeface.NORMAL);
+                splitDayViews[i].setTextColor(ContextCompat.getColor(this, R.color.workout_text_main));
+            } // end of today highlight if/else
+        } // end of for loop over the days
+    } // end of showWeeklySplit
+
+    // Pop-up with one row per day: the day name and a spinner to pick its workout
+    private void showEditSplitDialog() {
+        int padding = (int) (20 * getResources().getDisplayMetrics().density);
+
+        LinearLayout rows = new LinearLayout(this);
+        rows.setOrientation(LinearLayout.VERTICAL);
+        rows.setPadding(padding, padding / 2, padding, 0);
+
+        // keeps track of the spinner for each day so Save can read them back
+        final Spinner[] spinners = new Spinner[7];
+
+        for (int i = 0; i < 7; i++) {
+            LinearLayout row = new LinearLayout(this);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setGravity(Gravity.CENTER_VERTICAL);
+
+            TextView dayLabel = new TextView(this);
+            dayLabel.setText(SPLIT_DAY_NAMES[i]);
+            dayLabel.setTextSize(15);
+            dayLabel.setTextColor(ContextCompat.getColor(this, R.color.navy_text));
+            row.addView(dayLabel, new LinearLayout.LayoutParams(0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+            Spinner spinner = new Spinner(this);
+            ArrayAdapter<String> optionAdapter = new ArrayAdapter<>(
+                    this, android.R.layout.simple_spinner_item, SPLIT_OPTIONS);
+            optionAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinner.setAdapter(optionAdapter);
+            spinner.setSelection(indexOfOption(weeklySplit[i]));
+            row.addView(spinner, new LinearLayout.LayoutParams(0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+            spinners[i] = spinner;
+            rows.addView(row);
+        } // end of for loop that builds the rows
+
+        // ScrollView so all 7 rows are still reachable in landscape or on small screens
+        ScrollView scroll = new ScrollView(this);
+        scroll.addView(rows);
+
+        // same green dialog theme as the sleep page so the Save button is easy to see
+        new AlertDialog.Builder(this, R.style.ThemeOverlay_HealthSync_SleepDialog)
+                .setTitle("Edit weekly split")
+                .setView(scroll)
+                .setPositiveButton("Save", (dialog, which) -> {
+                    for (int i = 0; i < 7; i++) {
+                        weeklySplit[i] = SPLIT_OPTIONS[spinners[i].getSelectedItemPosition()];
+                    } // end of for loop that reads the spinners
+                    saveWeeklySplit();
+                    showWeeklySplit();
+                    Toast.makeText(this, "Weekly split saved", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    } // end of showEditSplitDialog
+
+    // Position of a workout name in SPLIT_OPTIONS (falls back to Rest if it isn't found)
+    private int indexOfOption(String name) {
+        for (int i = 0; i < SPLIT_OPTIONS.length; i++) {
+            if (SPLIT_OPTIONS[i].equals(name)) return i;
+        } // end of for loop
+        return 0;
+    } // end of indexOfOption
+
+    // Saves the 7 days as a JSON list in the same prefs file the exercises use
+    private void saveWeeklySplit() {
+        try {
+            JSONArray array = new JSONArray();
+            for (String day : weeklySplit) {
+                array.put(day);
+            }
+            SharedPreferences prefs = getSharedPreferences("healthsync_workouts", MODE_PRIVATE);
+            prefs.edit().putString("weekly_split", array.toString()).apply();
+        } catch (Exception e) {
+            Log.e("WorkoutActivity", "Could not save the weekly split", e);
+        } // end of try/catch
+    } // end of saveWeeklySplit
+
+    // Loads the saved split. Anything missing or broken falls back to the default split
+    private void loadWeeklySplit() {
+        System.arraycopy(DEFAULT_SPLIT, 0, weeklySplit, 0, 7);
+
+        SharedPreferences prefs = getSharedPreferences("healthsync_workouts", MODE_PRIVATE);
+        String json = prefs.getString("weekly_split", null);
+        if (json == null) return; // nothing saved yet, so keep the defaults
+
+        try {
+            JSONArray array = new JSONArray(json);
+            for (int i = 0; i < 7 && i < array.length(); i++) {
+                weeklySplit[i] = SPLIT_OPTIONS[indexOfOption(array.getString(i))];
+            } // end of for loop
+        } catch (Exception e) {
+            Log.e("WorkoutActivity", "Could not load the weekly split", e);
+        } // end of try/catch
+    } // end of loadWeeklySplit
 
     @Override
     public void onExercisePicked(ExerciseCatalog.Entry entry) {
@@ -174,7 +340,7 @@ public class WorkoutActivity extends AppCompatActivity
             SharedPreferences prefs = getSharedPreferences("healthsync_workouts", MODE_PRIVATE);
             prefs.edit().putString("saved_exercises", array.toString()).apply();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("WorkoutActivity", "Could not save the workout list", e);
         }
     }
 
@@ -205,7 +371,7 @@ public class WorkoutActivity extends AppCompatActivity
                 exerciseList.add(ex);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("WorkoutActivity", "Could not load the saved workouts", e);
         }
     }
 }

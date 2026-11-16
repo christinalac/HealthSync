@@ -29,7 +29,7 @@
         android:layout_marginEnd="14dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/cbExerciseStatus"
+        app:layout_constraintEnd_toStartOf="@id/btnExerciseInfo"
         app:layout_constraintStart_toEndOf="@id/viewDot"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -54,7 +54,22 @@
             android:textSize="13sp" />
     </LinearLayout>
 
-    <!-- 3. Checkbox (Now on the Far Right Side) -->
+    <!-- 3. Info button: the circled "i" tells users they can tap to see this exercise's
+         muscles and tips in the Exercise Info card (tapping the name does the same) -->
+    <ImageButton
+        android:id="@+id/btnExerciseInfo"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:padding="8dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_info_outline"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/cbExerciseStatus"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- 4. Checkbox (Now on the Far Right Side) -->
     <CheckBox
         android:id="@+id/cbExerciseStatus"
         android:layout_width="28dp"

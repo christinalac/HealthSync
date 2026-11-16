@@ -2,7 +2,7 @@
 // Program Name: AccountActivity.java
 // Developer:
 // Date Created: 10/12/2026
-// Version: 2.0
+// Version: 2.1
 // Purpose: Account / Profile screen — Tab 5. Shows the logged-in user's profile from
 // the SQLite database, lets them change their name, email and password, and logs out.
 //******************************************
@@ -103,7 +103,40 @@ public class AccountActivity extends AppCompatActivity {
         textProfileName.setText(profile != null ? profile[0] : "Your name");
         textProfileEmail.setText(email);
         if (profile != null) textStatsRow.setText(profile[1]);
+        showDailyTargets(); // re-run every time, so changing age/height/weight/activity updates the targets
     }
+
+    // ── Your Daily Targets card ──────────────────────────────
+    // Runs the user's saved info through PersonalizedCalculations, the same as signup
+    private void showDailyTargets() {
+        TextView goal = findViewById(R.id.textGoalValue);
+        TextView calories = findViewById(R.id.textCaloriesValue);
+        TextView water = findViewById(R.id.textWaterValue);
+        TextView sleep = findViewById(R.id.textSleepValue);
+
+        UserProfile p = db.getUserProfile(email);
+        if (p == null || !p.isComplete()) {
+            // No personal info saved yet, so there is nothing to calculate from
+            goal.setText("Goal: --");
+            calories.setText("Calories: --");
+            water.setText("Water: --");
+            sleep.setText("Sleep: --");
+            return;
+        } // end of missing-profile check
+
+        int kcal = PersonalizedCalculations.calculateDailyCalories(
+                p.gender, p.weightLbs, p.heightFt, p.heightIn, p.age,
+                p.activityLevel, p.goal, p.isRestDay);
+        double litres = PersonalizedCalculations.calculateDailyWaterLitres(
+                p.gender, p.weightLbs, p.activityLevel, p.goal,
+                p.isPregnant, p.isBreastfeeding);
+
+        goal.setText("Goal: " + p.goal);
+        calories.setText(String.format(java.util.Locale.US, "Calories: %,d kcal per day", kcal));
+        water.setText("Water: " + litres + " L (about "
+                + PersonalizedCalculations.litresToCups(litres) + " cups) per day");
+        sleep.setText("Sleep: " + PersonalizedCalculations.getSleepSuggestion(p.age) + " per night");
+    } // end of showDailyTargets
 
     // One popup for all three changes; only the needed fields are shown
     private void showEditDialog(int type) {

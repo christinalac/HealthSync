@@ -2,7 +2,7 @@
 // Program Name: SleepActivity.java
 // Developer: Anthony Ramirez and Christina LaCombe
 // Date Created: 11/11/2026
-// Version: 1.1
+// Version: 1.2
 // Purpose: Sleep screen (Tab 4): last night's sleep stats, plus a weekly schedule of bedtime / wake-up times with optional alarms.
 //******************************************
 package com.example.healthsync;
@@ -313,6 +313,8 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
                 .setView(view)
                 .setPositiveButton("Save", (d, which) -> {
                     store.saveLastNight(times[0], times[1]);
+                    // Record the hours slept for today so the Progress page sleep graph fills in
+                    new ProgressHistory(this).recordSleep(sleepDuration(times[0], times[1]) / 60.0);
                     showLastNight(times);
                 })
                 .setNegativeButton("Cancel", null)

@@ -251,29 +251,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery(
-                "SELECT gender, weightLbs, heightFt, heightIn, age, activityLevel, goal, " +
+                "SELECT email, name, age, gender, heightFt, heightIn, weightLbs, goal, activityLevel, " +
                         "isPregnant, isBreastfeeding FROM user_profile ORDER BY rowid DESC LIMIT 1",
                 null);
         try {
             if (c.moveToFirst()) {
                 return new UserProfile(
-                        c.getString(0),        // gender
-                        c.getInt(1),           // weightLbs
-                        c.getInt(2),           // heightFt
-                        c.getInt(3),           // heightIn
-                        c.getInt(4),           // age
-                        c.getString(5),        // activityLevel
-                        c.getString(6),        // goal
-                        c.getInt(7) == 1,      // isPregnant
-                        c.getInt(8) == 1,      // isBreastfeeding
+                        c.getString(0),        // email
+                        c.getString(1),        // name
+                        c.getInt(2),           // age
+                        c.getString(3),        // gender
+                        c.getInt(4),           // heightFt
+                        c.getInt(5),           // heightIn
+                        c.getInt(6),           // weightLbs
+                        c.getString(7),        // goal
+                        c.getString(8),        // activityLevel
+                        c.getInt(9) == 1,      // isPregnant
+                        c.getInt(10) == 1,     // isBreastfeeding
                         false);                // isRestDay
             }
         } finally {
             c.close();
         }
-        return new UserProfile("Male", 160, 5, 10, 25,
-                PersonalizedCalculations.ACTIVITY_MODERATELY_ACTIVE,
+        // No saved profile at all, so use a default one (no email or name yet)
+        return new UserProfile(null, null, 25, "Male", 5, 10, 160,
                 PersonalizedCalculations.GOAL_MAINTAIN_WEIGHT,
+                PersonalizedCalculations.ACTIVITY_MODERATELY_ACTIVE,
                 false, false, false);
     }
 }

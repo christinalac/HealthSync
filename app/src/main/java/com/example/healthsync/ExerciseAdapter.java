@@ -12,8 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-// Shows the exercise list. Tapping a name shows its info; checking the box removes it
-// from the list and saves the updated list.
+// Shows the exercise list. Tapping a name (or the circled "i") shows its info; checking the
+// box marks it done and saves it; long-pressing a row removes it after asking.
 public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder> {
 
     public interface OnExerciseClickListener {
@@ -32,9 +32,11 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
         final TextView tvName;
         final TextView tvCategory;
         final CheckBox checkBox;
+        final View infoButton; // the circled "i"
 
         ExerciseViewHolder(@NonNull View itemView) {
             super(itemView);
+            infoButton = itemView.findViewById(R.id.btnExerciseInfo);
             tvName = itemView.findViewById(R.id.tvExerciseName);
             tvCategory = itemView.findViewById(R.id.tvExerciseDetails);
             checkBox = itemView.findViewById(R.id.cbExerciseStatus);
@@ -56,12 +58,17 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
         holder.tvName.setText(exercise.getName());
         holder.tvCategory.setText(exercise.getCategory() + " | " + exercise.getSetsReps());
 
-        holder.tvName.setOnClickListener(v -> {
+        // Tapping the name OR the circled "i" shows this exercise in the Exercise Info card
+        View.OnClickListener showInfo = v -> {
             int pos = holder.getBindingAdapterPosition();
             if (pos != RecyclerView.NO_POSITION) {
                 onItemClick.onExerciseClick(exerciseList.get(pos));
             }
-        });
+        };
+        holder.tvName.setOnClickListener(showInfo);
+        holder.infoButton.setOnClickListener(showInfo);
+        // Spoken label for screen readers, since the icon has no text
+        holder.infoButton.setContentDescription("Show info and tips for " + exercise.getName());
 
         // Clear the old listener before setting state so recycled rows don't fire it
         holder.checkBox.setOnCheckedChangeListener(null);
@@ -72,22 +79,52 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
         holder.checkBox.setContentDescription(holder.itemView.getContext()
                 .getString(R.string.workout_mark_complete, exercise.getName()));
 
-        // Checking an exercise removes it, saves the list, and resets the info card if empty
+        // Checking an exercise marks it as done: it stays in the list (crossed out and faded)
+        // and is saved, so it is still checked after switching tabs. Unchecking undoes it
         holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             int pos = holder.getBindingAdapterPosition();
-            if (isChecked && pos != RecyclerView.NO_POSITION) {
-                exerciseList.remove(pos);
-                notifyItemRemoved(pos);
+            if (pos == RecyclerView.NO_POSITION) return;
 
-                if (holder.itemView.getContext() instanceof WorkoutActivity) {
-                    WorkoutActivity activity = (WorkoutActivity) holder.itemView.getContext();
-                    activity.saveExercises();
-                    if (exerciseList.isEmpty()) {
-                        activity.resetExerciseInfoCard();
-                    }
-                }
+            exerciseList.get(pos).setChecked(isChecked);
+            applyCompletedStyle(holder.tvName, isChecked);
+            holder.itemView.setAlpha(isChecked ? 0.6f : 1f);
+
+            if (holder.itemView.getContext() instanceof WorkoutActivity) {
+                ((WorkoutActivity) holder.itemView.getContext()).saveExercises();
             }
         });
+        holder.itemView.setAlpha(exercise.isChecked() ? 0.6f : 1f);
+
+        // Long-press a row to remove the exercise from the list (asks first)
+        holder.itemView.setOnLongClickListener(v -> {
+            int pos = holder.getBindingAdapterPosition();
+            if (pos == RecyclerView.NO_POSITION) return false;
+
+            new androidx.appcompat.app.AlertDialog.Builder(v.getContext(),
+                    R.style.ThemeOverlay_HealthSync_SleepDialog)
+                    .setTitle("Remove " + exerciseList.get(pos).getName() + "?")
+                    .setPositiveButton("Remove", (dialog, which) -> removeAt(holder))
+                    .setNegativeButton("Cancel", null)
+                    .show();
+            return true;
+        });
+    }
+
+    // Removes the exercise, saves the list, and resets the info card if the list is now empty
+    private void removeAt(ExerciseViewHolder holder) {
+        int pos = holder.getBindingAdapterPosition();
+        if (pos == RecyclerView.NO_POSITION) return;
+
+        exerciseList.remove(pos);
+        notifyItemRemoved(pos);
+
+        if (holder.itemView.getContext() instanceof WorkoutActivity) {
+            WorkoutActivity activity = (WorkoutActivity) holder.itemView.getContext();
+            activity.saveExercises();
+            if (exerciseList.isEmpty()) {
+                activity.resetExerciseInfoCard();
+            }
+        }
     }
 
     private static void applyCompletedStyle(TextView name, boolean done) {

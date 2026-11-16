@@ -41,6 +41,8 @@ public class WorkoutActivity extends AppCompatActivity
     private TextView tvMuscleTag2;
     private TextView tvMuscleTag3;
     private TextView tvInfoCardTips;
+    private android.view.View infoContent; // everything under the Exercise Info title
+    private TextView infoArrow;             // ▼ / ▲ next to the Exercise Info title
 
     // ── Weekly split (what the user trains on each day) ──────
     // Index 0 = Sunday ... 6 = Saturday, same order as the cells in the card
@@ -103,10 +105,25 @@ public class WorkoutActivity extends AppCompatActivity
             showExerciseInfo(exerciseList.get(0));
         }
 
+        // ── Exercise Info drop down ─────────────────────────────
+        // Tapping the title row opens / closes the card. Open or closed is remembered
+        infoContent = findViewById(R.id.layoutExerciseInfoContent);
+        infoArrow = findViewById(R.id.textExerciseInfoArrow);
+        android.view.View infoHeaderRow = findViewById(R.id.rowExerciseInfoHeader);
+        SharedPreferences workoutPrefs = getSharedPreferences("healthsync_workouts", MODE_PRIVATE);
+
+        showInfoOpen(workoutPrefs.getBoolean("info_open", false));
+        infoHeaderRow.setOnClickListener(v -> {
+            boolean open = infoContent.getVisibility() != android.view.View.VISIBLE;
+            showInfoOpen(open);
+            workoutPrefs.edit().putBoolean("info_open", open).apply();
+        });
+
         // Exercise list
         RecyclerView rvExercises = findViewById(R.id.rvExercises);
         rvExercises.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new ExerciseAdapter(exerciseList, this::showExerciseInfo);
+        // Tapping an exercise (its name or the ⓘ) opens the info card and scrolls down to it
+        adapter = new ExerciseAdapter(exerciseList, this::openExerciseInfo);
         rvExercises.setAdapter(adapter);
 
         // "+" opens the exercise search pop-up (ExerciseSearchBottomSheet fetches the API)
@@ -156,7 +173,30 @@ public class WorkoutActivity extends AppCompatActivity
         showWeeklySplit();
 
         findViewById(R.id.buttonEditSplit).setOnClickListener(v -> showEditSplitDialog());
+
+        // ── Drop down: tapping the title opens / closes the list of days ──
+        // The title and Edit button always stay visible. Open or closed is remembered
+        // so the card looks the same when the user comes back to this tab
+        TextView splitHeader = findViewById(R.id.textWeeklySplitHeader);
+        android.view.View splitGrid = findViewById(R.id.gridWeeklySplit);
+        SharedPreferences prefs = getSharedPreferences("healthsync_workouts", MODE_PRIVATE);
+
+        showSplitOpen(splitHeader, splitGrid, prefs.getBoolean("split_open", false));
+        splitHeader.setOnClickListener(v -> {
+            boolean open = splitGrid.getVisibility() != android.view.View.VISIBLE;
+            showSplitOpen(splitHeader, splitGrid, open);
+            prefs.edit().putBoolean("split_open", open).apply();
+        });
     } // end of setupWeeklySplit
+
+    // Shows or hides the days, and flips the arrow on the title (▼ = closed, ▲ = open)
+    private void showSplitOpen(TextView header, android.view.View grid, boolean open) {
+        grid.setVisibility(open ? android.view.View.VISIBLE : android.view.View.GONE);
+        header.setText(open ? "📅 WEEKLY SPLIT  ▲" : "📅 WEEKLY SPLIT  ▼");
+        // TalkBack reads this so screen reader users know what tapping will do
+        header.setContentDescription(open ? "Weekly split, expanded. Tap to collapse"
+                                          : "Weekly split, collapsed. Tap to expand");
+    } // end of showSplitOpen
 
     // Writes "Sunday: Rest" etc. into each cell. Today's cell is bold and green so it stands out
     private void showWeeklySplit() {
@@ -291,6 +331,30 @@ public class WorkoutActivity extends AppCompatActivity
         Toast.makeText(this, "Added " + entry.name, Toast.LENGTH_SHORT).show();
     }
 
+    // Shows or hides everything under the Exercise Info title, and flips the arrow
+    private void showInfoOpen(boolean open) {
+        infoContent.setVisibility(open ? android.view.View.VISIBLE : android.view.View.GONE);
+        infoArrow.setText(open ? "▲" : "▼");
+        // TalkBack reads this so screen reader users know what tapping will do
+        findViewById(R.id.rowExerciseInfoHeader).setContentDescription(
+                tvInfoCardTitle.getText() + (open ? ", expanded. Tap to collapse"
+                                                  : ", collapsed. Tap to expand"));
+    } // end of showInfoOpen
+
+    // Called when the user taps an exercise: fill in the card, open it, and scroll to it
+    // so the user actually sees the info they asked for
+    private void openExerciseInfo(Exercise exercise) {
+        showExerciseInfo(exercise);
+        showInfoOpen(true);
+        getSharedPreferences("healthsync_workouts", MODE_PRIVATE)
+                .edit().putBoolean("info_open", true).apply();
+
+        androidx.core.widget.NestedScrollView scroll = findViewById(R.id.scrollWorkout);
+        android.view.View card = findViewById(R.id.cardExerciseInfo);
+        // post() waits until the card has been laid out at its new (open) size
+        scroll.post(() -> scroll.smoothScrollTo(0, card.getTop()));
+    } // end of openExerciseInfo
+
     private void showExerciseInfo(Exercise exercise) {
         tvInfoCardTitle.setText("EXERCISE INFO - " + exercise.getName().toUpperCase(Locale.ROOT));
 
@@ -315,7 +379,7 @@ public class WorkoutActivity extends AppCompatActivity
         tvMuscleTag1.setText("Muscle 1");
         tvMuscleTag2.setText("Muscle 2");
         tvMuscleTag3.setText("Category");
-        tvInfoCardTips.setText("Tap '+' to add an exercise, then tap its name to view primary muscles and instructions.");
+        tvInfoCardTips.setText("Tap '+' to add an exercise, then tap its name or the ⓘ to view primary muscles and instructions.");
     }
 
     public void saveExercises() {

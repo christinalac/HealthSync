@@ -15,6 +15,12 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.view.Gravity;
+import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
+import android.widget.NumberPicker;
+import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -52,7 +58,10 @@ public class AccountActivity extends AppCompatActivity {
         findViewById(R.id.rowChangeUsername).setOnClickListener(v -> showEditDialog(USERNAME));
         findViewById(R.id.rowChangeEmail).setOnClickListener(v -> showEditDialog(EMAIL));
         findViewById(R.id.rowChangePassword).setOnClickListener(v -> showEditDialog(PASSWORD));
-
+        findViewById(R.id.rowChangeAge).setOnClickListener(v -> showAgeDialog());
+        findViewById(R.id.rowChangeHeight).setOnClickListener(v -> showHeightDialog());
+        findViewById(R.id.rowChangeWeight).setOnClickListener(v -> showWeightDialog());
+        findViewById(R.id.rowChangeActivity).setOnClickListener(v -> showActivityDialog());
         // ---- Bottom navigation (unchanged) ----
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
         bottomNav.setSelectedItemId(R.id.nav_account);
@@ -180,8 +189,131 @@ public class AccountActivity extends AppCompatActivity {
                 }
             }
 
+
             showProfile();
             dialog.dismiss();
         });
+    }
+    // ---------- Health info (same inputs as SignupInformationActivity) ----------
+
+    private void showAgeDialog() {
+        // Age spinner: 13 - 100, as in signup
+        String[] ages = new String[88];
+        for (int i = 0; i < 88; i++) ages[i] = String.valueOf(i + 13);
+
+        Spinner spinner = new Spinner(this);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this, android.R.layout.simple_spinner_item, ages);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+
+        int[] stats = db.getBodyStats(email);
+        if (stats != null) spinner.setSelection(Math.min(87, Math.max(0, stats[0] - 13)));
+
+        showHealthDialog("Change age", wrap(spinner), () ->
+                db.updateAge(email, Integer.parseInt(spinner.getSelectedItem().toString())));
+    }
+
+    private void showHeightDialog() {
+        // Feet 4-7 and inches 0-11, as in signup
+        NumberPicker feet = new NumberPicker(this);
+        feet.setMinValue(4);
+        feet.setMaxValue(7);
+        NumberPicker inches = new NumberPicker(this);
+        inches.setMinValue(0);
+        inches.setMaxValue(11);
+
+        int[] stats = db.getBodyStats(email);
+        feet.setValue(stats != null ? stats[1] : 5);
+        inches.setValue(stats != null ? stats[2] : 6);
+
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER);
+        row.addView(feet);
+        row.addView(unitLabel("ft"));
+        row.addView(inches);
+        row.addView(unitLabel("in"));
+
+        showHealthDialog("Change height", wrap(row), () ->
+                db.updateHeight(email, feet.getValue(), inches.getValue()));
+    }
+
+    private void showWeightDialog() {
+        // Weight 50 - 400 lbs, as in signup
+        NumberPicker weight = new NumberPicker(this);
+        weight.setMinValue(50);
+        weight.setMaxValue(400);
+
+        int[] stats = db.getBodyStats(email);
+        weight.setValue(stats != null ? stats[3] : 150);
+
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER);
+        row.addView(weight);
+        row.addView(unitLabel("lb"));
+
+        showHealthDialog("Change weight", wrap(row), () ->
+                db.updateWeight(email, weight.getValue()));
+    }
+
+    private void showActivityDialog() {
+        String[] levels = {
+                PersonalizedCalculations.ACTIVITY_SEDENTARY,
+                PersonalizedCalculations.ACTIVITY_LIGHTLY_ACTIVE,
+                PersonalizedCalculations.ACTIVITY_MODERATELY_ACTIVE,
+                PersonalizedCalculations.ACTIVITY_VERY_ACTIVE,
+                PersonalizedCalculations.ACTIVITY_EXTRA_ACTIVE
+        };
+        Spinner spinner = new Spinner(this);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this, android.R.layout.simple_spinner_item, levels);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+
+        // Start on the user's current level
+        String current = db.getActivityLevel(email);
+        for (int i = 0; i < levels.length; i++) {
+            if (levels[i].equals(current)) spinner.setSelection(i);
+        }
+
+        showHealthDialog("Change activity level", wrap(spinner), () ->
+                db.updateActivityLevel(email, spinner.getSelectedItem().toString()));
+    }
+
+    // Shared popup: shows the input, runs the save, refreshes the profile card
+    private void showHealthDialog(String title, View content, java.util.function.BooleanSupplier save) {
+        new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setView(content)
+                .setPositiveButton("Save", (d, which) -> {
+                    if (save.getAsBoolean()) {
+                        showProfile();
+                    } else {
+                        Toast.makeText(this, "Couldn't save. Please try again", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    // Adds padding around a popup's content
+    private View wrap(View inner) {
+        LinearLayout box = new LinearLayout(this);
+        int pad = (int) (24 * getResources().getDisplayMetrics().density);
+        box.setPadding(pad, pad / 2, pad, 0);
+        box.setGravity(Gravity.CENTER);
+        box.addView(inner);
+        return box;
+    }
+
+    private TextView unitLabel(String text) {
+        TextView t = new TextView(this);
+        t.setText(text);
+        t.setTextSize(16);
+        int pad = (int) (8 * getResources().getDisplayMetrics().density);
+        t.setPadding(pad, 0, pad * 2, 0);
+        return t;
     }
 }

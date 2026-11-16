@@ -167,6 +167,57 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.endTransaction();
         }
     }
+    // Returns {age, heightFt, heightIn, weightLbs}, or null if there's no profile row
+    @Nullable
+    public int[] getBodyStats(String email) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        try (Cursor c = db.rawQuery(
+                "SELECT age, heightFt, heightIn, weightLbs FROM user_profile WHERE email = ?",
+                new String[]{email})) {
+            if (!c.moveToFirst()) return null;
+            return new int[]{c.getInt(0), c.getInt(1), c.getInt(2), c.getInt(3)};
+        }
+    }
+
+    @Nullable
+    public String getActivityLevel(String email) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        try (Cursor c = db.rawQuery(
+                "SELECT activityLevel FROM user_profile WHERE email = ?", new String[]{email})) {
+            return c.moveToFirst() ? c.getString(0) : null;
+        }
+    }
+
+    public boolean updateAge(String email, int age) {
+        ContentValues values = new ContentValues();
+        values.put("age", age);
+        return updateProfile(email, values);
+    }
+
+    public boolean updateHeight(String email, int feet, int inches) {
+        ContentValues values = new ContentValues();
+        values.put("heightFt", feet);
+        values.put("heightIn", inches);
+        return updateProfile(email, values);
+    }
+
+    public boolean updateWeight(String email, int pounds) {
+        ContentValues values = new ContentValues();
+        values.put("weightLbs", pounds);
+        return updateProfile(email, values);
+    }
+
+    public boolean updateActivityLevel(String email, String level) {
+        ContentValues values = new ContentValues();
+        values.put("activityLevel", level);
+        return updateProfile(email, values);
+    }
+
+    // Shared by the four methods above
+    private boolean updateProfile(String email, ContentValues values) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        return db.update("user_profile", values, "email = ?", new String[]{email}) > 0;
+    }
     // Returns {name, stats line} for the Account screen, or null if there's no profile row
     @Nullable
     public String[] getProfileDisplay(String email) {

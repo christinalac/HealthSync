@@ -23,9 +23,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public static final String databaseName = "SignLog.db";
 
+    private final Context context;
+
     public DatabaseHelper(@Nullable Context context) {
         // Version bumped to 3 so onUpgrade runs and adds new profile columns
         super(context, "SignLog.db", null, 3);
+        this.context = context;
     }
 
     @Override
@@ -232,5 +235,45 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     + "  |  Level: " + c.getString(5);
             return new String[]{c.getString(0), stats};
         }
+    }
+
+    // Returns the latest saved profile in the database, or profile for logged-in user,
+    // or fallback default profile if none exists.
+    public UserProfile getLatestUserProfile() {
+        if (context != null) {
+            String email = Session.getEmail(context);
+            if (email != null) {
+                UserProfile profile = getUserProfile(email);
+                if (profile != null) {
+                    return profile;
+                }
+            }
+        }
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(
+                "SELECT gender, weightLbs, heightFt, heightIn, age, activityLevel, goal, " +
+                        "isPregnant, isBreastfeeding FROM user_profile ORDER BY rowid DESC LIMIT 1",
+                null);
+        try {
+            if (c.moveToFirst()) {
+                return new UserProfile(
+                        c.getString(0),        // gender
+                        c.getInt(1),           // weightLbs
+                        c.getInt(2),           // heightFt
+                        c.getInt(3),           // heightIn
+                        c.getInt(4),           // age
+                        c.getString(5),        // activityLevel
+                        c.getString(6),        // goal
+                        c.getInt(7) == 1,      // isPregnant
+                        c.getInt(8) == 1,      // isBreastfeeding
+                        false);                // isRestDay
+            }
+        } finally {
+            c.close();
+        }
+        return new UserProfile("Male", 160, 5, 10, 25,
+                PersonalizedCalculations.ACTIVITY_MODERATELY_ACTIVE,
+                PersonalizedCalculations.GOAL_MAINTAIN_WEIGHT,
+                false, false, false);
     }
 }

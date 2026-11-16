@@ -2,7 +2,7 @@
 // Program Name: NutritionRepository.java
 // Developer: Maximiliano Salinas
 // Date Created: 10/12/2026
-// Version: 3.0
+// Version: 3.1
 // Purpose: Saves and loads today's meals and water intake on the device, and resets them when a new day starts.
 //******************************************
 
@@ -33,9 +33,11 @@ public class NutritionRepository {
     private static final String KEY_WATER_ML_OLD = "water_ml";   // from earlier versions
 
     private final SharedPreferences prefs;
+    private final ProgressHistory history; // day-by-day totals for the Progress page
 
     public NutritionRepository(Context context) {
         prefs = context.getApplicationContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        history = new ProgressHistory(context);
     }
 
     public NutritionState load() {
@@ -52,6 +54,10 @@ public class NutritionRepository {
                 .putString(KEY_MEALS, mealsToJson(state.meals))
                 .putInt(KEY_WATER_CUPS, state.hydrationCups)
                 .apply();
+
+        // Also record today's totals in the history so the Progress page graphs fill in
+        // (1 cup = 0.25 L, same as the 250 ml conversion above)
+        history.recordNutrition(state.getCaloriesEaten(), state.hydrationCups * 0.25);
     }
 
     private static String today() {

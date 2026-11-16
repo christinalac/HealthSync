@@ -26,7 +26,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Home / Progress"
+            android:text="Progress"
             android:textColor="@android:color/white"
             android:textSize="24sp"
             android:textStyle="bold" />
@@ -96,8 +96,9 @@
 
                         <LinearLayout style="@style/CalorieColumn">
                             <TextView
+                                android:id="@+id/tvTodayCalories"
                                 style="@style/CalorieNumber"
-                                android:text="1,850"
+                                android:text="--"
                                 android:textColor="@color/nutrition_green_dark" />
                             <TextView
                                 style="@style/CalorieLabel"
@@ -110,8 +111,9 @@
 
                         <LinearLayout style="@style/CalorieColumn">
                             <TextView
+                                android:id="@+id/tvTodayWater"
                                 style="@style/CalorieNumber"
-                                android:text="2.4"
+                                android:text="--"
                                 android:textColor="#0288D1" />
                             <TextView
                                 style="@style/CalorieLabel"
@@ -124,8 +126,9 @@
 
                         <LinearLayout style="@style/CalorieColumn">
                             <TextView
+                                android:id="@+id/tvTodaySleep"
                                 style="@style/CalorieNumber"
-                                android:text="7.5"
+                                android:text="--"
                                 android:textColor="#3F51B5" />
                             <TextView
                                 style="@style/CalorieLabel"
@@ -135,7 +138,103 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- CARD 1: Calories Intake Graph -->
+            <!-- CARD: Suggested for you (preview). A few food and workout picks from
+                 SuggestionEngine; "See all" opens the full list in a pop-up -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="3dp"
+                app:strokeWidth="0dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Suggested for You"
+                        android:textColor="@color/nutrition_navy_text"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
+                    <!-- e.g. "Based on: Gain Muscle · 2,600 kcal / day" (set by ProgressActivity) -->
+                    <TextView
+                        android:id="@+id/textPreviewBasis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:textColor="#7A869A"
+                        android:textSize="13sp" />
+
+                    <!-- Food picks -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Food"
+                            android:textColor="@color/nutrition_navy_text"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+                        <Button
+                            android:id="@+id/buttonSeeAllFoods"
+                            style="?attr/borderlessButtonStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minHeight="48dp"
+                            android:text="See all"
+                            android:textAllCaps="false"
+                            android:textColor="@color/text_dark_green"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                    <!-- Filled in by ProgressActivity, one line per suggestion -->
+                    <LinearLayout
+                        android:id="@+id/layoutPreviewFoods"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+
+                    <!-- Workout picks -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Workouts"
+                            android:textColor="@color/nutrition_navy_text"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+                        <Button
+                            android:id="@+id/buttonSeeAllWorkouts"
+                            style="?attr/borderlessButtonStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minHeight="48dp"
+                            android:text="See all"
+                            android:textAllCaps="false"
+                            android:textColor="@color/text_dark_green"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/layoutPreviewWorkouts"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>            <!-- CARD 1: Calories Intake Graph -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -176,7 +275,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
-                                android:text="Avg: 2,135 kcal / day"
+                                android:text="No data yet"
                                 android:textColor="#7A869A"
                                 android:textSize="13sp" />
                         </LinearLayout>
@@ -220,72 +319,10 @@
                         android:layout_marginTop="20dp"
                         android:gravity="bottom"
                         android:orientation="horizontal">
-
-                        <!-- Mon -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2,100" android:textColor="@color/navy_text" android:textSize="10sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="16dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="100dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_calories" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Mon" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Tue -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2,350" android:textColor="@color/navy_text" android:textSize="10sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="16dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="112dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_calories" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Tue" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Wed -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1,920" android:textColor="@color/navy_text" android:textSize="10sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="16dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="90dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_calories" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Wed" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Thu -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2,200" android:textColor="@color/navy_text" android:textSize="10sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="16dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="105dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_calories" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Thu" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Fri -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2,400" android:textColor="@color/navy_text" android:textSize="10sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="16dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="115dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_calories" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Fri" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Sat -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1,850" android:textColor="@color/navy_text" android:textSize="10sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="16dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="88dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_calories" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Sat" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Sun -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2,125" android:textColor="@color/navy_text" android:textSize="10sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="16dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="101dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_calories" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Sun" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
+                        <!-- Mon - Sun bars for this week are added by ProgressActivity from the user's saved history -->
                     </LinearLayout>
 
-                    <!-- Calories Monthly Graph (Initially Hidden) -->
+                    <!-- Calories Monthly Graph: one bar per week of this month (Initially Hidden) -->
                     <LinearLayout
                         android:id="@+id/layoutCaloriesMonthly"
                         android:layout_width="match_parent"
@@ -294,42 +331,7 @@
                         android:gravity="bottom"
                         android:orientation="horizontal"
                         android:visibility="gone">
-
-                        <!-- Week 1 -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2,080" android:textColor="@color/navy_text" android:textSize="11sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="26dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="98dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_calories" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Wk 1" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Week 2 -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2,210" android:textColor="@color/navy_text" android:textSize="11sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="26dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="106dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_calories" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Wk 2" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Week 3 -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2,150" android:textColor="@color/navy_text" android:textSize="11sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="26dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="102dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_calories" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Wk 3" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Week 4 -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2,100" android:textColor="@color/navy_text" android:textSize="11sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="26dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="100dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_calories" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Wk 4" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
+                        <!-- Wk 1 - Wk 5 bars for this month are added by ProgressActivity from the user's saved history -->
                     </LinearLayout>
 
                 </LinearLayout>
@@ -376,7 +378,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
-                                android:text="Avg: 2.6 L / day"
+                                android:text="No data yet"
                                 android:textColor="#7A869A"
                                 android:textSize="13sp" />
                         </LinearLayout>
@@ -420,72 +422,10 @@
                         android:layout_marginTop="20dp"
                         android:gravity="bottom"
                         android:orientation="horizontal">
-
-                        <!-- Mon -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2.5L" android:textColor="@color/navy_text" android:textSize="10sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="16dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="88dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_water" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Mon" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Tue -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3.0L" android:textColor="@color/navy_text" android:textSize="10sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="16dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="105dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_water" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Tue" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Wed -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2.2L" android:textColor="@color/navy_text" android:textSize="10sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="16dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="77dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_water" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Wed" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Thu -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2.8L" android:textColor="@color/navy_text" android:textSize="10sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="16dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="98dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_water" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Thu" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Fri -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3.2L" android:textColor="@color/navy_text" android:textSize="10sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="16dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="112dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_water" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Fri" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Sat -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2.0L" android:textColor="@color/navy_text" android:textSize="10sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="16dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="70dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_water" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Sat" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Sun -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2.6L" android:textColor="@color/navy_text" android:textSize="10sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="16dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="91dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_water" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Sun" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
+                        <!-- Mon - Sun bars for this week are added by ProgressActivity from the user's saved history -->
                     </LinearLayout>
 
-                    <!-- Water Monthly Graph (Initially Hidden) -->
+                    <!-- Water Monthly Graph: one bar per week of this month (Initially Hidden) -->
                     <LinearLayout
                         android:id="@+id/layoutWaterMonthly"
                         android:layout_width="match_parent"
@@ -494,42 +434,7 @@
                         android:gravity="bottom"
                         android:orientation="horizontal"
                         android:visibility="gone">
-
-                        <!-- Week 1 -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2.4L" android:textColor="@color/navy_text" android:textSize="11sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="26dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="84dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_water" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Wk 1" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Week 2 -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2.7L" android:textColor="@color/navy_text" android:textSize="11sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="26dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="95dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_water" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Wk 2" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Week 3 -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2.6L" android:textColor="@color/navy_text" android:textSize="11sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="26dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="91dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_water" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Wk 3" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Week 4 -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2.8L" android:textColor="@color/navy_text" android:textSize="11sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="26dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="98dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_water" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Wk 4" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
+                        <!-- Wk 1 - Wk 5 bars for this month are added by ProgressActivity from the user's saved history -->
                     </LinearLayout>
 
                 </LinearLayout>
@@ -576,7 +481,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
-                                android:text="Avg: 7.6 hrs / night"
+                                android:text="No data yet"
                                 android:textColor="#7A869A"
                                 android:textSize="13sp" />
                         </LinearLayout>
@@ -620,72 +525,10 @@
                         android:layout_marginTop="20dp"
                         android:gravity="bottom"
                         android:orientation="horizontal">
-
-                        <!-- Mon -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="7.5h" android:textColor="@color/navy_text" android:textSize="10sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="16dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="90dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_sleep" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Mon" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Tue -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="8.0h" android:textColor="@color/navy_text" android:textSize="10sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="16dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="96dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_sleep" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Tue" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Wed -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="6.8h" android:textColor="@color/navy_text" android:textSize="10sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="16dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="81dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_sleep" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Wed" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Thu -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="7.2h" android:textColor="@color/navy_text" android:textSize="10sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="16dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="86dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_sleep" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Thu" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Fri -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="8.5h" android:textColor="@color/navy_text" android:textSize="10sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="16dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="102dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_sleep" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Fri" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Sat -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="9.0h" android:textColor="@color/navy_text" android:textSize="10sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="16dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="108dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_sleep" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Sat" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Sun -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="7.8h" android:textColor="@color/navy_text" android:textSize="10sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="16dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="93dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_sleep" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Sun" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
+                        <!-- Mon - Sun bars for this week are added by ProgressActivity from the user's saved history -->
                     </LinearLayout>
 
-                    <!-- Sleep Monthly Graph (Initially Hidden) -->
+                    <!-- Sleep Monthly Graph: one bar per week of this month (Initially Hidden) -->
                     <LinearLayout
                         android:id="@+id/layoutSleepMonthly"
                         android:layout_width="match_parent"
@@ -694,42 +537,7 @@
                         android:gravity="bottom"
                         android:orientation="horizontal"
                         android:visibility="gone">
-
-                        <!-- Week 1 -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="7.4h" android:textColor="@color/navy_text" android:textSize="11sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="26dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="89dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_sleep" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Wk 1" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Week 2 -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="7.8h" android:textColor="@color/navy_text" android:textSize="11sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="26dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="93dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_sleep" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Wk 2" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Week 3 -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="7.2h" android:textColor="@color/navy_text" android:textSize="11sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="26dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="86dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_sleep" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Wk 3" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Week 4 -->
-                        <LinearLayout style="@style/CalorieColumn">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="7.9h" android:textColor="@color/navy_text" android:textSize="11sp" android:textStyle="bold" />
-                            <FrameLayout android:layout_width="26dp" android:layout_height="120dp" android:layout_marginTop="4dp" android:background="@drawable/bg_chart_bar_track">
-                                <View android:layout_width="match_parent" android:layout_height="95dp" android:layout_gravity="bottom" android:background="@drawable/bg_chart_bar_sleep" />
-                            </FrameLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Wk 4" android:textColor="#7A869A" android:textSize="11sp" />
-                        </LinearLayout>
+                        <!-- Wk 1 - Wk 5 bars for this month are added by ProgressActivity from the user's saved history -->
                     </LinearLayout>
 
                 </LinearLayout>

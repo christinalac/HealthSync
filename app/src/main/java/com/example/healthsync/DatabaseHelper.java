@@ -23,9 +23,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public static final String databaseName = "SignLog.db";
 
+    private final Context context;
+
     public DatabaseHelper(@Nullable Context context) {
         // Version bumped to 3 so onUpgrade runs and adds new profile columns
         super(context, "SignLog.db", null, 3);
+        this.context = context;
     }
 
     @Override
@@ -232,5 +235,48 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     + "  |  Level: " + c.getString(5);
             return new String[]{c.getString(0), stats};
         }
+    }
+
+    // Returns the latest saved profile in the database, or profile for logged-in user,
+    // or fallback default profile if none exists.
+    public UserProfile getLatestUserProfile() {
+        if (context != null) {
+            String email = Session.getEmail(context);
+            if (email != null) {
+                UserProfile profile = getUserProfile(email);
+                if (profile != null) {
+                    return profile;
+                }
+            }
+        }
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(
+                "SELECT email, name, age, gender, heightFt, heightIn, weightLbs, goal, activityLevel, " +
+                        "isPregnant, isBreastfeeding FROM user_profile ORDER BY rowid DESC LIMIT 1",
+                null);
+        try {
+            if (c.moveToFirst()) {
+                return new UserProfile(
+                        c.getString(0),        // email
+                        c.getString(1),        // name
+                        c.getInt(2),           // age
+                        c.getString(3),        // gender
+                        c.getInt(4),           // heightFt
+                        c.getInt(5),           // heightIn
+                        c.getInt(6),           // weightLbs
+                        c.getString(7),        // goal
+                        c.getString(8),        // activityLevel
+                        c.getInt(9) == 1,      // isPregnant
+                        c.getInt(10) == 1,     // isBreastfeeding
+                        false);                // isRestDay
+            }
+        } finally {
+            c.close();
+        }
+        // No saved profile at all, so use a default one (no email or name yet)
+        return new UserProfile(null, null, 25, "Male", 5, 10, 160,
+                PersonalizedCalculations.GOAL_MAINTAIN_WEIGHT,
+                PersonalizedCalculations.ACTIVITY_MODERATELY_ACTIVE,
+                false, false, false);
     }
 }

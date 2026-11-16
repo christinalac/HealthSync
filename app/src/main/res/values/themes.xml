@@ -60,4 +60,14 @@
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">16sp</item>
     </style>
+
+    <!-- One day cell (e.g. "Sunday: Rest") in the Workout screen's weekly split card -->
+    <style name="WorkoutSplitDay">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_columnWeight">1</item>
+        <item name="android:paddingVertical">3dp</item>
+        <item name="android:textColor">@color/workout_text_main</item>
+        <item name="android:textSize">13sp</item>
+    </style>
 </resources>

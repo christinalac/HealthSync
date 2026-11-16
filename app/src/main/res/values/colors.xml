@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+//******************************************
+// Program Name: colors.xml
+// Developer: Christina LaCombe
+// Date Created: 10/12/2026
+// Version: 1.0
+// Purpose: Shared color palette used across all screens.
+//******************************************
+-->
 <resources>
     <!-- Backgrounds -->
     <color name="workout_bg_dark_blue">#1D2A63</color> <!-- The deep blue phone/header wrap -->

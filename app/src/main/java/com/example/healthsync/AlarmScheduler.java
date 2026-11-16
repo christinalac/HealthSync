@@ -1,3 +1,10 @@
+//******************************************
+// Program Name: AlarmScheduler.java
+// Developer: Anthony Ramirez and Christina LaCombe
+// Date Created: 11/11/2026
+// Version: 1.1
+// Purpose: Schedules and cancels the weekly bedtime reminders and wake-up alarms with AlarmManager.
+//******************************************
 package com.example.healthsync;
 
 import android.app.AlarmManager;

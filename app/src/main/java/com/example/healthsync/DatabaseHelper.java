@@ -105,4 +105,132 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         long result = db.insert("user_profile", null, values);
         return result != -1;
     }
+
+    /** Returns the saved profile for this email, or null if there isn't one. */
+    @Nullable
+    // Used by the Account screen to show the profile and run the calculations
+    public UserProfile getUserProfile(String email) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        try (Cursor c = db.rawQuery("SELECT * FROM user_profile WHERE email = ?",
+                new String[]{email})) {
+            if (!c.moveToFirst()) return null;
+            // Copy each column into a UserProfile (booleans are stored as 0/1)
+            return new UserProfile(
+                    c.getString(c.getColumnIndexOrThrow("email")),
+                    c.getString(c.getColumnIndexOrThrow("name")),
+                    c.getInt(c.getColumnIndexOrThrow("age")),
+                    c.getString(c.getColumnIndexOrThrow("gender")),
+                    c.getInt(c.getColumnIndexOrThrow("heightFt")),
+                    c.getInt(c.getColumnIndexOrThrow("heightIn")),
+                    c.getInt(c.getColumnIndexOrThrow("weightLbs")),
+                    c.getString(c.getColumnIndexOrThrow("goal")),
+                    c.getString(c.getColumnIndexOrThrow("activityLevel")),
+                    c.getInt(c.getColumnIndexOrThrow("isPregnant")) == 1,
+                    c.getInt(c.getColumnIndexOrThrow("isBreastfeeding")) == 1,
+                    false); // isRestDay is not stored in the database yet
+        }
+    }
+
+    // Changes the name shown on the Account screen. Returns false if no profile row matched.
+    public boolean updateName(String email, String name) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("name", name);
+        return db.update("user_profile", values, "email = ?", new String[]{email}) > 0;
+    }
+
+    // Changes the login password. Returns false if no user row matched.
+    public boolean updatePassword(String email, String password) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("password", password);
+        return db.update("users", values, "email = ?", new String[]{email}) > 0;
+    }
+
+    /** Changes the login email in both tables. Returns false if the new email is taken. */
+    public boolean updateEmail(String oldEmail, String newEmail) {
+        // Refuse if another account already uses the new email
+        if (!oldEmail.equalsIgnoreCase(newEmail) && checkEmail(newEmail)) return false;
+        SQLiteDatabase db = this.getWritableDatabase();
+        // Update both tables together so they never end up with different emails
+        db.beginTransaction();
+        try {
+            ContentValues values = new ContentValues();
+            values.put("email", newEmail);
+            int users = db.update("users", values, "email = ?", new String[]{oldEmail});
+            db.update("user_profile", values, "email = ?", new String[]{oldEmail});
+            // No login row matched, so skip the commit and undo the changes
+            if (users == 0) return false;
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+    // Returns {age, heightFt, heightIn, weightLbs}, or null if there's no profile row
+    @Nullable
+    public int[] getBodyStats(String email) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        try (Cursor c = db.rawQuery(
+                "SELECT age, heightFt, heightIn, weightLbs FROM user_profile WHERE email = ?",
+                new String[]{email})) {
+            if (!c.moveToFirst()) return null;
+            return new int[]{c.getInt(0), c.getInt(1), c.getInt(2), c.getInt(3)};
+        }
+    }
+
+    @Nullable
+    public String getActivityLevel(String email) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        try (Cursor c = db.rawQuery(
+                "SELECT activityLevel FROM user_profile WHERE email = ?", new String[]{email})) {
+            return c.moveToFirst() ? c.getString(0) : null;
+        }
+    }
+
+    public boolean updateAge(String email, int age) {
+        ContentValues values = new ContentValues();
+        values.put("age", age);
+        return updateProfile(email, values);
+    }
+
+    public boolean updateHeight(String email, int feet, int inches) {
+        ContentValues values = new ContentValues();
+        values.put("heightFt", feet);
+        values.put("heightIn", inches);
+        return updateProfile(email, values);
+    }
+
+    public boolean updateWeight(String email, int pounds) {
+        ContentValues values = new ContentValues();
+        values.put("weightLbs", pounds);
+        return updateProfile(email, values);
+    }
+
+    public boolean updateActivityLevel(String email, String level) {
+        ContentValues values = new ContentValues();
+        values.put("activityLevel", level);
+        return updateProfile(email, values);
+    }
+
+    // Shared by the four methods above
+    private boolean updateProfile(String email, ContentValues values) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        return db.update("user_profile", values, "email = ?", new String[]{email}) > 0;
+    }
+    // Returns {name, stats line} for the Account screen, or null if there's no profile row
+    @Nullable
+    public String[] getProfileDisplay(String email) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        try (Cursor c = db.rawQuery(
+                "SELECT name, age, heightFt, heightIn, weightLbs, activityLevel " +
+                        "FROM user_profile WHERE email = ?", new String[]{email})) {
+            if (!c.moveToFirst()) return null;
+            String stats = "Age: " + c.getInt(1)
+                    + "  |  Height: " + c.getInt(2) + "' " + c.getInt(3) + "\""
+                    + "  |  Weight: " + c.getInt(4) + " lb"
+                    + "  |  Level: " + c.getString(5);
+            return new String[]{c.getString(0), stats};
+        }
+    }
 }

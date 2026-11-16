@@ -1,3 +1,10 @@
+//******************************************
+// Program Name: AlarmReceiver.java
+// Developer: Anthony Ramirez and Christina LaCombe
+// Date Created: 11/11/2026
+// Version: 1.1
+// Purpose: Receives a fired alarm: starts the ringing service for wake-ups or shows a reminder for bedtime, then schedules next week.
+//******************************************
 package com.example.healthsync;
 
 import android.content.BroadcastReceiver;
@@ -19,7 +26,14 @@ public class AlarmReceiver extends BroadcastReceiver {
         Log.d("SleepAlarm", "Fired: day=" + day + " minutes=" + minutes + " isWake=" + isWake);
 
         if (isWake) {
-            ContextCompat.startForegroundService(context, new Intent(context, AlarmService.class));
+            // Android 12+ can refuse to start a foreground service from the background
+            try {
+                ContextCompat.startForegroundService(context, new Intent(context, AlarmService.class));
+            } catch (RuntimeException e) {
+                // Android refused to start the service from the background; still alert the user
+                Log.e("SleepAlarm", "Could not start alarm service", e);
+                NotificationHelper.show(context, day, true);
+            }
         } else {
             NotificationHelper.show(context, day, false);
         }

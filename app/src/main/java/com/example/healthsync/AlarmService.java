@@ -1,3 +1,10 @@
+//******************************************
+// Program Name: AlarmService.java
+// Developer: Anthony Ramirez and Christina LaCombe
+// Date Created: 11/11/2026
+// Version: 1.1
+// Purpose: Foreground service that plays the alarm sound and vibration until it is stopped or times out after 5 minutes.
+//******************************************
 package com.example.healthsync;
 
 import android.app.Notification;
@@ -53,12 +60,20 @@ public class AlarmService extends Service {
         }
 
         createChannel();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            ServiceCompat.startForeground(
-                    this, NOTIF_ID, buildNotification(),
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
-        } else {
-            startForeground(NOTIF_ID, buildNotification());
+        try {
+            // Android 10+ needs a service type here; media playback matches the alarm sound
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                ServiceCompat.startForeground(
+                        this, NOTIF_ID, buildNotification(),
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+            } else {
+                startForeground(NOTIF_ID, buildNotification());
+            }
+        } catch (RuntimeException e) {
+            // Not allowed to run in the foreground right now; don't crash the app
+            Log.e("SleepAlarm", "Could not start foreground alarm", e);
+            stopSelf();
+            return START_NOT_STICKY;
         }
 
         startSound();

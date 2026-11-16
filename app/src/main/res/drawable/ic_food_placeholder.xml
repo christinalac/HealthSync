@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Nutrition tab icon: crossed fork and knife, outline style.
-     The stroke is white here; BottomNavigationView tints it (selected/unselected),
-     so the color in this file doesn't matter. -->
+<!--
+//******************************************
+// Program Name: ic_food_placeholder.xml
+// Developer: Maximiliano Salinas
+// Date Created: 10/12/2026
+// Version: 2.0
+// Purpose: Grey fork and knife icon used inside the food photo placeholder.
+//******************************************
+-->
+
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"

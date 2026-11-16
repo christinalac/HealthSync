@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+//******************************************
+// Program Name: nutrition_styles.xml
+// Developer: Maximiliano Salinas
+// Date Created: 10/12/2026
+// Version: 1.0
+// Purpose: Reusable text styles for the calorie summary, plus the text template for the calorie count in the header.
+//******************************************
+-->
+
 <resources>
     <string name="kcal_progress">%1$,d / %2$,d kcal</string>
 

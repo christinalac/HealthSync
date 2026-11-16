@@ -1,5 +1,15 @@
-package com.example.healthsync;
+/*
+ * Author: Zoey Lira
+ * Date: November 16, 2026
+ * Class: COSC 3324
+ * File: WorkoutActivity.java
+ * Description: Manages the HealthSync workout planner screen, including the weekly
+ *              workout split schedule, daily exercise list, exercise info details,
+ *              and bottom navigation.
+ */
 
+
+package com.example.healthsync;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;

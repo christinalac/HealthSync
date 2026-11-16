@@ -1,3 +1,12 @@
+/*
+ * Author: Zoey Lira
+ * Date: November 16, 2026
+ * Class: COSC 3324
+ * File: FreeExerciseDbApi.java
+ * Description: Network client that fetches exercise data from the Free Exercise DB
+ *              JSON API on a background thread, parses muscle groups and instructions,
+ *              maps them to HealthSync filter categories, and caches the results.
+ */
 package com.example.healthsync;
 
 import android.os.Handler;

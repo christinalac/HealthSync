@@ -1,3 +1,12 @@
+/*
+ * Author: Zoey Lira
+ * Date: November 16, 2026
+ * Class: COSC 3324
+ * File: Exercise.java
+ * Description: Data model representing a single exercise in the HealthSync workout
+ *              plan, storing its name, category, sets/reps, completion status,
+ *              targeted muscle tags, and form tips.
+ */
 package com.example.healthsync;
 
 // One exercise row in the workout plan (Java port of the Kotlin data class).

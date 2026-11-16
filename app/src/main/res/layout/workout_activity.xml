@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Author: Zoey Lira
+  Date: November 16, 2026
+  Class: COSC 3324
+  File: workout_activity.xml
+  Description: Layout for the HealthSync Workout Planner screen, including the
+               navy header with suggestions button, expandable weekly split card,
+               daily workout list, exercise info card, and bottom navigation.
+-->
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"

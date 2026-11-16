@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Author: Zoey Lira
+  Date: November 16, 2026
+  Class: COSC 3324
+  File: custom_checkbox.xml
+  Description: State list selector drawable defining the checked (green with white
+               checkmark) and unchecked (gray) states for the workout exercise
+               completion checkbox.
+-->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- State when the checkbox is checked -->
     <item android:state_checked="true">

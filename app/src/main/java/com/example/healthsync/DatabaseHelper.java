@@ -167,4 +167,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.endTransaction();
         }
     }
+    // Returns {name, stats line} for the Account screen, or null if there's no profile row
+    @Nullable
+    public String[] getProfileDisplay(String email) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        try (Cursor c = db.rawQuery(
+                "SELECT name, age, heightFt, heightIn, weightLbs, activityLevel " +
+                        "FROM user_profile WHERE email = ?", new String[]{email})) {
+            if (!c.moveToFirst()) return null;
+            String stats = "Age: " + c.getInt(1)
+                    + "  |  Height: " + c.getInt(2) + "' " + c.getInt(3) + "\""
+                    + "  |  Weight: " + c.getInt(4) + " lb"
+                    + "  |  Level: " + c.getString(5);
+            return new String[]{c.getString(0), stats};
+        }
+    }
 }

@@ -1,20 +1,18 @@
 //******************************************
 // Program Name: AccountActivity.java
-// Developer: Anthony Ramirez
+// Developer:
 // Date Created: 10/12/2026
-// Version: 1.2
-// Purpose: AccountActivity is the Account / Profile screen — Tab 5 (last tab).
-// Shows the logged-in user's profile from the database, their personalized daily
-// targets (PersonalizedCalculations), lets them change their username, email and
-// password, and has a working Log Out button that returns to SplashActivity.
+// Version: 2.0
+// Purpose: Account / Profile screen — Tab 5. Shows the logged-in user's profile from
+// the SQLite database, lets them change their name, email and password, and logs out.
 //******************************************
 package com.example.healthsync;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Patterns;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -29,37 +27,28 @@ public class AccountActivity extends AppCompatActivity {
     private static final int USERNAME = 0;
     private static final int EMAIL = 1;
     private static final int PASSWORD = 2;
-    // Database access: the profile and login info are read from and saved here
-    private DatabaseHelper db;
-    // Email of the logged-in user; it is the key used to look up their rows
-    private String currentEmail; // who is logged in; the key into the database
 
-    private TextView textProfileName;
-    private TextView textProfileEmail;
-    private TextView textStatsRow;
-    private TextView textGoalValue;
-    private TextView textCaloriesValue;
-    private TextView textWaterValue;
-    private TextView textSleepValue;
+    private DatabaseHelper db;
+    private String email; // the logged-in user's email (the key in both tables)
+    private TextView textProfileName, textProfileEmail, textStatsRow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.account_activity);
+
         db = new DatabaseHelper(this);
-        // Saved at login/signup; null means nobody is logged in
-        currentEmail = Session.getEmail(this);
+        email = Session.getEmail(this);
+        if (email == null) { // nobody is logged in
+            goToLogin();
+            return;
+        }
 
         textProfileName = findViewById(R.id.textProfileName);
         textProfileEmail = findViewById(R.id.textProfileEmail);
         textStatsRow = findViewById(R.id.textStatsRow);
-        textGoalValue = findViewById(R.id.textGoalValue);
-        textCaloriesValue = findViewById(R.id.textCaloriesValue);
-        textWaterValue = findViewById(R.id.textWaterValue);
-        textSleepValue = findViewById(R.id.textSleepValue);
         showProfile();
 
-        // ---- Settings rows ----
         findViewById(R.id.rowChangeUsername).setOnClickListener(v -> showEditDialog(USERNAME));
         findViewById(R.id.rowChangeEmail).setOnClickListener(v -> showEditDialog(EMAIL));
         findViewById(R.id.rowChangePassword).setOnClickListener(v -> showEditDialog(PASSWORD));
@@ -87,55 +76,24 @@ public class AccountActivity extends AppCompatActivity {
             return false;
         });
 
-        // ---- Log out ----
-        // NEW_TASK + CLEAR_TASK wipes the back stack so Back can't return to the app
-        Button logoutButton = findViewById(R.id.buttonLogout);
-        logoutButton.setOnClickListener(view -> {
-            // Forget who was logged in so the next login starts clean
+        // ---- Log out: forget the user, then wipe the back stack ----
+        findViewById(R.id.buttonLogout).setOnClickListener(v -> {
             Session.clear(this);
-            Intent intent = new Intent(AccountActivity.this, SplashActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
+            goToLogin();
         });
     }
 
-    // Fills the screen from the database and runs the personalized calculations on it
+    private void goToLogin() {
+        Intent intent = new Intent(this, SplashActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
+
     private void showProfile() {
-        // Load the saved profile; null if nobody is logged in or no profile exists
-        UserProfile p = currentEmail == null ? null : db.getUserProfile(currentEmail);
-        if (p == null) {
-            textProfileName.setText("Not signed in");
-            textProfileEmail.setText(currentEmail == null ? "Log in to see your profile" : currentEmail);
-            textStatsRow.setText("Age: --  |  Height: --  |  Weight: --  |  Level: --");
-            textGoalValue.setText("Goal: --");
-            textCaloriesValue.setText("Calories: --");
-            textWaterValue.setText("Water: --");
-            textSleepValue.setText("Sleep: --");
-            return;
-        }
-
-        textProfileName.setText(p.name);
-        textProfileEmail.setText(p.email);
-        textStatsRow.setText("Age: " + p.age
-                + "  |  Height: " + p.heightFt + "'" + p.heightIn + "\""
-                + "  |  Weight: " + p.weightLbs + " lbs"
-                + "  |  Level: " + p.activityLevel);
-
-        // Daily targets use the same formulas as the rest of the app
-        // false = treat today as an active day (there is no rest-day setting yet)
-        int calories = PersonalizedCalculations.calculateDailyCalories(
-                p.gender, p.weightLbs, p.heightFt, p.heightIn, p.age,
-                p.activityLevel, p.goal, false);
-        double litres = PersonalizedCalculations.calculateDailyWaterLitres(
-                p.gender, p.weightLbs, p.activityLevel, p.goal,
-                p.isPregnant, p.isBreastfeeding);
-
-        textGoalValue.setText("Goal: " + p.goal);
-        textCaloriesValue.setText("Calories: " + calories + " kcal per day");
-        textWaterValue.setText("Water: " + litres + " L (about "
-                + PersonalizedCalculations.litresToCups(litres) + " cups) per day");
-        textSleepValue.setText("Sleep: " + PersonalizedCalculations.getSleepSuggestion(p.age)
-                + " per night");
+        String[] profile = db.getProfileDisplay(email);
+        textProfileName.setText(profile != null ? profile[0] : "Your name");
+        textProfileEmail.setText(email);
+        if (profile != null) textStatsRow.setText(profile[1]);
     }
 
     // One popup for all three changes; only the needed fields are shown
@@ -150,25 +108,22 @@ public class AccountActivity extends AppCompatActivity {
 
         String title;
         if (type == USERNAME) {
-            title = "Change username";
-            tilNew.setHint("New username");
+            title = "Change name";
+            tilNew.setHint("New name");
         } else if (type == EMAIL) {
             title = "Change email";
             tilNew.setHint("New email");
-            etNew.setInputType(android.text.InputType.TYPE_CLASS_TEXT
-                    | android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+            etNew.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
         } else {
             title = "Change password";
-            tilNew.setHint("New password (8+ characters)");
+            tilNew.setHint("New password");
             tilNew.setEndIconMode(TextInputLayout.END_ICON_PASSWORD_TOGGLE);
-            etNew.setInputType(android.text.InputType.TYPE_CLASS_TEXT
-                    | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
-            tilConfirm.setVisibility(View.VISIBLE);
+            etNew.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
             tilCurrent.setVisibility(View.VISIBLE);
+            tilConfirm.setVisibility(View.VISIBLE);
         }
 
-        // Sleep dialog theme gives these dialogs green accents and dark green buttons
-        AlertDialog dialog = new AlertDialog.Builder(this, R.style.ThemeOverlay_HealthSync_SleepDialog)
+        AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(title)
                 .setView(view)
                 .setPositiveButton("Save", null) // set below so errors don't close the dialog
@@ -180,22 +135,16 @@ public class AccountActivity extends AppCompatActivity {
             tilCurrent.setError(null);
             tilNew.setError(null);
             tilConfirm.setError(null);
-
-            // Without a logged-in user there is nothing to update
-            if (currentEmail == null) {
-                tilNew.setError("Please log in again first");
-                return;
-            }
+            // Trimmed, to match how signup and login treat these fields
             String value = etNew.getText().toString().trim();
 
             if (type == USERNAME) {
-                if (value.length() < 3) {
-                    tilNew.setError("Use at least 3 characters");
+                if (value.isEmpty()) {
+                    tilNew.setError("Enter a name");
                     return;
                 }
-                // Username is saved as the name on the profile row
-                if (!db.updateName(currentEmail, value)) {
-                    tilNew.setError("Could not save. Please log in again.");
+                if (!db.updateName(email, value)) {
+                    tilNew.setError("Couldn't save. Please try again");
                     return;
                 }
 
@@ -204,33 +153,29 @@ public class AccountActivity extends AppCompatActivity {
                     tilNew.setError("Enter a valid email address");
                     return;
                 }
-                // Email is the login, so it changes in both tables; fails if already taken
-                if (!db.updateEmail(currentEmail, value)) {
+                if (!db.updateEmail(email, value)) {
                     tilNew.setError("That email is already in use");
                     return;
                 }
-                // Keep the session pointing at the new email
-                currentEmail = value;
-                Session.setEmail(this, value);
+                // The email is the user's key, so the saved login must follow it
+                email = value;
+                Session.setEmail(this, email);
 
             } else {
-                String password = etNew.getText().toString(); // don't trim passwords
-                // Must type the current password before it can be changed
-                if (!db.checkEmailPassword(currentEmail, etCurrent.getText().toString())) {
+                if (!db.checkEmailPassword(email, etCurrent.getText().toString().trim())) {
                     tilCurrent.setError("Current password is incorrect");
                     return;
                 }
-                if (password.length() < 8) {
-                    tilNew.setError("Use at least 8 characters");
+                if (value.isEmpty()) {
+                    tilNew.setError("Enter a new password");
                     return;
                 }
-                if (!password.equals(etConfirm.getText().toString())) {
+                if (!value.equals(etConfirm.getText().toString().trim())) {
                     tilConfirm.setError("Passwords don't match");
                     return;
                 }
-                // Login checks this same stored password, so the new one works next login
-                if (!db.updatePassword(currentEmail, password)) {
-                    tilNew.setError("Could not save. Please log in again.");
+                if (!db.updatePassword(email, value)) {
+                    tilNew.setError("Couldn't save. Please try again");
                     return;
                 }
             }

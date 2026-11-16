@@ -138,7 +138,103 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- CARD 1: Calories Intake Graph -->
+            <!-- CARD: Suggested for you (preview). A few food and workout picks from
+                 SuggestionEngine; "See all" opens the full list in a pop-up -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="3dp"
+                app:strokeWidth="0dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Suggested for You"
+                        android:textColor="@color/nutrition_navy_text"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
+                    <!-- e.g. "Based on: Gain Muscle · 2,600 kcal / day" (set by ProgressActivity) -->
+                    <TextView
+                        android:id="@+id/textPreviewBasis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:textColor="#7A869A"
+                        android:textSize="13sp" />
+
+                    <!-- Food picks -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Food"
+                            android:textColor="@color/nutrition_navy_text"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+                        <Button
+                            android:id="@+id/buttonSeeAllFoods"
+                            style="?attr/borderlessButtonStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minHeight="48dp"
+                            android:text="See all"
+                            android:textAllCaps="false"
+                            android:textColor="@color/text_dark_green"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                    <!-- Filled in by ProgressActivity, one line per suggestion -->
+                    <LinearLayout
+                        android:id="@+id/layoutPreviewFoods"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+
+                    <!-- Workout picks -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Workouts"
+                            android:textColor="@color/nutrition_navy_text"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+                        <Button
+                            android:id="@+id/buttonSeeAllWorkouts"
+                            style="?attr/borderlessButtonStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minHeight="48dp"
+                            android:text="See all"
+                            android:textAllCaps="false"
+                            android:textColor="@color/text_dark_green"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/layoutPreviewWorkouts"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>            <!-- CARD 1: Calories Intake Graph -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

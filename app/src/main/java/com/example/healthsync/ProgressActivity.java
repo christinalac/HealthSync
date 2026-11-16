@@ -118,7 +118,47 @@ public class ProgressActivity extends AppCompatActivity {
         super.onResume();
         showTodaySummary();
         buildGraphs();
+        showSuggestionsPreview();
     }
+
+    // ─────────────────────────────────────────────────────────
+    // SUGGESTED FOR YOU (preview)
+    // ─────────────────────────────────────────────────────────
+
+    // Shows the top 3 food and top 3 workout picks. "See all" opens the full pop-up.
+    // Re-run on every resume, so a changed goal or weekly split shows up right away
+    private void showSuggestionsPreview() {
+        UserProfile profile = new DatabaseHelper(this).getLatestUserProfile();
+        int kcal = SuggestionEngine.dailyCalories(profile);
+
+        ((TextView) findViewById(R.id.textPreviewBasis)).setText(String.format(Locale.US,
+                "Based on: %s · %,d kcal / day", profile.getGoal(), kcal));
+
+        fillPreview(findViewById(R.id.layoutPreviewFoods),
+                SuggestionEngine.foodSuggestions(profile, kcal, 3));
+        fillPreview(findViewById(R.id.layoutPreviewWorkouts),
+                SuggestionEngine.workoutSuggestions(this, profile, 3));
+
+        findViewById(R.id.buttonSeeAllFoods).setOnClickListener(v ->
+                SuggestionsBottomSheet.newInstance(SuggestionsBottomSheet.TYPE_FOOD)
+                        .show(getSupportFragmentManager(), "food_suggestions"));
+        findViewById(R.id.buttonSeeAllWorkouts).setOnClickListener(v ->
+                SuggestionsBottomSheet.newInstance(SuggestionsBottomSheet.TYPE_WORKOUT)
+                        .show(getSupportFragmentManager(), "workout_suggestions"));
+    } // end of showSuggestionsPreview
+
+    // One short line per suggestion: "• Name — details"
+    private void fillPreview(LinearLayout box, java.util.List<SuggestionEngine.Suggestion> items) {
+        box.removeAllViews();
+        for (SuggestionEngine.Suggestion s : items) {
+            TextView line = new TextView(this);
+            line.setText("• " + s.title + "  —  " + s.detail);
+            line.setTextColor(ContextCompat.getColor(this, R.color.navy_text));
+            line.setTextSize(13);
+            line.setPadding(0, dp(3), 0, dp(3));
+            box.addView(line);
+        } // end of for loop over the suggestions
+    } // end of fillPreview
 
     private double parseSleepSuggestionHours(String suggestion) {
         if (suggestion == null) return 8.0;

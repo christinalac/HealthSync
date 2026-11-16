@@ -4,8 +4,8 @@
 // Program Name: nutrition_activity.xml
 // Developer: Maximiliano Salinas
 // Date Created: 10/12/2026
-// Version: 3.0
-// Purpose: Layout for the Nutrition screen: header, Calorie Summary card, Hydration card, Today's Meals card, + button, and bottom navigation.
+// Version: 3.1
+// Purpose: Layout for the Nutrition screen: header (with Suggestions button), Calorie Summary card, Hydration card, Today's Meals card, + button, and bottom navigation.
 //******************************************
 -->
 <androidx.constraintlayout.widget.ConstraintLayout
@@ -29,6 +29,23 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- Top-left "Suggestions" button: opens the suggestions pop-up for this tab -->
+        <TextView
+            android:id="@+id/buttonSuggestions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/bg_pill"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:minHeight="40dp"
+            android:paddingHorizontal="14dp"
+            android:text="💡 Suggestions"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            android:textStyle="bold" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

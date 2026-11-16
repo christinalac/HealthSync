@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Program Name: bottom_sheet_suggestions.xml
+     Developer: Anthony Ramirez and Christina LaCombe
+     Date Created: 11/15/2026
+     Version: 1.1
+     Purpose: Pop-up opened by the "Suggestions" button in the Nutrition and Workout
+     headers (and "See all" on the Progress page). Shows food or workout suggestions
+     picked by SuggestionEngine from the user's goal and calorie target. -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="16dp"
+    android:paddingTop="20dp"
+    android:paddingBottom="12dp">
+
+    <!-- e.g. "Food Suggestions" or "Workout Suggestions" -->
+    <TextView
+        android:id="@+id/tvSuggestionsTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/main_navy"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <!-- What the suggestions are based on, e.g. "Based on: Gain Muscle · 2,600 kcal / day" -->
+    <TextView
+        android:id="@+id/tvSuggestionsBasis"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/bg_pill"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="4dp"
+        android:textColor="@color/text_light_green"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+
+    <!-- Rows come from item_suggestion.xml -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/listSuggestions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp" />
+
+    <!-- Small reminder that these are suggestions, like the sleep suggestion -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Suggestions only, not medical advice. Change your goal or activity level on the Account page to update them."
+        android:textColor="#8A8A8A"
+        android:textSize="12sp" />
+</LinearLayout>

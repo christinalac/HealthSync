@@ -126,6 +126,12 @@ public class WorkoutActivity extends AppCompatActivity
         adapter = new ExerciseAdapter(exerciseList, this::openExerciseInfo);
         rvExercises.setAdapter(adapter);
 
+        // Top-left header button: workout suggestions based on the user's goal and today's split.
+        // Picking one adds it through onExercisePicked, the same as the "+" search
+        findViewById(R.id.buttonSuggestions).setOnClickListener(v ->
+                SuggestionsBottomSheet.newInstance(SuggestionsBottomSheet.TYPE_WORKOUT)
+                        .show(getSupportFragmentManager(), "workout_suggestions"));
+
         // "+" opens the exercise search pop-up (ExerciseSearchBottomSheet fetches the API)
         FloatingActionButton fabAddWorkout = findViewById(R.id.fabAddWorkout);
         fabAddWorkout.setOnClickListener(v ->

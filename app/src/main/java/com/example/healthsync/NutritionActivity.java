@@ -2,8 +2,8 @@
 // Program Name: NutritionActivity.java
 // Developer: Maximiliano Salinas
 // Date Created: 10/12/2026
-// Version: 3.0
-// Purpose: Nutrition screen (Tab 2). Shows the calorie summary, hydration tracker, and Today's Meals, and opens the food search from the + button.
+// Version: 3.1
+// Purpose: Nutrition screen (Tab 2). Shows the calorie summary, hydration tracker, and Today's Meals, opens the food search from the + button, and food suggestions from the header.
 //******************************************
 
 package com.example.healthsync;
@@ -50,6 +50,10 @@ public class NutritionActivity extends AppCompatActivity {
         setupHydrationTaps();
         setupMeals();
         setupBottomNav();
+        // Top-left header button: food suggestions based on the user's calorie goal
+        findViewById(R.id.buttonSuggestions).setOnClickListener(v ->
+                SuggestionsBottomSheet.newInstance(SuggestionsBottomSheet.TYPE_FOOD)
+                        .show(getSupportFragmentManager(), "food_suggestions"));
 
         // Redraw whenever the data changes
         viewModel.getState().observe(this, this::render);

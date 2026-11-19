@@ -1,3 +1,11 @@
+//******************************************
+// Program Name: ProgressActivity.java
+// Developer: Jared Baldwin
+// Date Created: 10/12/2026
+// Version: 2.1
+// Purpose: Progress Activity screen to show the recorded progress of the user
+// with daily and weekly graphs.
+//******************************************
 package com.example.healthsync;
 
 import android.content.Intent;

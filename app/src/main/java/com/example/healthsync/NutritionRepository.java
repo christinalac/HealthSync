@@ -30,10 +30,12 @@ public class NutritionRepository {
     private static final String KEY_DATE = "date";
     private static final String KEY_MEALS = "meals_json";
     private static final String KEY_WATER_CUPS = "water_cups";
-    private static final String KEY_WATER_ML_OLD = "water_ml";   // from earlier versions
+    // from earlier versions
+    private static final String KEY_WATER_ML_OLD = "water_ml";
 
     private final SharedPreferences prefs;
-    private final ProgressHistory history; // day-by-day totals for the Progress page
+    // day-by-day totals for the Progress page
+    private final ProgressHistory history;
 
     public NutritionRepository(Context context) {
         prefs = context.getApplicationContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
@@ -71,52 +73,67 @@ public class NutritionRepository {
 
     // ----- Meals <-> JSON -----
     private static String mealsToJson(List<LoggedMeal> meals) {
-        JSONArray arr = new JSONArray();
+        JSONArray mealsArray = new JSONArray();
+        JSONObject mealObject = null;
+        Object imageUrlValue = null;
         try {
-            for (LoggedMeal m : meals) {
-                JSONObject o = new JSONObject();
-                o.put("id", m.id);
-                o.put("code", m.code);
-                o.put("name", m.name);
-                o.put("brand", m.brand);
-                o.put("imageUrl", m.imageUrl == null ? JSONObject.NULL : m.imageUrl);
-                o.put("servingLabel", m.servingLabel);
-                o.put("kcal", m.kcalPerServing);
-                o.put("carbs", m.carbsPerServing);
-                o.put("protein", m.proteinPerServing);
-                o.put("fat", m.fatPerServing);
-                o.put("servings", m.servings);
-                arr.put(o);
+            for (LoggedMeal meal : meals) {
+                mealObject = new JSONObject();
+                if (meal.imageUrl == null) {
+                    imageUrlValue = JSONObject.NULL;
+                } else {
+                    imageUrlValue = meal.imageUrl;
+                }
+                mealObject.put("id", meal.id);
+                mealObject.put("code", meal.code);
+                mealObject.put("name", meal.name);
+                mealObject.put("brand", meal.brand);
+                mealObject.put("imageUrl", imageUrlValue);
+                mealObject.put("servingLabel", meal.servingLabel);
+                mealObject.put("kcal", meal.kcalPerServing);
+                mealObject.put("carbs", meal.carbsPerServing);
+                mealObject.put("protein", meal.proteinPerServing);
+                mealObject.put("fat", meal.fatPerServing);
+                mealObject.put("servings", meal.servings);
+                mealsArray.put(mealObject);
             }
         } catch (JSONException ignored) {
             // can't happen for these value types
         }
-        return arr.toString();
+        return mealsArray.toString();
     }
 
     private static List<LoggedMeal> mealsFromJson(String json) {
-        List<LoggedMeal> out = new ArrayList<>();
-        if (json == null || json.isEmpty()) return out;
+        List<LoggedMeal> loadedMeals = new ArrayList<>();
+        JSONArray mealsArray = null;
+        JSONObject mealObject = null;
+        String imageUrl = null;
+        if (json == null || json.isEmpty()) return loadedMeals;
         try {
-            JSONArray arr = new JSONArray(json);
-            for (int i = 0; i < arr.length(); i++) {
-                JSONObject o = arr.getJSONObject(i);
-                out.add(new LoggedMeal(
-                        o.getString("id"),
-                        o.optString("code"),
-                        o.getString("name"),
-                        o.optString("brand"),
-                        o.isNull("imageUrl") ? null : o.getString("imageUrl"),
-                        o.optString("servingLabel", "100 g"),
-                        o.optDouble("kcal", 0.0),
-                        o.optDouble("carbs", 0.0),
-                        o.optDouble("protein", 0.0),
-                        o.optDouble("fat", 0.0),
-                        o.optDouble("servings", 1.0)));
+            mealsArray = new JSONArray(json);
+            for (int i = 0; i < mealsArray.length(); i++) {
+                mealObject = mealsArray.getJSONObject(i);
+                if (mealObject.isNull("imageUrl")) {
+                    imageUrl = null;
+                } else {
+                    imageUrl = mealObject.getString("imageUrl");
+                }
+                loadedMeals.add(new LoggedMeal(
+                        mealObject.getString("id"),
+                        mealObject.optString("code"),
+                        mealObject.getString("name"),
+                        mealObject.optString("brand"),
+                        imageUrl,
+                        mealObject.optString("servingLabel", "100 g"),
+                        mealObject.optDouble("kcal", 0.0),
+                        mealObject.optDouble("carbs", 0.0),
+                        mealObject.optDouble("protein", 0.0),
+                        mealObject.optDouble("fat", 0.0),
+                        mealObject.optDouble("servings", 1.0)));
             }
-        } catch (JSONException e) {
+        } catch (JSONException exception) {
             return new ArrayList<>();
         }
-        return out;
+        return loadedMeals;
     }
 }

@@ -32,21 +32,39 @@ public final class SuggestionEngine {
 
     /** One row in the suggestions list. Exactly one of food / workout is set. */
     public static class Suggestion {
-        public final String title;   // e.g. "Peanut Butter Toast"
-        public final String detail;  // e.g. "2 slices · 390 kcal · 14 g protein"
-        public final String reason;  // why it was picked, e.g. "Calorie-dense ..."
-        public final FoodItem food;                 // set for food suggestions
-        public final ExerciseCatalog.Entry workout; // set for workout suggestions
+        // e.g. "Peanut Butter Toast"
+        public final String title;
+        // e.g. "2 slices · 390 kcal · 14 g protein"
+        public final String detail;
+        // why it was picked, e.g. "Calorie-dense ..."
+        public final String reason;
+        // set for food suggestions
+        public final FoodItem food;
+        // set for workout suggestions
+        public final ExerciseCatalog.Entry workout;
 
         Suggestion(String title, String detail, String reason,
                    FoodItem food, ExerciseCatalog.Entry workout) {
-            this.title = title;
-            this.detail = detail;
-            this.reason = reason;
+            if (title != null) {
+                this.title = title;
+            } else {
+                this.title = "";
+            }
+            if (detail != null) {
+                this.detail = detail;
+            } else {
+                this.detail = "";
+            }
+            if (reason != null) {
+                this.reason = reason;
+            } else {
+                this.reason = "";
+            }
             this.food = food;
             this.workout = workout;
         }
-    } // end of class Suggestion
+    }
+    // end of class Suggestion
 
     // ─────────────────────────────────────────────────────────
     // BUILT-IN FOOD LIST (per serving)
@@ -93,58 +111,71 @@ public final class SuggestionEngine {
      * day per meal. Someone gaining muscle on 2,600 kcal gets calorie-dense foods,
      * someone losing weight gets filling foods that are high in protein per calorie.
      */
-    public static List<Suggestion> foodSuggestions(UserProfile p, int dailyKcal, int max) {
-        final String goal = p.getGoal() == null ? "" : p.getGoal();
-        final int perMeal = Math.max(1, dailyKcal / 3);
-
+    public static List<Suggestion> foodSuggestions(UserProfile profile, int dailyKcal, int max) {
+        String goal = "";
+        int perMeal = Math.max(1, dailyKcal / 3);
         List<Object[]> foods = new ArrayList<>();
+        Comparator<Object[]> order;
+        List<Suggestion> suggestions = new ArrayList<>();
+        String name = "";
+        String serving = "";
+        int percent = 0;
+        String detail = "";
+        String reason = "";
+        FoodItem item = null;
+
+        if (profile.getGoal() != null) {
+            goal = profile.getGoal();
+        }
+        final String goalFinal = goal;
         Collections.addAll(foods, FOODS);
 
         // ── Rank the foods for this goal ──
-        Comparator<Object[]> order;
-        switch (goal) {
+        switch (goalFinal) {
             case PersonalizedCalculations.GOAL_GAIN_MUSCLE:
                 // Most calories and protein per serving first
-                order = (a, b) -> Double.compare(kcal(b) + 4 * protein(b), kcal(a) + 4 * protein(a));
+                order = (first, second) -> Double.compare(kcal(second) + 4 * protein(second), kcal(first) + 4 * protein(first));
                 break;
             case PersonalizedCalculations.GOAL_LOSE_WEIGHT:
                 // Most protein per calorie first (keeps you full for fewer calories)
-                order = (a, b) -> Double.compare(protein(b) / kcal(b), protein(a) / kcal(a));
+                order = (first, second) -> Double.compare(protein(second) / kcal(second), protein(first) / kcal(first));
                 break;
             case PersonalizedCalculations.GOAL_IMPROVE_ENDURANCE:
                 // Most carbs first (carbs fuel long workouts)
-                order = (a, b) -> Double.compare(carbs(b), carbs(a));
+                order = (first, second) -> Double.compare(carbs(second), carbs(first));
                 break;
             default:
                 // Maintain / overall health: closest to half a meal (a balanced snack or side)
-                order = Comparator.comparingDouble(a -> Math.abs(kcal(a) - perMeal / 2.0));
+                order = Comparator.comparingDouble(food -> Math.abs(kcal(food) - perMeal / 2.0));
                 break;
-        } // end of goal switch
+        }
+        // end of goal switch
         Collections.sort(foods, order);
 
         // ── Build the rows ──
-        List<Suggestion> out = new ArrayList<>();
-        for (Object[] f : foods) {
-            if (out.size() >= max) break;
+        for (Object[] foodRow : foods) {
+            if (suggestions.size() >= max) break;
 
             // Losing weight: skip anything that would eat more than half a meal's calories
-            if (PersonalizedCalculations.GOAL_LOSE_WEIGHT.equals(goal) && kcal(f) > perMeal * 0.6) continue;
+            if (PersonalizedCalculations.GOAL_LOSE_WEIGHT.equals(goalFinal) && kcal(foodRow) > perMeal * 0.6) continue;
 
-            String name = (String) f[0];
-            String serving = (String) f[1];
-            int percent = (int) Math.round(kcal(f) * 100.0 / Math.max(1, dailyKcal));
+            name = (String) foodRow[0];
+            serving = (String) foodRow[1];
+            percent = (int) Math.round(kcal(foodRow) * 100.0 / Math.max(1, dailyKcal));
 
-            String detail = String.format(Locale.US, "%s · %d kcal · %d g protein · %d g carbs",
-                    serving, (int) kcal(f), (int) protein(f), (int) carbs(f));
-            String reason = foodReason(goal, percent, dailyKcal);
+            detail = String.format(Locale.US, "%s · %d kcal · %d g protein · %d g carbs",
+                    serving, (int) kcal(foodRow), (int) protein(foodRow), (int) carbs(foodRow));
+            reason = foodReason(goalFinal, percent, dailyKcal);
 
-            FoodItem item = new FoodItem("suggest_" + name.toLowerCase(Locale.US).replace(' ', '_'),
+            item = new FoodItem("suggest_" + name.toLowerCase(Locale.US).replace(' ', '_'),
                     name, "HealthSync suggestion", null, serving,
-                    kcal(f), carbs(f), protein(f), fat(f));
-            out.add(new Suggestion(name, detail, reason, item, null));
-        } // end of for loop over the foods
-        return out;
-    } // end of foodSuggestions
+                    kcal(foodRow), carbs(foodRow), protein(foodRow), fat(foodRow));
+            suggestions.add(new Suggestion(name, detail, reason, item, null));
+        }
+        // end of for loop over the foods
+        return suggestions;
+    }
+    // end of foodSuggestions
 
     private static String foodReason(String goal, int percent, int dailyKcal) {
         String share = String.format(Locale.US, "%d%% of your %,d kcal goal", percent, dailyKcal);
@@ -157,8 +188,10 @@ public final class SuggestionEngine {
                 return "Carb-rich fuel for longer workouts (" + share + ")";
             default:
                 return "Balanced choice for your goal (" + share + ")";
-        } // end of goal switch
-    } // end of foodReason
+        }
+        // end of goal switch
+    }
+    // end of foodReason
 
     // ─────────────────────────────────────────────────────────
     // BUILT-IN WORKOUT LIST
@@ -197,39 +230,53 @@ public final class SuggestionEngine {
      * Exercises that match today's day in the weekly split come first (e.g. Legs day
      * suggests leg exercises). Sedentary users get an easier version of the sets.
      */
-    public static List<Suggestion> workoutSuggestions(Context context, UserProfile p, int max) {
-        String goalLetter = goalLetter(p.getGoal());
-        String today = todaysSplit(context); // e.g. "Legs", "Rest", or null
-        boolean easier = PersonalizedCalculations.ACTIVITY_SEDENTARY.equals(p.getActivityLevel())
-                || PersonalizedCalculations.ACTIVITY_LIGHTLY_ACTIVE.equals(p.getActivityLevel());
-
+    public static List<Suggestion> workoutSuggestions(Context context, UserProfile profile, int max) {
+        String goalLetter = goalLetter(profile.getGoal());
+        // e.g. "Legs", "Rest", or null
+        String today = todaysSplit(context);
+        boolean easier = PersonalizedCalculations.ACTIVITY_SEDENTARY.equals(profile.getActivityLevel())
+                || PersonalizedCalculations.ACTIVITY_LIGHTLY_ACTIVE.equals(profile.getActivityLevel());
         List<Object[]> matches = new ArrayList<>();
-        for (Object[] w : WORKOUTS) {
-            if (((String) w[5]).contains(goalLetter)) matches.add(w);
-        } // end of for loop that filters by goal
+        List<Suggestion> suggestions = new ArrayList<>();
+        String name = "";
+        String rowGroup = "";
+        String sets = "";
+        String reason = "";
+        ExerciseCatalog.Entry entry = null;
+
+        for (Object[] workoutRow : WORKOUTS) {
+            if (((String) workoutRow[5]).contains(goalLetter)) matches.add(workoutRow);
+        }
+        // end of for loop that filters by goal
 
         // Today's split group first, then the rest in list order
         if (today != null) {
             final String group = today;
-            Collections.sort(matches, (a, b) -> Boolean.compare(
-                    group.equalsIgnoreCase((String) b[1]), group.equalsIgnoreCase((String) a[1])));
-        } // end of today's split check
+            Collections.sort(matches, (first, second) -> Boolean.compare(
+                    group.equalsIgnoreCase((String) second[1]), group.equalsIgnoreCase((String) first[1])));
+        }
+        // end of today's split check
 
-        List<Suggestion> out = new ArrayList<>();
-        for (Object[] w : matches) {
-            if (out.size() >= max) break;
+        for (Object[] workoutRow : matches) {
+            if (suggestions.size() >= max) break;
 
-            String name = (String) w[0];
-            String group = (String) w[1];
-            String sets = easier ? "Easier: " + easierSets((String) w[2]) : (String) w[2];
+            name = (String) workoutRow[0];
+            rowGroup = (String) workoutRow[1];
+            if (easier) {
+                sets = "Easier: " + easierSets((String) workoutRow[2]);
+            } else {
+                sets = (String) workoutRow[2];
+            }
 
-            String reason = workoutReason(p.getGoal(), group, today, easier);
-            ExerciseCatalog.Entry entry = new ExerciseCatalog.Entry(
-                    name, group, sets, (String[]) w[3], (String) w[4]);
-            out.add(new Suggestion(name, group + " · " + sets, reason, null, entry));
-        } // end of for loop that builds the rows
-        return out;
-    } // end of workoutSuggestions
+            reason = workoutReason(profile.getGoal(), rowGroup, today, easier);
+            entry = new ExerciseCatalog.Entry(
+                    name, rowGroup, sets, (String[]) workoutRow[3], (String) workoutRow[4]);
+            suggestions.add(new Suggestion(name, rowGroup + " · " + sets, reason, null, entry));
+        }
+        // end of for loop that builds the rows
+        return suggestions;
+    }
+    // end of workoutSuggestions
 
     private static String workoutReason(String goal, String group, String today, boolean easier) {
         String why;
@@ -241,12 +288,14 @@ public final class SuggestionEngine {
             why = "Burns calories";
         } else {
             why = "Good for overall health";
-        } // end of goal if/else
+        }
+        // end of goal if/else
 
         if (today != null && today.equalsIgnoreCase(group)) why += " · matches today's " + today + " day";
         if (easier) why += " · scaled for your activity level";
         return why;
-    } // end of workoutReason
+    }
+    // end of workoutReason
 
     // A gentler version of the sets for less active users: fewer sets, shorter time
     private static String easierSets(String sets) {
@@ -254,46 +303,57 @@ public final class SuggestionEngine {
         return sets.replace("4x", "3x").replace("20 min", "10 min").replace("40 min", "20 min")
                    .replace("30 min", "15 min").replace("10 x 1 min", "5 x 1 min")
                    .replace("8 x 30 s", "5 x 30 s").replace("3 rounds", "2 rounds");
-    } // end of easierSets
+    }
+    // end of easierSets
 
     private static String goalLetter(String goal) {
         if (PersonalizedCalculations.GOAL_IMPROVE_ENDURANCE.equals(goal)) return "E";
         if (PersonalizedCalculations.GOAL_GAIN_MUSCLE.equals(goal)) return "M";
         if (PersonalizedCalculations.GOAL_LOSE_WEIGHT.equals(goal)) return "L";
-        return "H"; // maintain weight and improve overall health
-    } // end of goalLetter
+        // maintain weight and improve overall health
+        return "H";
+    }
+    // end of goalLetter
 
     // Today's entry from the Workout tab's weekly split (saved by WorkoutActivity),
     // or null if it isn't set up yet or today is a Rest day
     private static String todaysSplit(Context context) {
         SharedPreferences prefs = context.getSharedPreferences("healthsync_workouts", Context.MODE_PRIVATE);
         String json = prefs.getString("weekly_split", null);
+        JSONArray days = null;
+        int index = 0;
+        String today = null;
         if (json == null) return null;
         try {
-            JSONArray days = new JSONArray(json);
-            int index = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1; // Sunday = 0
-            String today = days.optString(index, null);
+            days = new JSONArray(json);
+            // Sunday = 0
+            index = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1;
+            today = days.optString(index, null);
             if (today == null || "Rest".equals(today)) return null;
             return today;
-        } catch (Exception e) {
+        } catch (Exception exception) {
             return null;
-        } // end of try/catch
-    } // end of todaysSplit
+        }
+        // end of try/catch
+    }
+    // end of todaysSplit
 
     // ─────────────────────────────────────────────────────────
     // HELPERS
     // ─────────────────────────────────────────────────────────
 
     /** The user's daily calorie target, same formula as the rest of the app. */
-    public static int dailyCalories(UserProfile p) {
+    public static int dailyCalories(UserProfile profile) {
         return PersonalizedCalculations.calculateDailyCalories(
-                p.getGender(), p.getWeightLbs(), p.getHeightFt(), p.getHeightIn(),
-                p.getAge(), p.getActivityLevel(), p.getGoal(), p.isRestDay());
-    } // end of dailyCalories
+                profile.getGender(), profile.getWeightLbs(), profile.getHeightFt(), profile.getHeightIn(),
+                profile.getAge(), profile.getActivityLevel(), profile.getGoal(), profile.isRestDay());
+    }
+    // end of dailyCalories
 
-    private static double kcal(Object[] f)    { return ((Integer) f[2]).doubleValue(); }
-    private static double protein(Object[] f) { return ((Integer) f[3]).doubleValue(); }
-    private static double carbs(Object[] f)   { return ((Integer) f[4]).doubleValue(); }
-    private static double fat(Object[] f)     { return ((Integer) f[5]).doubleValue(); }
+    private static double kcal(Object[] food)    { return ((Integer) food[2]).doubleValue(); }
+    private static double protein(Object[] food) { return ((Integer) food[3]).doubleValue(); }
+    private static double carbs(Object[] food)   { return ((Integer) food[4]).doubleValue(); }
+    private static double fat(Object[] food)     { return ((Integer) food[5]).doubleValue(); }
 
-} // end of class SuggestionEngine
+}
+// end of class SuggestionEngine

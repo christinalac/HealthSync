@@ -152,7 +152,7 @@ collects all user information after a successful signup-->
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="* Gender"
+                        android:text="* Sex"
                         android:textColor="@color/navy_text"
                         android:textSize="14sp"
                         android:textStyle="bold"

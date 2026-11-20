@@ -27,17 +27,39 @@ public final class ExerciseCatalog {
     // One searchable exercise
     public static final class Entry {
         public final String name;
-        public final String group;      // Arms, Legs, Chest, Back, Shoulders, Core
-        public final String setsReps;   // e.g. "3x12 · 25 lbs"
+        // Arms, Legs, Chest, Back, Shoulders, Core
+        public final String group;
+        // e.g. "3x12 · 25 lbs"
+        public final String setsReps;
         public final String[] muscleTags;
         public final String tips;
 
         public Entry(String name, String group, String setsReps, String[] muscleTags, String tips) {
-            this.name = name;
-            this.group = group;
-            this.setsReps = setsReps;
-            this.muscleTags = muscleTags;
-            this.tips = tips;
+            if (name != null) {
+                this.name = name;
+            } else {
+                this.name = "";
+            }
+            if (group != null) {
+                this.group = group;
+            } else {
+                this.group = "";
+            }
+            if (setsReps != null) {
+                this.setsReps = setsReps;
+            } else {
+                this.setsReps = "";
+            }
+            if (muscleTags != null) {
+                this.muscleTags = muscleTags;
+            } else {
+                this.muscleTags = new String[0];
+            }
+            if (tips != null) {
+                this.tips = tips;
+            } else {
+                this.tips = "";
+            }
         }
 
         Entry(String name, String group, String setsReps) {
@@ -83,15 +105,22 @@ public final class ExerciseCatalog {
 
     // Returns exercises whose name or group contains the query, limited to the chosen filter.
     public static List<Entry> search(String query, String filter) {
-        String q = query == null ? "" : query.trim().toLowerCase(Locale.ROOT);
+        String searchText = "";
         List<Entry> results = new ArrayList<>();
-        for (Entry e : exercises) {
-            boolean groupOk = FILTER_ALL.equals(filter) || e.group.equalsIgnoreCase(filter);
-            boolean textOk = q.isEmpty()
-                    || e.name.toLowerCase(Locale.ROOT).contains(q)
-                    || e.group.toLowerCase(Locale.ROOT).contains(q);
+        boolean groupOk = false;
+        boolean textOk = false;
+        if (query == null) {
+            searchText = "";
+        } else {
+            searchText = query.trim().toLowerCase(Locale.ROOT);
+        }
+        for (Entry entry : exercises) {
+            groupOk = FILTER_ALL.equals(filter) || entry.group.equalsIgnoreCase(filter);
+            textOk = searchText.isEmpty()
+                    || entry.name.toLowerCase(Locale.ROOT).contains(searchText)
+                    || entry.group.toLowerCase(Locale.ROOT).contains(searchText);
             if (groupOk && textOk) {
-                results.add(e);
+                results.add(entry);
             }
         }
         return results;

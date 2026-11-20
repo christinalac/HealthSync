@@ -94,6 +94,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                                      boolean isPregnant, boolean isBreastfeeding) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
+        int pregnantValue = 0;
+        int breastfeedingValue = 0;
+        long result = -1;
+        if (isPregnant) {
+            pregnantValue = 1;
+        } else {
+            pregnantValue = 0;
+        }
+        if (isBreastfeeding) {
+            breastfeedingValue = 1;
+        } else {
+            breastfeedingValue = 0;
+        }
         values.put("email",           email);
         values.put("name",            name);
         values.put("age",             age);
@@ -103,9 +116,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put("weightLbs",       weightLbs);
         values.put("goal",            goal);
         values.put("activityLevel",   activityLevel);
-        values.put("isPregnant",      isPregnant ? 1 : 0);
-        values.put("isBreastfeeding", isBreastfeeding ? 1 : 0);
-        long result = db.insert("user_profile", null, values);
+        values.put("isPregnant",      pregnantValue);
+        values.put("isBreastfeeding", breastfeedingValue);
+        result = db.insert("user_profile", null, values);
         return result != -1;
     }
 
@@ -114,23 +127,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // Used by the Account screen to show the profile and run the calculations
     public UserProfile getUserProfile(String email) {
         SQLiteDatabase db = this.getReadableDatabase();
-        try (Cursor c = db.rawQuery("SELECT * FROM user_profile WHERE email = ?",
+        try (Cursor cursor = db.rawQuery("SELECT * FROM user_profile WHERE email = ?",
                 new String[]{email})) {
-            if (!c.moveToFirst()) return null;
-            // Copy each column into a UserProfile (booleans are stored as 0/1)
+            if (!cursor.moveToFirst()) return null;
+            // Copy each column into a UserProfile (booleans are stored as 0/1).
+            // The last value, isRestDay, is not stored in the database yet.
             return new UserProfile(
-                    c.getString(c.getColumnIndexOrThrow("email")),
-                    c.getString(c.getColumnIndexOrThrow("name")),
-                    c.getInt(c.getColumnIndexOrThrow("age")),
-                    c.getString(c.getColumnIndexOrThrow("gender")),
-                    c.getInt(c.getColumnIndexOrThrow("heightFt")),
-                    c.getInt(c.getColumnIndexOrThrow("heightIn")),
-                    c.getInt(c.getColumnIndexOrThrow("weightLbs")),
-                    c.getString(c.getColumnIndexOrThrow("goal")),
-                    c.getString(c.getColumnIndexOrThrow("activityLevel")),
-                    c.getInt(c.getColumnIndexOrThrow("isPregnant")) == 1,
-                    c.getInt(c.getColumnIndexOrThrow("isBreastfeeding")) == 1,
-                    false); // isRestDay is not stored in the database yet
+                    cursor.getString(cursor.getColumnIndexOrThrow("email")),
+                    cursor.getString(cursor.getColumnIndexOrThrow("name")),
+                    cursor.getInt(cursor.getColumnIndexOrThrow("age")),
+                    cursor.getString(cursor.getColumnIndexOrThrow("gender")),
+                    cursor.getInt(cursor.getColumnIndexOrThrow("heightFt")),
+                    cursor.getInt(cursor.getColumnIndexOrThrow("heightIn")),
+                    cursor.getInt(cursor.getColumnIndexOrThrow("weightLbs")),
+                    cursor.getString(cursor.getColumnIndexOrThrow("goal")),
+                    cursor.getString(cursor.getColumnIndexOrThrow("activityLevel")),
+                    cursor.getInt(cursor.getColumnIndexOrThrow("isPregnant")) == 1,
+                    cursor.getInt(cursor.getColumnIndexOrThrow("isBreastfeeding")) == 1,
+                    false);
         }
     }
 
@@ -174,20 +188,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Nullable
     public int[] getBodyStats(String email) {
         SQLiteDatabase db = this.getReadableDatabase();
-        try (Cursor c = db.rawQuery(
+        try (Cursor cursor = db.rawQuery(
                 "SELECT age, heightFt, heightIn, weightLbs FROM user_profile WHERE email = ?",
                 new String[]{email})) {
-            if (!c.moveToFirst()) return null;
-            return new int[]{c.getInt(0), c.getInt(1), c.getInt(2), c.getInt(3)};
+            if (!cursor.moveToFirst()) return null;
+            return new int[]{cursor.getInt(0), cursor.getInt(1), cursor.getInt(2), cursor.getInt(3)};
         }
     }
 
     @Nullable
     public String getActivityLevel(String email) {
         SQLiteDatabase db = this.getReadableDatabase();
-        try (Cursor c = db.rawQuery(
+        String level = null;
+        try (Cursor cursor = db.rawQuery(
                 "SELECT activityLevel FROM user_profile WHERE email = ?", new String[]{email})) {
-            return c.moveToFirst() ? c.getString(0) : null;
+            if (cursor.moveToFirst()) {
+                level = cursor.getString(0);
+            } else {
+                level = null;
+            }
+            return level;
         }
     }
 
@@ -225,15 +245,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Nullable
     public String[] getProfileDisplay(String email) {
         SQLiteDatabase db = this.getReadableDatabase();
-        try (Cursor c = db.rawQuery(
+        try (Cursor cursor = db.rawQuery(
                 "SELECT name, age, heightFt, heightIn, weightLbs, activityLevel " +
                         "FROM user_profile WHERE email = ?", new String[]{email})) {
-            if (!c.moveToFirst()) return null;
-            String stats = "Age: " + c.getInt(1)
-                    + "  |  Height: " + c.getInt(2) + "' " + c.getInt(3) + "\""
-                    + "  |  Weight: " + c.getInt(4) + " lb"
-                    + "  |  Level: " + c.getString(5);
-            return new String[]{c.getString(0), stats};
+            if (!cursor.moveToFirst()) return null;
+            String stats = "Age: " + cursor.getInt(1)
+                    + "  |  Height: " + cursor.getInt(2) + "' " + cursor.getInt(3) + "\""
+                    + "  |  Weight: " + cursor.getInt(4) + " lb"
+                    + "  |  Level: " + cursor.getString(5);
+            return new String[]{cursor.getString(0), stats};
         }
     }
 
@@ -250,28 +270,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
         }
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor c = db.rawQuery(
+        Cursor cursor = db.rawQuery(
                 "SELECT email, name, age, gender, heightFt, heightIn, weightLbs, goal, activityLevel, " +
                         "isPregnant, isBreastfeeding FROM user_profile ORDER BY rowid DESC LIMIT 1",
                 null);
         try {
-            if (c.moveToFirst()) {
+            if (cursor.moveToFirst()) {
+                // Columns in order: email, name, age, gender, heightFt, heightIn, weightLbs,
+                // goal, activityLevel, isPregnant, isBreastfeeding, then isRestDay (always false)
                 return new UserProfile(
-                        c.getString(0),        // email
-                        c.getString(1),        // name
-                        c.getInt(2),           // age
-                        c.getString(3),        // gender
-                        c.getInt(4),           // heightFt
-                        c.getInt(5),           // heightIn
-                        c.getInt(6),           // weightLbs
-                        c.getString(7),        // goal
-                        c.getString(8),        // activityLevel
-                        c.getInt(9) == 1,      // isPregnant
-                        c.getInt(10) == 1,     // isBreastfeeding
-                        false);                // isRestDay
+                        cursor.getString(0),
+                        cursor.getString(1),
+                        cursor.getInt(2),
+                        cursor.getString(3),
+                        cursor.getInt(4),
+                        cursor.getInt(5),
+                        cursor.getInt(6),
+                        cursor.getString(7),
+                        cursor.getString(8),
+                        cursor.getInt(9) == 1,
+                        cursor.getInt(10) == 1,
+                        false);
             }
         } finally {
-            c.close();
+            cursor.close();
         }
         // No saved profile at all, so use a default one (no email or name yet)
         return new UserProfile(null, null, 25, "Male", 5, 10, 160,

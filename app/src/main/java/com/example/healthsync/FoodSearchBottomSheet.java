@@ -70,20 +70,34 @@ public class FoodSearchBottomSheet extends BottomSheetDialogFragment {
 
         // Search only when the user submits (keyboard "search" key or the magnifier icon).
         // Open Food Facts limits searches to ~10/min, so no search-as-you-type.
-        etSearch.setOnEditorActionListener((v, actionId, event) -> {
+        etSearch.setOnEditorActionListener((textView, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 doSearch();
                 return true;
             }
             return false;
         });
-        searchLayout.setStartIconOnClickListener(v -> doSearch());
+        searchLayout.setStartIconOnClickListener(iconView -> doSearch());
 
         searchVm.getState().observe(getViewLifecycleOwner(), state -> {
-            progress.setVisibility(state.type == SearchUiState.Type.LOADING ? View.VISIBLE : View.GONE);
-            list.setVisibility(state.type == SearchUiState.Type.RESULTS ? View.VISIBLE : View.GONE);
-
             String message = null;
+            int progressVisibility = View.GONE;
+            int listVisibility = View.GONE;
+            int messageVisibility = View.GONE;
+
+            if (state.type == SearchUiState.Type.LOADING) {
+                progressVisibility = View.VISIBLE;
+            } else {
+                progressVisibility = View.GONE;
+            }
+            if (state.type == SearchUiState.Type.RESULTS) {
+                listVisibility = View.VISIBLE;
+            } else {
+                listVisibility = View.GONE;
+            }
+            progress.setVisibility(progressVisibility);
+            list.setVisibility(listVisibility);
+
             switch (state.type) {
                 case IDLE:
                     message = "Search for a food to see its calories and macros.";
@@ -98,7 +112,12 @@ public class FoodSearchBottomSheet extends BottomSheetDialogFragment {
                     break;
             }
             tvMessage.setText(message);
-            tvMessage.setVisibility(message == null ? View.GONE : View.VISIBLE);
+            if (message == null) {
+                messageVisibility = View.GONE;
+            } else {
+                messageVisibility = View.VISIBLE;
+            }
+            tvMessage.setVisibility(messageVisibility);
 
             if (state.type == SearchUiState.Type.RESULTS) adapter.setItems(state.foods);
         });
@@ -113,19 +132,25 @@ public class FoodSearchBottomSheet extends BottomSheetDialogFragment {
     }
 
     private void doSearch() {
-        hideKeyboard(etSearch);
         CharSequence text = etSearch.getText();
-        searchVm.search(text == null ? "" : text.toString());
+        String queryText = "";
+        hideKeyboard(etSearch);
+        if (text == null) {
+            queryText = "";
+        } else {
+            queryText = text.toString();
+        }
+        searchVm.search(queryText);
     }
 
     // Open fully expanded and tall, so results have room
     @Override
     public void onStart() {
         super.onStart();
-        View v = getView();
-        if (v != null && v.getLayoutParams() != null) {
-            v.getLayoutParams().height = (int) (getResources().getDisplayMetrics().heightPixels * 0.9);
-            v.requestLayout();
+        View rootView = getView();
+        if (rootView != null && rootView.getLayoutParams() != null) {
+            rootView.getLayoutParams().height = (int) (getResources().getDisplayMetrics().heightPixels * 0.9);
+            rootView.requestLayout();
         }
         if (getDialog() instanceof BottomSheetDialog) {
             BottomSheetBehavior<?> behavior = ((BottomSheetDialog) getDialog()).getBehavior();
@@ -135,7 +160,7 @@ public class FoodSearchBottomSheet extends BottomSheetDialogFragment {
     }
 
     private void hideKeyboard(View target) {
-        InputMethodManager imm = requireContext().getSystemService(InputMethodManager.class);
-        if (imm != null) imm.hideSoftInputFromWindow(target.getWindowToken(), 0);
+        InputMethodManager inputMethodManager = requireContext().getSystemService(InputMethodManager.class);
+        if (inputMethodManager != null) inputMethodManager.hideSoftInputFromWindow(target.getWindowToken(), 0);
     }
 }

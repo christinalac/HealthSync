@@ -30,51 +30,80 @@ public class SleepStore {
     public List<SleepEntry> loadAll() {
         List<SleepEntry> list = new ArrayList<>();
         String json = prefs.getString("entries", null);
+        JSONArray entriesArray = null;
+        JSONObject entryObject = null;
+        JSONArray daysArray = null;
+        Set<Integer> days = null;
+        SleepEntry entry = null;
+        int bed = -1;
+        int wake = -1;
         if (json == null) return list;
 
         try {
-            JSONArray arr = new JSONArray(json);
-            for (int i = 0; i < arr.length(); i++) {
-                JSONObject o = arr.getJSONObject(i);
+            entriesArray = new JSONArray(json);
+            for (int i = 0; i < entriesArray.length(); i++) {
+                entryObject = entriesArray.getJSONObject(i);
 
-                JSONArray daysArr = o.getJSONArray("days");
-                Set<Integer> days = new HashSet<>();
-                for (int j = 0; j < daysArr.length(); j++) {
-                    days.add(daysArr.getInt(j));
+                daysArray = entryObject.getJSONArray("days");
+                days = new HashSet<>();
+                for (int j = 0; j < daysArray.length(); j++) {
+                    days.add(daysArray.getInt(j));
                 }
 
-                SleepEntry e = new SleepEntry(o.getLong("id"), days);
-                int bed = o.optInt("bed", -1);
-                int wake = o.optInt("wake", -1);
-                e.bedMinutes = bed >= 0 ? Integer.valueOf(bed) : null;
-                e.wakeMinutes = wake >= 0 ? Integer.valueOf(wake) : null;
-                e.bedAlarm = o.optBoolean("bedAlarm", false);
-                e.wakeAlarm = o.optBoolean("wakeAlarm", false);
-                list.add(e);
+                entry = new SleepEntry(entryObject.getLong("id"), days);
+                bed = entryObject.optInt("bed", -1);
+                wake = entryObject.optInt("wake", -1);
+                if (bed >= 0) {
+                    entry.bedMinutes = Integer.valueOf(bed);
+                } else {
+                    entry.bedMinutes = null;
+                }
+                if (wake >= 0) {
+                    entry.wakeMinutes = Integer.valueOf(wake);
+                } else {
+                    entry.wakeMinutes = null;
+                }
+                entry.bedAlarm = entryObject.optBoolean("bedAlarm", false);
+                entry.wakeAlarm = entryObject.optBoolean("wakeAlarm", false);
+                list.add(entry);
             }
-        } catch (JSONException ex) {
+        } catch (JSONException exception) {
             // Corrupt data: return whatever loaded successfully
         }
         return list;
     }
 
     public void saveAll(List<SleepEntry> entries) {
-        JSONArray arr = new JSONArray();
+        JSONArray entriesArray = new JSONArray();
+        JSONObject entryObject = null;
+        int bedValue = -1;
+        int wakeValue = -1;
         try {
-            for (SleepEntry e : entries) {
-                JSONObject o = new JSONObject();
-                o.put("id", e.id);
-                o.put("days", new JSONArray(e.days));
-                o.put("bed", e.bedMinutes != null ? e.bedMinutes : -1);
-                o.put("wake", e.wakeMinutes != null ? e.wakeMinutes : -1);
-                o.put("bedAlarm", e.bedAlarm);
-                o.put("wakeAlarm", e.wakeAlarm);
-                arr.put(o);
+            for (SleepEntry entry : entries) {
+                entryObject = new JSONObject();
+                if (entry.bedMinutes != null) {
+                    bedValue = entry.bedMinutes;
+                } else {
+                    bedValue = -1;
+                }
+                if (entry.wakeMinutes != null) {
+                    wakeValue = entry.wakeMinutes;
+                } else {
+                    wakeValue = -1;
+                }
+                entryObject.put("id", entry.id);
+                entryObject.put("days", new JSONArray(entry.days));
+                entryObject.put("bed", bedValue);
+                entryObject.put("wake", wakeValue);
+                entryObject.put("bedAlarm", entry.bedAlarm);
+                entryObject.put("wakeAlarm", entry.wakeAlarm);
+                entriesArray.put(entryObject);
             }
-        } catch (JSONException ex) {
-            return; // don't overwrite good data with a half-built list
+        } catch (JSONException exception) {
+            // don't overwrite good data with a half-built list
+            return;
         }
-        prefs.edit().putString("entries", arr.toString()).apply();
+        prefs.edit().putString("entries", entriesArray.toString()).apply();
     }
 
     public void saveLastNight(int bedMinutes, int wakeMinutes) {

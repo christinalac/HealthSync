@@ -59,8 +59,25 @@ public final class NotificationHelper {
         manager.createNotificationChannels(Arrays.asList(bed, wake));
     }
 
-    @SuppressLint("MissingPermission") // we check the permission manually below
+    // we check the permission manually below
+    @SuppressLint("MissingPermission")
     public static void show(Context context, int dayOfWeek, boolean isWake) {
+        String channelId = BED_CHANNEL;
+        String title = "Time for bed";
+        String contentText = "Start winding down for a good night's sleep";
+        int priority = NotificationCompat.PRIORITY_DEFAULT;
+        String category = NotificationCompat.CATEGORY_REMINDER;
+        int id = dayOfWeek * 2;
+
+        if (isWake) {
+            channelId = WAKE_CHANNEL;
+            title = "Good morning!";
+            contentText = "Your wake-up alarm is going off";
+            priority = NotificationCompat.PRIORITY_HIGH;
+            category = NotificationCompat.CATEGORY_ALARM;
+            id = dayOfWeek * 2 + 1;
+        }
+
         // Android 13+ requires the user to have allowed notifications
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                 && ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
@@ -76,21 +93,19 @@ public final class NotificationHelper {
         PendingIntent openApp = PendingIntent.getActivity(
                 context, 0, openIntent, PendingIntent.FLAG_IMMUTABLE);
 
+        // small icon is a placeholder; swap for your own icon. The notification disappears when tapped
         android.app.Notification notification =
-                new NotificationCompat.Builder(context, isWake ? WAKE_CHANNEL : BED_CHANNEL)
-                        .setSmallIcon(android.R.drawable.ic_lock_idle_alarm) // placeholder; swap for your own icon
-                        .setContentTitle(isWake ? "Good morning!" : "Time for bed")
-                        .setContentText(isWake
-                                ? "Your wake-up alarm is going off"
-                                : "Start winding down for a good night's sleep")
-                        .setPriority(isWake ? NotificationCompat.PRIORITY_HIGH : NotificationCompat.PRIORITY_DEFAULT)
-                        .setCategory(isWake ? NotificationCompat.CATEGORY_ALARM : NotificationCompat.CATEGORY_REMINDER)
+                new NotificationCompat.Builder(context, channelId)
+                        .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+                        .setContentTitle(title)
+                        .setContentText(contentText)
+                        .setPriority(priority)
+                        .setCategory(category)
                         .setContentIntent(openApp)
-                        .setAutoCancel(true) // disappears when tapped
+                        .setAutoCancel(true)
                         .build();
 
         // Same number scheme as the alarm request codes, so each day/type has its own notification
-        int id = dayOfWeek * 2 + (isWake ? 1 : 0);
         NotificationManagerCompat.from(context).notify(id, notification);
     }
 }

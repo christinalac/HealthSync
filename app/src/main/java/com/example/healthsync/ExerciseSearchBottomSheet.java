@@ -75,19 +75,38 @@ public class ExerciseSearchBottomSheet extends BottomSheetDialogFragment {
         // Re-runs the search with the current text and filter
         final Runnable refresh = () -> {
             CharSequence text = etSearch.getText();
-            List<ExerciseCatalog.Entry> results =
-                    ExerciseCatalog.search(text != null ? text.toString() : "", currentFilter);
+            String searchText = "";
+            List<ExerciseCatalog.Entry> results = null;
+            boolean empty = false;
+            String messageText = null;
+            int listVisibility = View.VISIBLE;
+            int messageVisibility = View.GONE;
+            if (text != null) {
+                searchText = text.toString();
+            } else {
+                searchText = "";
+            }
+            results = ExerciseCatalog.search(searchText, currentFilter);
             adapter.submitList(results);
-            boolean empty = results.isEmpty();
-            list.setVisibility(empty ? View.GONE : View.VISIBLE);
-            tvMessage.setText(empty ? getString(R.string.workout_no_results) : null);
-            tvMessage.setVisibility(empty ? View.VISIBLE : View.GONE);
+            empty = results.isEmpty();
+            if (empty) {
+                listVisibility = View.GONE;
+                messageText = getString(R.string.workout_no_results);
+                messageVisibility = View.VISIBLE;
+            } else {
+                listVisibility = View.VISIBLE;
+                messageText = null;
+                messageVisibility = View.GONE;
+            }
+            list.setVisibility(listVisibility);
+            tvMessage.setText(messageText);
+            tvMessage.setVisibility(messageVisibility);
         };
 
         etSearch.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) { }
-            @Override public void onTextChanged(CharSequence s, int st, int b, int c) { }
-            @Override public void afterTextChanged(Editable s) { refresh.run(); }
+            @Override public void beforeTextChanged(CharSequence text, int start, int count, int after) { }
+            @Override public void onTextChanged(CharSequence text, int start, int before, int count) { }
+            @Override public void afterTextChanged(Editable editable) { refresh.run(); }
         });
         etSearch.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
@@ -138,9 +157,9 @@ public class ExerciseSearchBottomSheet extends BottomSheetDialogFragment {
             }
 
             @Override
-            public void onError(Exception e) {
+            public void onError(Exception exception) {
                 if (!isAdded()) return;
-                tvMessage.setText("API Error: " + e.getMessage());
+                tvMessage.setText("API Error: " + exception.getMessage());
                 tvMessage.setVisibility(View.VISIBLE);
             }
         });
@@ -159,9 +178,9 @@ public class ExerciseSearchBottomSheet extends BottomSheetDialogFragment {
     @Override
     public void onStart() {
         super.onStart();
-        View v = getView();
-        if (v != null && v.getLayoutParams() != null) {
-            v.getLayoutParams().height = (int) (getResources().getDisplayMetrics().heightPixels * 0.9);
+        View rootView = getView();
+        if (rootView != null && rootView.getLayoutParams() != null) {
+            rootView.getLayoutParams().height = (int) (getResources().getDisplayMetrics().heightPixels * 0.9);
         }
         if (getDialog() instanceof BottomSheetDialog) {
             BottomSheetBehavior<?> behavior = ((BottomSheetDialog) getDialog()).getBehavior();
@@ -171,7 +190,7 @@ public class ExerciseSearchBottomSheet extends BottomSheetDialogFragment {
     }
 
     private void hideKeyboard(View target) {
-        InputMethodManager imm = requireContext().getSystemService(InputMethodManager.class);
-        imm.hideSoftInputFromWindow(target.getWindowToken(), 0);
+        InputMethodManager inputMethodManager = requireContext().getSystemService(InputMethodManager.class);
+        inputMethodManager.hideSoftInputFromWindow(target.getWindowToken(), 0);
     }
 }

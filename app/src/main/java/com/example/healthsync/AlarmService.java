@@ -37,7 +37,8 @@ public class AlarmService extends Service {
     public static final String ACTION_STOP = "com.example.healthsync.STOP_ALARM";
     private static final String CHANNEL_ID = "alarm_ringing";
     private static final int NOTIF_ID = 1001;
-    private static final long AUTO_STOP_MS = 5 * 60 * 1000L; // stop after 5 minutes
+    // stop after 5 minutes
+    private static final long AUTO_STOP_MS = 5 * 60 * 1000L;
 
     @Nullable private MediaPlayer player;
     @Nullable private Vibrator vibrator;
@@ -69,9 +70,9 @@ public class AlarmService extends Service {
             } else {
                 startForeground(NOTIF_ID, buildNotification());
             }
-        } catch (RuntimeException e) {
+        } catch (RuntimeException exception) {
             // Not allowed to run in the foreground right now; don't crash the app
-            Log.e("SleepAlarm", "Could not start foreground alarm", e);
+            Log.e("SleepAlarm", "Could not start foreground alarm", exception);
             stopSelf();
             return START_NOT_STICKY;
         }
@@ -85,23 +86,25 @@ public class AlarmService extends Service {
     }
 
     private void startSound() {
-        stopSound(); // in case an alarm is already ringing
+        // in case an alarm is already ringing
+        stopSound();
         try {
             Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
             if (uri == null) uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
 
             player = new MediaPlayer();
+            // USAGE_ALARM plays on the alarm volume
             player.setAudioAttributes(
                     new AudioAttributes.Builder()
-                            .setUsage(AudioAttributes.USAGE_ALARM) // plays on the alarm volume
+                            .setUsage(AudioAttributes.USAGE_ALARM)
                             .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                             .build());
             player.setDataSource(this, uri);
             player.setLooping(true);
             player.prepare();
             player.start();
-        } catch (Exception e) {
-            Log.e("SleepAlarm", "Could not play alarm sound", e);
+        } catch (Exception exception) {
+            Log.e("SleepAlarm", "Could not play alarm sound", exception);
         }
     }
 
@@ -117,7 +120,8 @@ public class AlarmService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             vibrator.vibrate(VibrationEffect.createWaveform(pattern, 0));
         } else {
-            vibrator.vibrate(pattern, 0); // 0 = repeat from the start
+            // 0 = repeat from the start
+            vibrator.vibrate(pattern, 0);
         }
     }
 
@@ -147,7 +151,8 @@ public class AlarmService extends Service {
 
     // Silent channel: the service plays the sound itself, so the notification must not also beep
     private void createChannel() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return; // channels don't exist before Android 8
+        // channels don't exist before Android 8
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
 
         NotificationChannel channel = new NotificationChannel(
                 CHANNEL_ID, "Alarm ringing", NotificationManager.IMPORTANCE_HIGH);
@@ -168,8 +173,9 @@ public class AlarmService extends Service {
                 new Intent(this, AlarmService.class).setAction(ACTION_STOP),
                 PendingIntent.FLAG_IMMUTABLE);
 
+        // swap the small icon for your own icon
         return new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(android.R.drawable.ic_lock_idle_alarm) // swap for your own icon
+                .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
                 .setContentTitle("Wake up!")
                 .setContentText("Your alarm is ringing")
                 .setCategory(NotificationCompat.CATEGORY_ALARM)

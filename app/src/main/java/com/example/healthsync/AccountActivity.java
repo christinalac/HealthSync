@@ -35,7 +35,8 @@ public class AccountActivity extends AppCompatActivity {
     private static final int PASSWORD = 2;
 
     private DatabaseHelper db;
-    private String email; // the logged-in user's email (the key in both tables)
+    // the logged-in user's email (the key in both tables)
+    private String email = null;
     private TextView textProfileName, textProfileEmail, textStatsRow;
 
     @Override
@@ -45,7 +46,8 @@ public class AccountActivity extends AppCompatActivity {
 
         db = new DatabaseHelper(this);
         email = Session.getEmail(this);
-        if (email == null) { // nobody is logged in
+        // nobody is logged in when email is null
+        if (email == null) {
             goToLogin();
             return;
         }
@@ -80,7 +82,8 @@ public class AccountActivity extends AppCompatActivity {
                 startActivity(new Intent(this, SleepActivity.class));
                 return true;
             } else if (id == R.id.nav_account) {
-                return true; // already here
+                // already here
+                return true;
             }
             return false;
         });
@@ -100,10 +103,17 @@ public class AccountActivity extends AppCompatActivity {
 
     private void showProfile() {
         String[] profile = db.getProfileDisplay(email);
-        textProfileName.setText(profile != null ? profile[0] : "Your name");
+        String profileName = "Your name";
+        if (profile != null) {
+            profileName = profile[0];
+        } else {
+            profileName = "Your name";
+        }
+        textProfileName.setText(profileName);
         textProfileEmail.setText(email);
         if (profile != null) textStatsRow.setText(profile[1]);
-        showDailyTargets(); // re-run every time, so changing age/height/weight/activity updates the targets
+        // re-run every time, so changing age/height/weight/activity updates the targets
+        showDailyTargets();
     }
 
     // ── Your Daily Targets card ──────────────────────────────
@@ -114,29 +124,29 @@ public class AccountActivity extends AppCompatActivity {
         TextView water = findViewById(R.id.textWaterValue);
         TextView sleep = findViewById(R.id.textSleepValue);
 
-        UserProfile p = db.getUserProfile(email);
-        if (p == null || !p.isComplete()) {
+        UserProfile profile = db.getUserProfile(email);
+        if (profile == null || !profile.isComplete()) {
             // No personal info saved yet, so there is nothing to calculate from
             goal.setText("Goal: --");
             calories.setText("Calories: --");
             water.setText("Water: --");
             sleep.setText("Sleep: --");
             return;
-        } // end of missing-profile check
+        }
 
         int kcal = PersonalizedCalculations.calculateDailyCalories(
-                p.gender, p.weightLbs, p.heightFt, p.heightIn, p.age,
-                p.activityLevel, p.goal, p.isRestDay);
+                profile.gender, profile.weightLbs, profile.heightFt, profile.heightIn, profile.age,
+                profile.activityLevel, profile.goal, profile.isRestDay);
         double litres = PersonalizedCalculations.calculateDailyWaterLitres(
-                p.gender, p.weightLbs, p.activityLevel, p.goal,
-                p.isPregnant, p.isBreastfeeding);
+                profile.gender, profile.weightLbs, profile.activityLevel, profile.goal,
+                profile.isPregnant, profile.isBreastfeeding);
 
-        goal.setText("Goal: " + p.goal);
+        goal.setText("Goal: " + profile.goal);
         calories.setText(String.format(java.util.Locale.US, "Calories: %,d kcal per day", kcal));
         water.setText("Water: " + litres + " L (about "
                 + PersonalizedCalculations.litresToCups(litres) + " cups) per day");
-        sleep.setText("Sleep: " + PersonalizedCalculations.getSleepSuggestion(p.age) + " per night");
-    } // end of showDailyTargets
+        sleep.setText("Sleep: " + PersonalizedCalculations.getSleepSuggestion(profile.age) + " per night");
+    }
 
     // One popup for all three changes; only the needed fields are shown
     private void showEditDialog(int type) {
@@ -165,10 +175,11 @@ public class AccountActivity extends AppCompatActivity {
             tilConfirm.setVisibility(View.VISIBLE);
         }
 
+        // The Save button's click listener is set below so errors don't close the dialog
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(title)
                 .setView(view)
-                .setPositiveButton("Save", null) // set below so errors don't close the dialog
+                .setPositiveButton("Save", null)
                 .setNegativeButton("Cancel", null)
                 .create();
         dialog.show();
@@ -257,8 +268,17 @@ public class AccountActivity extends AppCompatActivity {
         inches.setMaxValue(11);
 
         int[] stats = db.getBodyStats(email);
-        feet.setValue(stats != null ? stats[1] : 5);
-        inches.setValue(stats != null ? stats[2] : 6);
+        int feetValue = 5;
+        int inchesValue = 6;
+        if (stats != null) {
+            feetValue = stats[1];
+            inchesValue = stats[2];
+        } else {
+            feetValue = 5;
+            inchesValue = 6;
+        }
+        feet.setValue(feetValue);
+        inches.setValue(inchesValue);
 
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
@@ -279,7 +299,13 @@ public class AccountActivity extends AppCompatActivity {
         weight.setMaxValue(400);
 
         int[] stats = db.getBodyStats(email);
-        weight.setValue(stats != null ? stats[3] : 150);
+        int weightValue = 150;
+        if (stats != null) {
+            weightValue = stats[3];
+        } else {
+            weightValue = 150;
+        }
+        weight.setValue(weightValue);
 
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
@@ -320,7 +346,7 @@ public class AccountActivity extends AppCompatActivity {
         new AlertDialog.Builder(this)
                 .setTitle(title)
                 .setView(content)
-                .setPositiveButton("Save", (d, which) -> {
+                .setPositiveButton("Save", (dialogInterface, which) -> {
                     if (save.getAsBoolean()) {
                         showProfile();
                     } else {
@@ -342,11 +368,11 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     private TextView unitLabel(String text) {
-        TextView t = new TextView(this);
-        t.setText(text);
-        t.setTextSize(16);
+        TextView label = new TextView(this);
+        label.setText(text);
+        label.setTextSize(16);
         int pad = (int) (8 * getResources().getDisplayMetrics().density);
-        t.setPadding(pad, 0, pad * 2, 0);
-        return t;
+        label.setPadding(pad, 0, pad * 2, 0);
+        return label;
     }
 }

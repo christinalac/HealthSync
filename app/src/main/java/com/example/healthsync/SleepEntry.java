@@ -23,28 +23,64 @@ public class SleepEntry {
             "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
     };
 
+    // Minutes since midnight must fall in this range to be valid
+    private static final int MIN_MINUTES = 0;
+    private static final int MAX_MINUTES = 1439;
+
     public final long id;
-    public Set<Integer> days;      // Calendar.MONDAY etc.
-    public Integer bedMinutes;     // minutes since midnight, null = not set
-    public Integer wakeMinutes;
-    public boolean bedAlarm;
-    public boolean wakeAlarm;
+    // Calendar.MONDAY etc.
+    public Set<Integer> days = new HashSet<>();
+    // minutes since midnight, null = not set
+    public Integer bedMinutes = null;
+    public Integer wakeMinutes = null;
+    public boolean bedAlarm = false;
+    public boolean wakeAlarm = false;
 
     public SleepEntry(long id, Set<Integer> days) {
-        this.id = id;
-        this.days = days;
+        if (id >= 0) {
+            this.id = id;
+        } else {
+            this.id = -1;
+        }
+        if (days != null) {
+            this.days = days;
+        } else {
+            this.days = new HashSet<>();
+        }
     }
 
     public Integer getMinutes(boolean isWake) {
-        return isWake ? wakeMinutes : bedMinutes;
+        Integer result;
+        if (isWake) {
+            result = wakeMinutes;
+        } else {
+            result = bedMinutes;
+        }
+        return result;
     }
 
     public void setMinutes(boolean isWake, Integer minutes) {
-        if (isWake) wakeMinutes = minutes; else bedMinutes = minutes;
+        Integer validMinutes = null;
+        if (minutes != null && minutes >= MIN_MINUTES && minutes <= MAX_MINUTES) {
+            validMinutes = minutes;
+        } else {
+            validMinutes = null;
+        }
+        if (isWake) {
+            wakeMinutes = validMinutes;
+        } else {
+            bedMinutes = validMinutes;
+        }
     }
 
     public boolean isAlarmOn(boolean isWake) {
-        return isWake ? wakeAlarm : bedAlarm;
+        boolean result;
+        if (isWake) {
+            result = wakeAlarm;
+        } else {
+            result = bedAlarm;
+        }
+        return result;
     }
 
     public void setAlarmOn(boolean isWake, boolean on) {
@@ -58,18 +94,18 @@ public class SleepEntry {
                 Calendar.THURSDAY, Calendar.FRIDAY));
         Set<Integer> weekend = new HashSet<>(Arrays.asList(
                 Calendar.SATURDAY, Calendar.SUNDAY));
+        StringBuilder labelBuilder = new StringBuilder();
 
         if (days.size() == 7) return "Every day";
         if (days.equals(weekdays)) return "Weekdays";
         if (days.equals(weekend)) return "Weekends";
 
-        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < WEEK_DAYS.length; i++) {
             if (days.contains(WEEK_DAYS[i])) {
-                if (sb.length() > 0) sb.append(", ");
-                sb.append(WEEK_NAMES[i].substring(0, 3));
+                if (labelBuilder.length() > 0) labelBuilder.append(", ");
+                labelBuilder.append(WEEK_NAMES[i].substring(0, 3));
             }
         }
-        return sb.toString();
+        return labelBuilder.toString();
     }
 }

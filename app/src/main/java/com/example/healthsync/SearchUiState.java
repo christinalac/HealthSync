@@ -16,13 +16,28 @@ public class SearchUiState {
     public enum Type { IDLE, LOADING, EMPTY, RESULTS, ERROR }
 
     public final Type type;
-    public final List<FoodItem> foods;   // only for RESULTS
-    public final String message;         // only for ERROR
+    // only for RESULTS
+    public final List<FoodItem> foods;
+    // only for ERROR
+    public final String message;
 
     private SearchUiState(Type type, List<FoodItem> foods, String message) {
-        this.type = type;
-        this.foods = foods;
-        this.message = message;
+        // Missing values become safe defaults: IDLE, an empty list, and ""
+        if (type != null) {
+            this.type = type;
+        } else {
+            this.type = Type.IDLE;
+        }
+        if (foods != null) {
+            this.foods = foods;
+        } else {
+            this.foods = Collections.<FoodItem>emptyList();
+        }
+        if (message != null) {
+            this.message = message;
+        } else {
+            this.message = "";
+        }
     }
 
     public static SearchUiState idle()    { return new SearchUiState(Type.IDLE, Collections.<FoodItem>emptyList(), null); }

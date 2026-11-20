@@ -34,15 +34,17 @@ public class WorkoutActivity extends AppCompatActivity
 
     private final List<Exercise> exerciseList = new ArrayList<>();
 
-    private ExerciseAdapter adapter;
+    private ExerciseAdapter adapter = null;
 
-    private TextView tvInfoCardTitle;
-    private TextView tvMuscleTag1;
-    private TextView tvMuscleTag2;
-    private TextView tvMuscleTag3;
-    private TextView tvInfoCardTips;
-    private android.view.View infoContent; // everything under the Exercise Info title
-    private TextView infoArrow;             // ▼ / ▲ next to the Exercise Info title
+    private TextView tvInfoCardTitle = null;
+    private TextView tvMuscleTag1 = null;
+    private TextView tvMuscleTag2 = null;
+    private TextView tvMuscleTag3 = null;
+    private TextView tvInfoCardTips = null;
+    // everything under the Exercise Info title
+    private android.view.View infoContent = null;
+    // ▼ / ▲ next to the Exercise Info title
+    private TextView infoArrow = null;
 
     // ── Weekly split (what the user trains on each day) ──────
     // Index 0 = Sunday ... 6 = Saturday, same order as the cells in the card
@@ -60,8 +62,10 @@ public class WorkoutActivity extends AppCompatActivity
             "Rest", "Legs", "Chest", "Back", "Rest", "Shoulders", "Cardio"
     };
 
-    private final String[] weeklySplit = new String[7]; // what is shown and saved
-    private final TextView[] splitDayViews = new TextView[7]; // one cell per day in the card
+    // what is shown and saved
+    private final String[] weeklySplit = new String[7];
+    // one cell per day in the card
+    private final TextView[] splitDayViews = new TextView[7];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,19 +75,19 @@ public class WorkoutActivity extends AppCompatActivity
         TextView tvWeekOf = findViewById(R.id.textWorkoutPlannerPlaceholder);
         TextView tvDayPlan = findViewById(R.id.textWeeklyPlanHeader);
 
-        java.util.Calendar cal = java.util.Calendar.getInstance();
+        java.util.Calendar calendar = java.util.Calendar.getInstance();
 
         // Day of week in uppercase, e.g., "WEDNESDAY'S PLAN"
         String dayName = new java.text.SimpleDateFormat("EEEE", Locale.US)
-                .format(cal.getTime())
+                .format(calendar.getTime())
                 .toUpperCase(Locale.US);
         tvDayPlan.setText(dayName + "'S PLAN");
 
         // Find the Monday of the current week, e.g., "Week of Nov 9"
-        cal.setFirstDayOfWeek(java.util.Calendar.MONDAY);
-        cal.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY);
+        calendar.setFirstDayOfWeek(java.util.Calendar.MONDAY);
+        calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY);
         String weekStart = new java.text.SimpleDateFormat("MMM d", Locale.US)
-                .format(cal.getTime());
+                .format(calendar.getTime());
         tvWeekOf.setText("Week of " + weekStart);
 
         // ── Weekly split card ──────────────────────────────────
@@ -113,7 +117,7 @@ public class WorkoutActivity extends AppCompatActivity
         SharedPreferences workoutPrefs = getSharedPreferences("healthsync_workouts", MODE_PRIVATE);
 
         showInfoOpen(workoutPrefs.getBoolean("info_open", false));
-        infoHeaderRow.setOnClickListener(v -> {
+        infoHeaderRow.setOnClickListener(view -> {
             boolean open = infoContent.getVisibility() != android.view.View.VISIBLE;
             showInfoOpen(open);
             workoutPrefs.edit().putBoolean("info_open", open).apply();
@@ -128,13 +132,13 @@ public class WorkoutActivity extends AppCompatActivity
 
         // Top-left header button: workout suggestions based on the user's goal and today's split.
         // Picking one adds it through onExercisePicked, the same as the "+" search
-        findViewById(R.id.buttonSuggestions).setOnClickListener(v ->
+        findViewById(R.id.buttonSuggestions).setOnClickListener(view ->
                 SuggestionsBottomSheet.newInstance(SuggestionsBottomSheet.TYPE_WORKOUT)
                         .show(getSupportFragmentManager(), "workout_suggestions"));
 
         // "+" opens the exercise search pop-up (ExerciseSearchBottomSheet fetches the API)
         FloatingActionButton fabAddWorkout = findViewById(R.id.fabAddWorkout);
-        fabAddWorkout.setOnClickListener(v ->
+        fabAddWorkout.setOnClickListener(view ->
                 new ExerciseSearchBottomSheet().show(getSupportFragmentManager(), "exercise_search"));
 
         // Bottom navigation
@@ -178,7 +182,7 @@ public class WorkoutActivity extends AppCompatActivity
         loadWeeklySplit();
         showWeeklySplit();
 
-        findViewById(R.id.buttonEditSplit).setOnClickListener(v -> showEditSplitDialog());
+        findViewById(R.id.buttonEditSplit).setOnClickListener(view -> showEditSplitDialog());
 
         // ── Drop down: tapping the title opens / closes the list of days ──
         // The title and Edit button always stay visible. Open or closed is remembered
@@ -188,21 +192,32 @@ public class WorkoutActivity extends AppCompatActivity
         SharedPreferences prefs = getSharedPreferences("healthsync_workouts", MODE_PRIVATE);
 
         showSplitOpen(splitHeader, splitGrid, prefs.getBoolean("split_open", false));
-        splitHeader.setOnClickListener(v -> {
+        splitHeader.setOnClickListener(view -> {
             boolean open = splitGrid.getVisibility() != android.view.View.VISIBLE;
             showSplitOpen(splitHeader, splitGrid, open);
             prefs.edit().putBoolean("split_open", open).apply();
         });
-    } // end of setupWeeklySplit
+        // end of setupWeeklySplit
+    }
 
     // Shows or hides the days, and flips the arrow on the title (▼ = closed, ▲ = open)
     private void showSplitOpen(TextView header, android.view.View grid, boolean open) {
-        grid.setVisibility(open ? android.view.View.VISIBLE : android.view.View.GONE);
-        header.setText(open ? "📅 WEEKLY SPLIT  ▲" : "📅 WEEKLY SPLIT  ▼");
+        int gridVisibility = android.view.View.GONE;
+        String headerText = "📅 WEEKLY SPLIT  ▼";
+        String contentDescription = "Weekly split, collapsed. Tap to expand";
+
+        if (open) {
+            gridVisibility = android.view.View.VISIBLE;
+            headerText = "📅 WEEKLY SPLIT  ▲";
+            contentDescription = "Weekly split, expanded. Tap to collapse";
+        }
+
+        grid.setVisibility(gridVisibility);
+        header.setText(headerText);
         // TalkBack reads this so screen reader users know what tapping will do
-        header.setContentDescription(open ? "Weekly split, expanded. Tap to collapse"
-                                          : "Weekly split, collapsed. Tap to expand");
-    } // end of showSplitOpen
+        header.setContentDescription(contentDescription);
+        // end of showSplitOpen
+    }
 
     // Writes "Sunday: Rest" etc. into each cell. Today's cell is bold and green so it stands out
     private void showWeeklySplit() {
@@ -218,20 +233,24 @@ public class WorkoutActivity extends AppCompatActivity
             } else {
                 splitDayViews[i].setTypeface(null, Typeface.NORMAL);
                 splitDayViews[i].setTextColor(ContextCompat.getColor(this, R.color.workout_text_main));
-            } // end of today highlight if/else
-        } // end of for loop over the days
-    } // end of showWeeklySplit
+                // end of today highlight if/else
+            }
+            // end of for loop over the days
+        }
+        // end of showWeeklySplit
+    }
 
     // Pop-up with one row per day: the day name and a spinner to pick its workout
     private void showEditSplitDialog() {
         int padding = (int) (20 * getResources().getDisplayMetrics().density);
-
         LinearLayout rows = new LinearLayout(this);
-        rows.setOrientation(LinearLayout.VERTICAL);
-        rows.setPadding(padding, padding / 2, padding, 0);
-
         // keeps track of the spinner for each day so Save can read them back
         final Spinner[] spinners = new Spinner[7];
+        // ScrollView so all 7 rows are still reachable in landscape or on small screens
+        ScrollView scroll = new ScrollView(this);
+
+        rows.setOrientation(LinearLayout.VERTICAL);
+        rows.setPadding(padding, padding / 2, padding, 0);
 
         for (int i = 0; i < 7; i++) {
             LinearLayout row = new LinearLayout(this);
@@ -256,10 +275,9 @@ public class WorkoutActivity extends AppCompatActivity
 
             spinners[i] = spinner;
             rows.addView(row);
-        } // end of for loop that builds the rows
+            // end of for loop that builds the rows
+        }
 
-        // ScrollView so all 7 rows are still reachable in landscape or on small screens
-        ScrollView scroll = new ScrollView(this);
         scroll.addView(rows);
 
         // same green dialog theme as the sleep page so the Save button is easy to see
@@ -269,22 +287,26 @@ public class WorkoutActivity extends AppCompatActivity
                 .setPositiveButton("Save", (dialog, which) -> {
                     for (int i = 0; i < 7; i++) {
                         weeklySplit[i] = SPLIT_OPTIONS[spinners[i].getSelectedItemPosition()];
-                    } // end of for loop that reads the spinners
+                        // end of for loop that reads the spinners
+                    }
                     saveWeeklySplit();
                     showWeeklySplit();
                     Toast.makeText(this, "Weekly split saved", Toast.LENGTH_SHORT).show();
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
-    } // end of showEditSplitDialog
+        // end of showEditSplitDialog
+    }
 
     // Position of a workout name in SPLIT_OPTIONS (falls back to Rest if it isn't found)
     private int indexOfOption(String name) {
         for (int i = 0; i < SPLIT_OPTIONS.length; i++) {
             if (SPLIT_OPTIONS[i].equals(name)) return i;
-        } // end of for loop
+            // end of for loop
+        }
         return 0;
-    } // end of indexOfOption
+        // end of indexOfOption
+    }
 
     // Saves the 7 days as a JSON list in the same prefs file the exercises use
     private void saveWeeklySplit() {
@@ -295,10 +317,12 @@ public class WorkoutActivity extends AppCompatActivity
             }
             SharedPreferences prefs = getSharedPreferences("healthsync_workouts", MODE_PRIVATE);
             prefs.edit().putString("weekly_split", array.toString()).apply();
-        } catch (Exception e) {
-            Log.e("WorkoutActivity", "Could not save the weekly split", e);
-        } // end of try/catch
-    } // end of saveWeeklySplit
+        } catch (Exception exception) {
+            Log.e("WorkoutActivity", "Could not save the weekly split", exception);
+            // end of try/catch
+        }
+        // end of saveWeeklySplit
+    }
 
     // Loads the saved split. Anything missing or broken falls back to the default split
     private void loadWeeklySplit() {
@@ -306,17 +330,21 @@ public class WorkoutActivity extends AppCompatActivity
 
         SharedPreferences prefs = getSharedPreferences("healthsync_workouts", MODE_PRIVATE);
         String json = prefs.getString("weekly_split", null);
-        if (json == null) return; // nothing saved yet, so keep the defaults
+        // nothing saved yet, so keep the defaults
+        if (json == null) return;
 
         try {
             JSONArray array = new JSONArray(json);
             for (int i = 0; i < 7 && i < array.length(); i++) {
                 weeklySplit[i] = SPLIT_OPTIONS[indexOfOption(array.getString(i))];
-            } // end of for loop
-        } catch (Exception e) {
-            Log.e("WorkoutActivity", "Could not load the weekly split", e);
-        } // end of try/catch
-    } // end of loadWeeklySplit
+                // end of for loop
+            }
+        } catch (Exception exception) {
+            Log.e("WorkoutActivity", "Could not load the weekly split", exception);
+            // end of try/catch
+        }
+        // end of loadWeeklySplit
+    }
 
     @Override
     public void onExercisePicked(ExerciseCatalog.Entry entry) {
@@ -339,13 +367,23 @@ public class WorkoutActivity extends AppCompatActivity
 
     // Shows or hides everything under the Exercise Info title, and flips the arrow
     private void showInfoOpen(boolean open) {
-        infoContent.setVisibility(open ? android.view.View.VISIBLE : android.view.View.GONE);
-        infoArrow.setText(open ? "▲" : "▼");
+        int contentVisibility = android.view.View.GONE;
+        String arrowText = "▼";
+        String stateDescription = ", collapsed. Tap to expand";
+
+        if (open) {
+            contentVisibility = android.view.View.VISIBLE;
+            arrowText = "▲";
+            stateDescription = ", expanded. Tap to collapse";
+        }
+
+        infoContent.setVisibility(contentVisibility);
+        infoArrow.setText(arrowText);
         // TalkBack reads this so screen reader users know what tapping will do
         findViewById(R.id.rowExerciseInfoHeader).setContentDescription(
-                tvInfoCardTitle.getText() + (open ? ", expanded. Tap to collapse"
-                                                  : ", collapsed. Tap to expand"));
-    } // end of showInfoOpen
+                tvInfoCardTitle.getText() + stateDescription);
+        // end of showInfoOpen
+    }
 
     // Called when the user taps an exercise: fill in the card, open it, and scroll to it
     // so the user actually sees the info they asked for
@@ -359,9 +397,12 @@ public class WorkoutActivity extends AppCompatActivity
         android.view.View card = findViewById(R.id.cardExerciseInfo);
         // post() waits until the card has been laid out at its new (open) size
         scroll.post(() -> scroll.smoothScrollTo(0, card.getTop()));
-    } // end of openExerciseInfo
+        // end of openExerciseInfo
+    }
 
     private void showExerciseInfo(Exercise exercise) {
+        String[] tags = exercise.getMuscleTags();
+
         tvInfoCardTitle.setText("EXERCISE INFO - " + exercise.getName().toUpperCase(Locale.ROOT));
 
         if (exercise.getTips() != null && !exercise.getTips().isEmpty()) {
@@ -370,7 +411,6 @@ public class WorkoutActivity extends AppCompatActivity
             tvInfoCardTips.setText(exercise.getCategory());
         }
 
-        String[] tags = exercise.getMuscleTags();
         if (tags == null || tags.length < 3) {
             tags = new String[]{exercise.getCategory(), "General", "Fitness"};
         }
@@ -391,26 +431,30 @@ public class WorkoutActivity extends AppCompatActivity
     public void saveExercises() {
         try {
             JSONArray array = new JSONArray();
-            for (Exercise ex : exerciseList) {
-                JSONObject obj = new JSONObject();
-                obj.put("name", ex.getName());
-                obj.put("category", ex.getCategory());
-                obj.put("setsReps", ex.getSetsReps());
-                obj.put("checked", ex.isChecked());
-                obj.put("tips", ex.getTips() != null ? ex.getTips() : "");
-
-                String[] tags = ex.getMuscleTags();
-                if (tags != null && tags.length >= 3) {
-                    obj.put("tag1", tags[0]);
-                    obj.put("tag2", tags[1]);
-                    obj.put("tag3", tags[2]);
+            for (Exercise exercise : exerciseList) {
+                JSONObject exerciseJson = new JSONObject();
+                String tips = "";
+                if (exercise.getTips() != null) {
+                    tips = exercise.getTips();
                 }
-                array.put(obj);
+                exerciseJson.put("name", exercise.getName());
+                exerciseJson.put("category", exercise.getCategory());
+                exerciseJson.put("setsReps", exercise.getSetsReps());
+                exerciseJson.put("checked", exercise.isChecked());
+                exerciseJson.put("tips", tips);
+
+                String[] tags = exercise.getMuscleTags();
+                if (tags != null && tags.length >= 3) {
+                    exerciseJson.put("tag1", tags[0]);
+                    exerciseJson.put("tag2", tags[1]);
+                    exerciseJson.put("tag3", tags[2]);
+                }
+                array.put(exerciseJson);
             }
             SharedPreferences prefs = getSharedPreferences("healthsync_workouts", MODE_PRIVATE);
             prefs.edit().putString("saved_exercises", array.toString()).apply();
-        } catch (Exception e) {
-            Log.e("WorkoutActivity", "Could not save the workout list", e);
+        } catch (Exception exception) {
+            Log.e("WorkoutActivity", "Could not save the workout list", exception);
         }
     }
 
@@ -423,25 +467,25 @@ public class WorkoutActivity extends AppCompatActivity
         try {
             JSONArray array = new JSONArray(json);
             for (int i = 0; i < array.length(); i++) {
-                JSONObject obj = array.getJSONObject(i);
-                Exercise ex = new Exercise(
-                        obj.getString("name"),
-                        obj.getString("category"),
-                        obj.getString("setsReps")
+                JSONObject exerciseJson = array.getJSONObject(i);
+                Exercise exercise = new Exercise(
+                        exerciseJson.getString("name"),
+                        exerciseJson.getString("category"),
+                        exerciseJson.getString("setsReps")
                 );
-                ex.setChecked(obj.optBoolean("checked", false));
-                ex.setTips(obj.optString("tips", ""));
-                if (obj.has("tag1") && obj.has("tag2") && obj.has("tag3")) {
-                    ex.setMuscleTags(new String[]{
-                            obj.getString("tag1"),
-                            obj.getString("tag2"),
-                            obj.getString("tag3")
+                exercise.setChecked(exerciseJson.optBoolean("checked", false));
+                exercise.setTips(exerciseJson.optString("tips", ""));
+                if (exerciseJson.has("tag1") && exerciseJson.has("tag2") && exerciseJson.has("tag3")) {
+                    exercise.setMuscleTags(new String[]{
+                            exerciseJson.getString("tag1"),
+                            exerciseJson.getString("tag2"),
+                            exerciseJson.getString("tag3")
                     });
                 }
-                exerciseList.add(ex);
+                exerciseList.add(exercise);
             }
-        } catch (Exception e) {
-            Log.e("WorkoutActivity", "Could not load the saved workouts", e);
+        } catch (Exception exception) {
+            Log.e("WorkoutActivity", "Could not load the saved workouts", exception);
         }
     }
 }

@@ -36,8 +36,8 @@ public class WaterProgressBar extends View {
 
     private final float density = getResources().getDisplayMetrics().density;
 
-    private float dp(float v) {
-        return v * density;
+    private float dp(float value) {
+        return value * density;
     }
 
     // One translucent wave.
@@ -73,8 +73,10 @@ public class WaterProgressBar extends View {
     private final float cornerRadius = dp(10f);
     private final float flowTileWidth = dp(120f);
     private final long fillDurationMs = 900L;
-    private final long waveDurationMs = 3200L;   // lower = faster ripple
-    private final long flowDurationMs = 2600L;   // lower = faster flow
+    // lower = faster ripple
+    private final long waveDurationMs = 3200L;
+    // lower = faster flow
+    private final long flowDurationMs = 2600L;
 
     private final int colorTrack = 0xFFF1F1F1;
     private final int colorNavy = 0xFF1E5BC0;
@@ -88,11 +90,14 @@ public class WaterProgressBar extends View {
     private final float twoPi = (float) (2 * Math.PI);
 
     // ----- Animation state -----
-    private float shownProgress = 0f;     // what's currently drawn (0..1)
-    private float wavePhase = 0f;         // 0..2π, drives the ripple
-    private float flowOffset = 0f;        // 0..1, drives the sliding gradient
+    // what's currently drawn (0..1)
+    private float shownProgress = 0f;
+    // 0..2π, drives the ripple
+    private float wavePhase = 0f;
+    // 0..1, drives the sliding gradient
+    private float flowOffset = 0f;
 
-    @Nullable private ValueAnimator fillAnimator;
+    @Nullable private ValueAnimator fillAnimator = null;
     private final ValueAnimator waveAnimator;
     private final ValueAnimator flowAnimator;
 
@@ -109,18 +114,23 @@ public class WaterProgressBar extends View {
 
         trackPaint.setColor(colorTrack);
 
-        layers.add(new WaveLayer(0xB3A9D0EE, dp(32f), dp(11f), dp(96f), -1, 0.0f));  // pale sky blue
-        layers.add(new WaveLayer(0xCC6FB1E2, dp(23f), dp(10f), dp(76f), 1, 1.8f));   // light blue
-        layers.add(new WaveLayer(0xD93F86CE, dp(15f), dp(9f), dp(86f), -2, 3.4f));   // mid blue
-        layers.add(new WaveLayer(0xE62254B3, dp(7f), dp(7f), dp(64f), 1, 5.0f));     // deep blue
-        layers.add(new WaveLayer(0xFF0A1F6B, 0f, dp(5f), dp(54f), -1, 0.9f));        // navy (front)
+        // pale sky blue
+        layers.add(new WaveLayer(0xB3A9D0EE, dp(32f), dp(11f), dp(96f), -1, 0.0f));
+        // light blue
+        layers.add(new WaveLayer(0xCC6FB1E2, dp(23f), dp(10f), dp(76f), 1, 1.8f));
+        // mid blue
+        layers.add(new WaveLayer(0xD93F86CE, dp(15f), dp(9f), dp(86f), -2, 3.4f));
+        // deep blue
+        layers.add(new WaveLayer(0xE62254B3, dp(7f), dp(7f), dp(64f), 1, 5.0f));
+        // navy (front)
+        layers.add(new WaveLayer(0xFF0A1F6B, 0f, dp(5f), dp(54f), -1, 0.9f));
 
         waveAnimator = ValueAnimator.ofFloat(0f, twoPi);
         waveAnimator.setDuration(waveDurationMs);
         waveAnimator.setInterpolator(new LinearInterpolator());
         waveAnimator.setRepeatCount(ValueAnimator.INFINITE);
-        waveAnimator.addUpdateListener(a -> {
-            wavePhase = (float) a.getAnimatedValue();
+        waveAnimator.addUpdateListener(animation -> {
+            wavePhase = (float) animation.getAnimatedValue();
             invalidate();
         });
 
@@ -128,7 +138,7 @@ public class WaterProgressBar extends View {
         flowAnimator.setDuration(flowDurationMs);
         flowAnimator.setInterpolator(new LinearInterpolator());
         flowAnimator.setRepeatCount(ValueAnimator.INFINITE);
-        flowAnimator.addUpdateListener(a -> flowOffset = (float) a.getAnimatedValue());
+        flowAnimator.addUpdateListener(animation -> flowOffset = (float) animation.getAnimatedValue());
     }
 
     // Public API: fraction is 0.0 (empty) to 1.0 (goal reached)
@@ -143,8 +153,8 @@ public class WaterProgressBar extends View {
             fillAnimator = ValueAnimator.ofFloat(shownProgress, target);
             fillAnimator.setDuration(fillDurationMs);
             fillAnimator.setInterpolator(new DecelerateInterpolator());
-            fillAnimator.addUpdateListener(a -> {
-                shownProgress = (float) a.getAnimatedValue();
+            fillAnimator.addUpdateListener(animation -> {
+                shownProgress = (float) animation.getAnimatedValue();
                 invalidate();
             });
             fillAnimator.start();
@@ -155,11 +165,11 @@ public class WaterProgressBar extends View {
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
+    protected void onSizeChanged(int width, int height, int oldWidth, int oldHeight) {
+        super.onSizeChanged(width, height, oldWidth, oldHeight);
         // Rounded-rectangle outline that everything is clipped to
         clipPath.reset();
-        clipPath.addRoundRect(new RectF(0f, 0f, w, h), cornerRadius, cornerRadius, Path.Direction.CW);
+        clipPath.addRoundRect(new RectF(0f, 0f, width, height), cornerRadius, cornerRadius, Path.Direction.CW);
 
         // Front (navy) layer gets a repeating gradient; sliding it sideways makes it "flow"
         front().paint.setShader(new LinearGradient(
@@ -171,42 +181,44 @@ public class WaterProgressBar extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        float w = getWidth();
-        float h = getHeight();
+        float width = getWidth();
+        float height = getHeight();
+        Shader shader = null;
 
         canvas.save();
         canvas.clipPath(clipPath);
-        canvas.drawRect(0f, 0f, w, h, trackPaint);
+        canvas.drawRect(0f, 0f, width, height, trackPaint);
 
         if (shownProgress > 0f) {
-            shaderMatrix.setTranslate(flowOffset * flowTileWidth, 0f);   // slides left -> right
-            Shader shader = front().paint.getShader();
+            // slides left -> right
+            shaderMatrix.setTranslate(flowOffset * flowTileWidth, 0f);
+            shader = front().paint.getShader();
             if (shader != null) shader.setLocalMatrix(shaderMatrix);
 
             // Back to front, so the navy ends up on top
-            for (WaveLayer layer : layers) drawWave(canvas, w, h, layer);
+            for (WaveLayer layer : layers) drawWave(canvas, width, height, layer);
         }
         canvas.restore();
     }
 
     // Fills everything left of a wavy vertical edge.
     // At 0% the edge is fully off-screen left; at 100% it's fully past the right side.
-    private void drawWave(Canvas canvas, float w, float h, WaveLayer layer) {
-        float baseX = shownProgress * (w + 2 * layer.amp + layer.lead) - layer.amp;
-        float k = twoPi / layer.length;
+    private void drawWave(Canvas canvas, float width, float height, WaveLayer layer) {
+        float baseX = shownProgress * (width + 2 * layer.amp + layer.lead) - layer.amp;
+        float waveNumber = twoPi / layer.length;
         float step = dp(2f);
+        float y = 0f;
 
         wavePath.reset();
         wavePath.moveTo(0f, 0f);
-        float y = 0f;
-        while (y < h) {
+        while (y < height) {
             wavePath.lineTo(baseX + layer.amp
-                    * (float) Math.sin(k * y + layer.speed * wavePhase + layer.shift), y);
+                    * (float) Math.sin(waveNumber * y + layer.speed * wavePhase + layer.shift), y);
             y += step;
         }
         wavePath.lineTo(baseX + layer.amp
-                * (float) Math.sin(k * h + layer.speed * wavePhase + layer.shift), h);
-        wavePath.lineTo(0f, h);
+                * (float) Math.sin(waveNumber * height + layer.speed * wavePhase + layer.shift), height);
+        wavePath.lineTo(0f, height);
         wavePath.close();
         canvas.drawPath(wavePath, layer.paint);
     }

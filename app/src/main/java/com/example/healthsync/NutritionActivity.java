@@ -51,7 +51,7 @@ public class NutritionActivity extends AppCompatActivity {
         setupMeals();
         setupBottomNav();
         // Top-left header button: food suggestions based on the user's calorie goal
-        findViewById(R.id.buttonSuggestions).setOnClickListener(v ->
+        findViewById(R.id.buttonSuggestions).setOnClickListener(clickedView ->
                 SuggestionsBottomSheet.newInstance(SuggestionsBottomSheet.TYPE_FOOD)
                         .show(getSupportFragmentManager(), "food_suggestions"));
 
@@ -85,8 +85,8 @@ public class NutritionActivity extends AppCompatActivity {
 
     // Tap anywhere on the hydration card = +1 cup. Long-press = undo a cup.
     private void setupHydrationTaps() {
-        hydrationCard.setOnClickListener(v -> viewModel.addCup());
-        hydrationCard.setOnLongClickListener(v -> {
+        hydrationCard.setOnClickListener(clickedView -> viewModel.addCup());
+        hydrationCard.setOnLongClickListener(clickedView -> {
             viewModel.removeCup();
             return true;
         });
@@ -101,36 +101,43 @@ public class NutritionActivity extends AppCompatActivity {
 
         // The green "+" opens the food search pop-up
         FloatingActionButton fab = findViewById(R.id.fabAdd);
-        fab.setOnClickListener(v -> new FoodSearchBottomSheet().show(getSupportFragmentManager(), "food_search"));
+        fab.setOnClickListener(clickedView -> new FoodSearchBottomSheet().show(getSupportFragmentManager(), "food_search"));
     }
 
-    private void render(NutritionState s) {
+    private void render(NutritionState nutritionState) {
+        int emptyVisibility = View.GONE;
+        if (nutritionState.meals.isEmpty()) {
+            emptyVisibility = View.VISIBLE;
+        } else {
+            emptyVisibility = View.GONE;
+        }
+
         // Header pill + calorie card
-        tvHeaderKcal.setText(getString(R.string.kcal_progress, s.getCaloriesEaten(), s.calorieGoal));
-        tvGoal.setText(String.valueOf(s.calorieGoal));
-        tvEaten.setText(String.valueOf(s.getCaloriesEaten()));
-        tvLeft.setText(String.valueOf(s.getCaloriesLeft()));
-        calorieProgress.setProgress(s.getCalorieProgressPercent());
-        tvCarbs.setText(s.getCarbsG() + "g");
-        tvProtein.setText(s.getProteinG() + "g");
-        tvFat.setText(s.getFatG() + "g");
+        tvHeaderKcal.setText(getString(R.string.kcal_progress, nutritionState.getCaloriesEaten(), nutritionState.calorieGoal));
+        tvGoal.setText(String.valueOf(nutritionState.calorieGoal));
+        tvEaten.setText(String.valueOf(nutritionState.getCaloriesEaten()));
+        tvLeft.setText(String.valueOf(nutritionState.getCaloriesLeft()));
+        calorieProgress.setProgress(nutritionState.getCalorieProgressPercent());
+        tvCarbs.setText(nutritionState.getCarbsG() + "g");
+        tvProtein.setText(nutritionState.getProteinG() + "g");
+        tvFat.setText(nutritionState.getFatG() + "g");
 
         // Hydration card (cups)
-        tvHydrationTitle.setText("HYDRATION – " + s.hydrationCups + " / "
-                + Format.fmt1(s.hydrationGoalCups) + " CUPS");
+        tvHydrationTitle.setText("HYDRATION – " + nutritionState.hydrationCups + " / "
+                + Format.fmt1(nutritionState.hydrationGoalCups) + " CUPS");
         // If your WaterProgressBar only has setProgress(float), drop the second argument
-        waterBar.setProgress(s.getHydrationProgress(), true);
-        waterBar.setContentDescription("Hydration " + s.getHydrationPercent() + " percent of daily goal");
-        if (s.getCupsRemaining() <= 0.0) {
+        waterBar.setProgress(nutritionState.getHydrationProgress(), true);
+        waterBar.setContentDescription("Hydration " + nutritionState.getHydrationPercent() + " percent of daily goal");
+        if (nutritionState.getCupsRemaining() <= 0.0) {
             tvGlassCount.setText("Goal reached 🎉");
         } else {
-            tvGlassCount.setText(Format.fmt1(s.getCupsRemaining()) + " cups to go · "
-                    + s.getHydrationPercent() + "%");
+            tvGlassCount.setText(Format.fmt1(nutritionState.getCupsRemaining()) + " cups to go · "
+                    + nutritionState.getHydrationPercent() + "%");
         }
 
         // Today's meals
-        mealsController.submit(s.meals);
-        tvMealsEmpty.setVisibility(s.meals.isEmpty() ? View.VISIBLE : View.GONE);
+        mealsController.submit(nutritionState.meals);
+        tvMealsEmpty.setVisibility(emptyVisibility);
     }
 
     // If you've moved this into your own BottomNavHelper, keep that and delete this method.

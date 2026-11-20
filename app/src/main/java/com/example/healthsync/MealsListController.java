@@ -40,23 +40,25 @@ public class MealsListController {
         final View view;
         final ImageView image;
         final TextView name, serving, nutrients, servings;
-        LoggedMeal meal;            // always the latest data for this row
+        // always the latest data for this row
+        LoggedMeal meal = null;
         boolean imageLoaded = false;
         String imageUrl = null;
 
-        Row(View v) {
-            view = v;
-            image = v.findViewById(R.id.ivMeal);
-            name = v.findViewById(R.id.tvMealName);
-            serving = v.findViewById(R.id.tvMealServing);
-            nutrients = v.findViewById(R.id.tvMealNutrients);
-            servings = v.findViewById(R.id.tvServings);
+        Row(View rowView) {
+            view = rowView;
+            image = rowView.findViewById(R.id.ivMeal);
+            name = rowView.findViewById(R.id.tvMealName);
+            serving = rowView.findViewById(R.id.tvMealServing);
+            nutrients = rowView.findViewById(R.id.tvMealNutrients);
+            servings = rowView.findViewById(R.id.tvServings);
         }
     }
 
     private final LinearLayout container;
     private final Listener listener;
-    private final Map<String, Row> rows = new LinkedHashMap<>();   // meal id -> its row
+    // meal id -> its row
+    private final Map<String, Row> rows = new LinkedHashMap<>();
 
     public MealsListController(LinearLayout container, Listener listener) {
         this.container = container;
@@ -64,22 +66,25 @@ public class MealsListController {
     }
 
     public void submit(List<LoggedMeal> meals) {
-        // 1. Remove rows for meals that were deleted
         Set<String> keep = new HashSet<>();
-        for (LoggedMeal m : meals) keep.add(m.id);
-        Iterator<Map.Entry<String, Row>> it = rows.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<String, Row> entry = it.next();
+        Iterator<Map.Entry<String, Row>> rowIterator = rows.entrySet().iterator();
+        LoggedMeal meal = null;
+        Row row = null;
+
+        // 1. Remove rows for meals that were deleted
+        for (LoggedMeal loggedMeal : meals) keep.add(loggedMeal.id);
+        while (rowIterator.hasNext()) {
+            Map.Entry<String, Row> entry = rowIterator.next();
             if (!keep.contains(entry.getKey())) {
                 container.removeView(entry.getValue().view);
-                it.remove();
+                rowIterator.remove();
             }
         }
 
         // 2. Create/reuse a row for each meal and make sure it sits in the right position
         for (int i = 0; i < meals.size(); i++) {
-            LoggedMeal meal = meals.get(i);
-            Row row = rows.get(meal.id);
+            meal = meals.get(i);
+            row = rows.get(meal.id);
             if (row == null) {
                 row = createRow();
                 rows.put(meal.id, row);
@@ -98,19 +103,25 @@ public class MealsListController {
                 .inflate(R.layout.item_meal, container, false);
         final Row row = new Row(view);
         // Listeners read row.meal so they always act on the latest data
-        view.findViewById(R.id.btnPlus).setOnClickListener(v -> {
+        view.findViewById(R.id.btnPlus).setOnClickListener(clickedView -> {
             if (row.meal != null) listener.onIncrease(row.meal);
         });
-        view.findViewById(R.id.btnMinus).setOnClickListener(v -> {
+        view.findViewById(R.id.btnMinus).setOnClickListener(clickedView -> {
             if (row.meal != null) listener.onDecrease(row.meal);
         });
-        view.findViewById(R.id.btnDelete).setOnClickListener(v -> {
+        view.findViewById(R.id.btnDelete).setOnClickListener(clickedView -> {
             if (row.meal != null) listener.onDelete(row.meal);
         });
         return row;
     }
 
     private void bind(Row row, LoggedMeal meal) {
+        boolean urlChanged = false;
+        if (row.imageUrl == null) {
+            urlChanged = meal.imageUrl != null;
+        } else {
+            urlChanged = !row.imageUrl.equals(meal.imageUrl);
+        }
         row.meal = meal;
         row.name.setText(meal.name);
         row.serving.setText(Format.fmt1(meal.servings) + " × " + meal.servingLabel);
@@ -120,7 +131,6 @@ public class MealsListController {
         row.servings.setText(Format.fmt1(meal.servings));
 
         // Only (re)load the photo if it changed
-        boolean urlChanged = row.imageUrl == null ? meal.imageUrl != null : !row.imageUrl.equals(meal.imageUrl);
         if (!row.imageLoaded || urlChanged) {
             row.imageLoaded = true;
             row.imageUrl = meal.imageUrl;

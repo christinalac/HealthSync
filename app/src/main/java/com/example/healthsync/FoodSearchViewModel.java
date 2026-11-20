@@ -29,21 +29,31 @@ public class FoodSearchViewModel extends ViewModel {
     }
 
     public void search(String query) {
-        final String q = query == null ? "" : query.trim();
-        if (q.length() < 2) return;
+        String trimmedValue = "";
+        if (query == null) {
+            trimmedValue = "";
+        } else {
+            trimmedValue = query.trim();
+        }
+        final String trimmedQuery = trimmedValue;
+        if (trimmedQuery.length() < 2) return;
 
         final int requestId = latestRequest.incrementAndGet();
         state.setValue(SearchUiState.loading());
 
         executor.execute(() -> {
-            SearchUiState result;
+            SearchUiState result = null;
             try {
-                List<FoodItem> foods = OpenFoodFactsApi.search(q);
-                result = foods.isEmpty() ? SearchUiState.empty() : SearchUiState.results(foods);
-            } catch (OpenFoodFactsApi.RateLimitedException e) {
+                List<FoodItem> foods = OpenFoodFactsApi.search(trimmedQuery);
+                if (foods.isEmpty()) {
+                    result = SearchUiState.empty();
+                } else {
+                    result = SearchUiState.results(foods);
+                }
+            } catch (OpenFoodFactsApi.RateLimitedException rateLimitedException) {
                 result = SearchUiState.error(
                         "Open Food Facts limits searches to about 10 a minute. Wait a moment and try again.");
-            } catch (Exception e) {
+            } catch (Exception exception) {
                 result = SearchUiState.error(
                         "Couldn't reach Open Food Facts. Check your connection and try again.");
             }

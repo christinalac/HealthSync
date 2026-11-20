@@ -49,11 +49,12 @@ public class ProgressHistory {
         try {
             day.put(KEY_KCAL, calories);
             day.put(KEY_WATER, waterLitres);
-        } catch (JSONException e) {
-            return; // can't happen for numbers, but don't save a broken day
-        } // end of try/catch
+        } catch (JSONException jsonException) {
+            // can't happen for numbers, but don't save a broken day
+            return;
+        }
         saveDay(new Date(), day);
-    } // end of recordNutrition
+    }
 
     /**
      * Saves the hours slept for today (the morning the user woke up).
@@ -62,11 +63,11 @@ public class ProgressHistory {
         JSONObject day = loadDay(new Date());
         try {
             day.put(KEY_SLEEP, hours);
-        } catch (JSONException e) {
+        } catch (JSONException jsonException) {
             return;
-        } // end of try/catch
+        }
         saveDay(new Date(), day);
-    } // end of recordSleep
+    }
 
     // ─────────────────────────────────────────────────────────
     // READING (called by the Progress page)
@@ -75,17 +76,17 @@ public class ProgressHistory {
     /** Calories eaten on that day, or null if nothing was logged. */
     public Double getCalories(Date date) {
         return getValue(date, KEY_KCAL);
-    } // end of getCalories
+    }
 
     /** Litres of water on that day, or null if nothing was logged. */
     public Double getWater(Date date) {
         return getValue(date, KEY_WATER);
-    } // end of getWater
+    }
 
     /** Hours slept on that day, or null if nothing was logged. */
     public Double getSleep(Date date) {
         return getValue(date, KEY_SLEEP);
-    } // end of getSleep
+    }
 
     /**
      * Average per day for a range of days in the current month, counting only
@@ -98,23 +99,30 @@ public class ProgressHistory {
      * @param type     "kcal", "water", or "sleep"
      */
     public Double getAverage(int year, int month, int firstDay, int lastDay, String type) {
+        double total = 0;
+        int daysWithData = 0;
+        Double average = null;
+        Double value = null;
         Calendar cal = Calendar.getInstance();
         cal.clear();
         cal.set(year, month, 1);
 
-        double total = 0;
-        int daysWithData = 0;
-        for (int d = firstDay; d <= lastDay; d++) {
-            cal.set(Calendar.DAY_OF_MONTH, d);
-            Double value = getValue(cal.getTime(), type);
+        for (int dayOfMonth = firstDay; dayOfMonth <= lastDay; dayOfMonth++) {
+            cal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+            value = getValue(cal.getTime(), type);
             if (value != null) {
                 total += value;
                 daysWithData++;
-            } // end of has-data check
-        } // end of for loop over the days
+            }
+        }
 
-        return daysWithData == 0 ? null : total / daysWithData;
-    } // end of getAverage
+        if (daysWithData == 0) {
+            average = null;
+        } else {
+            average = total / daysWithData;
+        }
+        return average;
+    }
 
     // ─────────────────────────────────────────────────────────
     // HELPERS
@@ -126,9 +134,15 @@ public class ProgressHistory {
     public static final String TYPE_SLEEP    = KEY_SLEEP;
 
     private Double getValue(Date date, String key) {
+        Double result = null;
         JSONObject day = loadDay(date);
-        return day.has(key) ? day.optDouble(key) : null;
-    } // end of getValue
+        if (day.has(key)) {
+            result = day.optDouble(key);
+        } else {
+            result = null;
+        }
+        return result;
+    }
 
     // Loads one day's record. A missing or broken record comes back empty
     private JSONObject loadDay(Date date) {
@@ -136,17 +150,17 @@ public class ProgressHistory {
         if (json == null) return new JSONObject();
         try {
             return new JSONObject(json);
-        } catch (JSONException e) {
+        } catch (JSONException jsonException) {
             return new JSONObject();
-        } // end of try/catch
-    } // end of loadDay
+        }
+    }
 
     private void saveDay(Date date, JSONObject day) {
         prefs.edit().putString(dateKey(date), day.toString()).apply();
-    } // end of saveDay
+    }
 
     private static String dateKey(Date date) {
         return new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(date);
-    } // end of dateKey
+    }
 
-} // end of class ProgressHistory
+}

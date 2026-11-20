@@ -32,7 +32,8 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
         final TextView tvName;
         final TextView tvCategory;
         final CheckBox checkBox;
-        final View infoButton; // the circled "i"
+        // the circled "i"
+        final View infoButton;
 
         ExerciseViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -54,15 +55,21 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
     @Override
     public void onBindViewHolder(@NonNull ExerciseViewHolder holder, int position) {
         Exercise exercise = exerciseList.get(position);
+        float boundAlpha = 1f;
+        if (exercise.isChecked()) {
+            boundAlpha = 0.6f;
+        } else {
+            boundAlpha = 1f;
+        }
 
         holder.tvName.setText(exercise.getName());
         holder.tvCategory.setText(exercise.getCategory() + " | " + exercise.getSetsReps());
 
         // Tapping the name OR the circled "i" shows this exercise in the Exercise Info card
         View.OnClickListener showInfo = v -> {
-            int pos = holder.getBindingAdapterPosition();
-            if (pos != RecyclerView.NO_POSITION) {
-                onItemClick.onExerciseClick(exerciseList.get(pos));
+            int adapterPosition = holder.getBindingAdapterPosition();
+            if (adapterPosition != RecyclerView.NO_POSITION) {
+                onItemClick.onExerciseClick(exerciseList.get(adapterPosition));
             }
         };
         holder.tvName.setOnClickListener(showInfo);
@@ -82,27 +89,33 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
         // Checking an exercise marks it as done: it stays in the list (crossed out and faded)
         // and is saved, so it is still checked after switching tabs. Unchecking undoes it
         holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            int pos = holder.getBindingAdapterPosition();
-            if (pos == RecyclerView.NO_POSITION) return;
+            int adapterPosition = holder.getBindingAdapterPosition();
+            float checkedAlpha = 1f;
+            if (adapterPosition == RecyclerView.NO_POSITION) return;
 
-            exerciseList.get(pos).setChecked(isChecked);
+            exerciseList.get(adapterPosition).setChecked(isChecked);
             applyCompletedStyle(holder.tvName, isChecked);
-            holder.itemView.setAlpha(isChecked ? 0.6f : 1f);
+            if (isChecked) {
+                checkedAlpha = 0.6f;
+            } else {
+                checkedAlpha = 1f;
+            }
+            holder.itemView.setAlpha(checkedAlpha);
 
             if (holder.itemView.getContext() instanceof WorkoutActivity) {
                 ((WorkoutActivity) holder.itemView.getContext()).saveExercises();
             }
         });
-        holder.itemView.setAlpha(exercise.isChecked() ? 0.6f : 1f);
+        holder.itemView.setAlpha(boundAlpha);
 
         // Long-press a row to remove the exercise from the list (asks first)
         holder.itemView.setOnLongClickListener(v -> {
-            int pos = holder.getBindingAdapterPosition();
-            if (pos == RecyclerView.NO_POSITION) return false;
+            int adapterPosition = holder.getBindingAdapterPosition();
+            if (adapterPosition == RecyclerView.NO_POSITION) return false;
 
             new androidx.appcompat.app.AlertDialog.Builder(v.getContext(),
                     R.style.ThemeOverlay_HealthSync_SleepDialog)
-                    .setTitle("Remove " + exerciseList.get(pos).getName() + "?")
+                    .setTitle("Remove " + exerciseList.get(adapterPosition).getName() + "?")
                     .setPositiveButton("Remove", (dialog, which) -> removeAt(holder))
                     .setNegativeButton("Cancel", null)
                     .show();
@@ -112,11 +125,11 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
 
     // Removes the exercise, saves the list, and resets the info card if the list is now empty
     private void removeAt(ExerciseViewHolder holder) {
-        int pos = holder.getBindingAdapterPosition();
-        if (pos == RecyclerView.NO_POSITION) return;
+        int adapterPosition = holder.getBindingAdapterPosition();
+        if (adapterPosition == RecyclerView.NO_POSITION) return;
 
-        exerciseList.remove(pos);
-        notifyItemRemoved(pos);
+        exerciseList.remove(adapterPosition);
+        notifyItemRemoved(adapterPosition);
 
         if (holder.itemView.getContext() instanceof WorkoutActivity) {
             WorkoutActivity activity = (WorkoutActivity) holder.itemView.getContext();

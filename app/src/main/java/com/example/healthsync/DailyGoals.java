@@ -21,20 +21,34 @@ public final class DailyGoals {
         public final double waterCups;
 
         Goals(int calories, double waterCups) {
-            this.calories = calories;
-            this.waterCups = waterCups;
+            // Only accept sensible values; otherwise use 0 as the "invalid" marker
+            if (calories >= 0 && calories <= 100000) {
+                this.calories = calories;
+            } else {
+                this.calories = 0;
+            }
+            if (waterCups >= 0 && waterCups <= 10000) {
+                this.waterCups = waterCups;
+            } else {
+                this.waterCups = 0;
+            }
         }
     }
 
-    public static Goals forProfile(UserProfile p) {
-        if (p == null || !p.isComplete()) return new Goals(DEFAULT_CALORIES, DEFAULT_WATER_CUPS);
+    public static Goals forProfile(UserProfile profile) {
+        int calories = 0;
+        double litres = 0;
+        double cups = 0;
 
-        int calories = PersonalizedCalculations.calculateDailyCalories(
-                p.gender, p.weightLbs, p.heightFt, p.heightIn, p.age,
-                p.activityLevel, p.goal, p.isRestDay);
-        double litres = PersonalizedCalculations.calculateDailyWaterLitres(
-                p.gender, p.weightLbs, p.activityLevel, p.goal, p.isPregnant, p.isBreastfeeding);
-        double cups = PersonalizedCalculations.litresToCups(litres);
+        if (profile == null || !profile.isComplete()) return new Goals(DEFAULT_CALORIES, DEFAULT_WATER_CUPS);
+
+        calories = PersonalizedCalculations.calculateDailyCalories(
+                profile.gender, profile.weightLbs, profile.heightFt, profile.heightIn, profile.age,
+                profile.activityLevel, profile.goal, profile.isRestDay);
+        litres = PersonalizedCalculations.calculateDailyWaterLitres(
+                profile.gender, profile.weightLbs, profile.activityLevel, profile.goal,
+                profile.isPregnant, profile.isBreastfeeding);
+        cups = PersonalizedCalculations.litresToCups(litres);
 
         // Guard against nonsense input producing a zero/negative goal
         return new Goals(Math.max(calories, 1), Math.max(cups, 1.0));

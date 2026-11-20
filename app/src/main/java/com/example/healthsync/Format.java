@@ -15,9 +15,9 @@ public final class Format {
     private Format() {}
 
     // 1.0 -> "1", 1.5 -> "1.5"
-    public static String fmt1(double v) {
-        if (v == Math.floor(v)) return String.valueOf((long) v);
-        return String.format(Locale.US, "%.1f", v);
+    public static String fmt1(double value) {
+        if (value == Math.floor(value)) return String.valueOf((long) value);
+        return String.format(Locale.US, "%.1f", value);
     }
 
     // "120 kcal · C 20g · P 3g · F 4g" (same order as the macros on the summary card)

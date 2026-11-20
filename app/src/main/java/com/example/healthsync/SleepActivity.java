@@ -51,7 +51,8 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
     private List<SleepEntry> entries;
     private RecyclerView sleepList;
     private TextView emptyText;
-    private static final int GOAL_MINUTES = 8 * 60; // sleep goal
+    // sleep goal
+    private static final int GOAL_MINUTES = 8 * 60;
     private TextView textBedtime, textWakeTime, textSleepDuration, textSleepGoal;
 
     @Override
@@ -82,7 +83,8 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
         textSleepGoal = findViewById(R.id.textSleepGoal);
 
         findViewById(R.id.buttonAddSleep).setOnClickListener(v -> showSleepEntryDialog());
-        showLastNight(store.loadLastNight()); // restore the saved entry, if any
+        // restore the saved entry, if any
+        showLastNight(store.loadLastNight());
         // ---- Bottom navigation (unchanged) ----
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
         bottomNav.setSelectedItemId(R.id.nav_sleep);
@@ -98,7 +100,8 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
                 startActivity(new Intent(this, WorkoutActivity.class));
                 return true;
             } else if (id == R.id.nav_sleep) {
-                return true; // already here
+                // already here
+                return true;
             } else if (id == R.id.nav_account) {
                 startActivity(new Intent(this, AccountActivity.class));
                 return true;
@@ -111,14 +114,21 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
 
     // existing == null means "add a new card"; otherwise "edit this card's days"
     private void showDayPicker(SleepEntry existing) {
-        // Days already used by OTHER cards can't be picked again
         Set<Integer> usedElsewhere = new HashSet<>();
-        for (SleepEntry e : entries) {
-            if (existing == null || e.id != existing.id) usedElsewhere.addAll(e.days);
-        }
-
         List<Integer> availIds = new ArrayList<>();
         List<String> availNames = new ArrayList<>();
+        String dialogTitle;
+        if (existing == null) {
+            dialogTitle = "Add days";
+        } else {
+            dialogTitle = "Edit days";
+        }
+
+        // Days already used by OTHER cards can't be picked again
+        for (SleepEntry otherEntry : entries) {
+            if (existing == null || otherEntry.id != existing.id) usedElsewhere.addAll(otherEntry.days);
+        }
+
         for (int i = 0; i < SleepEntry.WEEK_DAYS.length; i++) {
             if (!usedElsewhere.contains(SleepEntry.WEEK_DAYS[i])) {
                 availIds.add(SleepEntry.WEEK_DAYS[i]);
@@ -138,7 +148,7 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
         }
 
         new AlertDialog.Builder(this, R.style.ThemeOverlay_HealthSync_SleepDialog)
-                .setTitle(existing == null ? "Add days" : "Edit days")
+                .setTitle(dialogTitle)
                 .setMultiChoiceItems(names, checked, (dialog, which, isChecked) -> checked[which] = isChecked)
                 .setPositiveButton("OK", (dialog, which) -> {
                     Set<Integer> picked = new HashSet<>();
@@ -164,10 +174,12 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
     }
 
     private void changeDays(SleepEntry entry, Set<Integer> newDays) {
-        cancelAlarm(entry, false);   // cancel using the OLD days
+        // cancel using the OLD days
+        cancelAlarm(entry, false);
         cancelAlarm(entry, true);
         entry.days = newDays;
-        scheduleAlarm(entry, false); // re-schedule for the NEW days (only if the alarm is on)
+        // re-schedule for the NEW days (only if the alarm is on)
+        scheduleAlarm(entry, false);
         scheduleAlarm(entry, true);
         store.saveAll(entries);
         adapter.notifyItemChanged(entries.indexOf(entry));
@@ -201,12 +213,21 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
     @Override
     public void onPickTime(SleepEntry entry, boolean isWake) {
         Integer saved = entry.getMinutes(isWake);
-        int current = saved != null ? saved : (isWake ? 7 * 60 : 22 * 60);
+        int current;
+        if (saved != null) {
+            current = saved;
+        } else if (isWake) {
+            current = 7 * 60;
+        } else {
+            current = 22 * 60;
+        }
 
         new TimePickerDialog(timePickerContext(), (view, hour, minute) -> {
-            cancelAlarm(entry, isWake); // remove alarms at the old time
+            // remove alarms at the old time
+            cancelAlarm(entry, isWake);
             entry.setMinutes(isWake, hour * 60 + minute);
-            scheduleAlarm(entry, isWake); // does nothing unless the alarm switch is on
+            // does nothing unless the alarm switch is on
+            scheduleAlarm(entry, isWake);
             store.saveAll(entries);
             adapter.notifyItemChanged(entries.indexOf(entry));
         }, current / 60, current % 60, false).show();
@@ -227,8 +248,8 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
 
         // Wake-up alarms need the exact-alarm permission; send the user to grant it
         if (enabled && isWake && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-            if (!am.canScheduleExactAlarms()) {
+            AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+            if (!alarmManager.canScheduleExactAlarms()) {
                 // Explain the extra step, since the settings screen does not say what to do
                 Toast.makeText(this, "Allow \"Alarms & reminders\" for HealthSync, then turn the alarm on again",
                         Toast.LENGTH_LONG).show();
@@ -237,7 +258,7 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
                     startActivity(new Intent(
                             Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
                             Uri.parse("package:" + getPackageName())));
-                } catch (RuntimeException e) {
+                } catch (RuntimeException exception) {
                     // Some devices have no such settings screen; fall back to the app's info page
                     startActivity(new Intent(
                             Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
@@ -269,21 +290,21 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
     // ---------- Helpers ----------
 
     // One alarm per day in the card. Returns false if any of them was refused.
-    private boolean scheduleAlarm(SleepEntry e, boolean isWake) {
-        Integer minutes = e.getMinutes(isWake);
-        if (minutes == null || !e.isAlarmOn(isWake)) return true;
-
+    private boolean scheduleAlarm(SleepEntry entry, boolean isWake) {
+        Integer minutes = entry.getMinutes(isWake);
         boolean allOk = true;
-        for (int day : e.days) {
+        if (minutes == null || !entry.isAlarmOn(isWake)) return true;
+
+        for (int day : entry.days) {
             if (!AlarmScheduler.schedule(this, day, minutes, isWake)) allOk = false;
         }
         return allOk;
     }
 
-    private void cancelAlarm(SleepEntry e, boolean isWake) {
-        Integer minutes = e.getMinutes(isWake);
+    private void cancelAlarm(SleepEntry entry, boolean isWake) {
+        Integer minutes = entry.getMinutes(isWake);
         if (minutes == null) return;
-        for (int day : e.days) {
+        for (int day : entry.days) {
             AlarmScheduler.cancel(this, day, minutes, isWake);
         }
     }
@@ -294,8 +315,15 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
     }
 
     private void updateEmptyState() {
-        emptyText.setVisibility(entries.isEmpty() ? View.VISIBLE : View.GONE);
+        int visibility;
+        if (entries.isEmpty()) {
+            visibility = View.VISIBLE;
+        } else {
+            visibility = View.GONE;
+        }
+        emptyText.setVisibility(visibility);
     }
+
     // ---------- Logging last night's sleep ----------
 
     private void showSleepEntryDialog() {
@@ -306,12 +334,17 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
 
         // {bed, wake}; -1 means "not chosen yet". Start from the saved entry if there is one.
         int[] saved = store.loadLastNight();
-        int[] times = saved != null ? saved.clone() : new int[]{-1, -1};
+        int[] times;
+        if (saved != null) {
+            times = saved.clone();
+        } else {
+            times = new int[]{-1, -1};
+        }
 
         AlertDialog dialog = new AlertDialog.Builder(this, R.style.ThemeOverlay_HealthSync_SleepDialog)
                 .setTitle("Last night's sleep")
                 .setView(view)
-                .setPositiveButton("Save", (d, which) -> {
+                .setPositiveButton("Save", (dialogInterface, which) -> {
                     store.saveLastNight(times[0], times[1]);
                     // Record the hours slept for today so the Progress page sleep graph fills in
                     new ProgressHistory(this).recordSleep(sleepDuration(times[0], times[1]) / 60.0);
@@ -322,8 +355,20 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
         dialog.show();
 
         Runnable refresh = () -> {
-            bedBtn.setText(times[0] < 0 ? "Tap to set" : formatTime(times[0]));
-            wakeBtn.setText(times[1] < 0 ? "Tap to set" : formatTime(times[1]));
+            String bedText;
+            String wakeText;
+            if (times[0] < 0) {
+                bedText = "Tap to set";
+            } else {
+                bedText = formatTime(times[0]);
+            }
+            if (times[1] < 0) {
+                wakeText = "Tap to set";
+            } else {
+                wakeText = formatTime(times[1]);
+            }
+            bedBtn.setText(bedText);
+            wakeBtn.setText(wakeText);
 
             boolean ready = times[0] >= 0 && times[1] >= 0 && times[0] != times[1];
             if (ready) {
@@ -337,25 +382,30 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(ready);
         };
 
-        bedBtn.setOnClickListener(v -> pickSleepTime(times[0], 22 * 60 + 30, m -> {
-            times[0] = m;
+        bedBtn.setOnClickListener(v -> pickSleepTime(times[0], 22 * 60 + 30, pickedMinutes -> {
+            times[0] = pickedMinutes;
             refresh.run();
         }));
-        wakeBtn.setOnClickListener(v -> pickSleepTime(times[1], 7 * 60, m -> {
-            times[1] = m;
+        wakeBtn.setOnClickListener(v -> pickSleepTime(times[1], 7 * 60, pickedMinutes -> {
+            times[1] = pickedMinutes;
             refresh.run();
         }));
         refresh.run();
     }
 
     private void pickSleepTime(int current, int fallback, IntConsumer onPicked) {
-        int start = current >= 0 ? current : fallback;
+        int start;
+        if (current >= 0) {
+            start = current;
+        } else {
+            start = fallback;
+        }
         new TimePickerDialog(timePickerContext(), (view, hour, minute) -> onPicked.accept(hour * 60 + minute),
                 start / 60, start % 60, false).show();
     }
 
     // Minutes slept. If the wake time is earlier on the clock than bedtime, the sleep
-// crossed midnight, so add a day (e.g. 10:30 PM -> 6:30 AM = 8h).
+    // crossed midnight, so add a day (e.g. 10:30 PM -> 6:30 AM = 8h).
     private int sleepDuration(int bed, int wake) {
         int diff = wake - bed;
         if (diff <= 0) diff += 24 * 60;
@@ -385,18 +435,28 @@ public class SleepActivity extends AppCompatActivity implements SleepAdapter.Act
     }
 
     private String formatTime(int minutes) {
-        int h = minutes / 60;
-        int m = minutes % 60;
-        String amPm = h < 12 ? "AM" : "PM";
-        int h12 = (h % 12 == 0) ? 12 : h % 12;
-        return String.format(Locale.getDefault(), "%d:%02d %s", h12, m, amPm);
+        int hour24 = minutes / 60;
+        int minuteOfHour = minutes % 60;
+        String amPm;
+        int hour12;
+        if (hour24 < 12) {
+            amPm = "AM";
+        } else {
+            amPm = "PM";
+        }
+        if (hour24 % 12 == 0) {
+            hour12 = 12;
+        } else {
+            hour12 = hour24 % 12;
+        }
+        return String.format(Locale.getDefault(), "%d:%02d %s", hour12, minuteOfHour, amPm);
     }
 
     private String formatDuration(int minutes) {
-        int h = minutes / 60;
-        int m = minutes % 60;
-        if (m == 0) return h + "h";
-        if (h == 0) return m + "m";
-        return h + "h " + m + "m";
+        int hours = minutes / 60;
+        int minutesPart = minutes % 60;
+        if (minutesPart == 0) return hours + "h";
+        if (hours == 0) return minutesPart + "m";
+        return hours + "h " + minutesPart + "m";
     }
 }

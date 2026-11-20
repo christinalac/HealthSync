@@ -14,12 +14,15 @@ public class UserProfile {
     public final String email;
     public final String name;
     public final int age;
-    public final String gender;          // "Male" or "Female"
+    // "Male" or "Female"
+    public final String gender;
     public final int heightFt;
     public final int heightIn;
     public final int weightLbs;
-    public final String goal;            // one of PersonalizedCalculations.GOAL_*
-    public final String activityLevel;   // one of PersonalizedCalculations.ACTIVITY_*
+    // one of PersonalizedCalculations.GOAL_*
+    public final String goal;
+    // one of PersonalizedCalculations.ACTIVITY_*
+    public final String activityLevel;
     public final boolean isPregnant;
     public final boolean isBreastfeeding;
 
@@ -30,15 +33,52 @@ public class UserProfile {
     public UserProfile(String email, String name, int age, String gender, int heightFt,
                        int heightIn, int weightLbs, String goal, String activityLevel,
                        boolean isPregnant, boolean isBreastfeeding, boolean isRestDay) {
-        this.email = email;
-        this.name = name;
-        this.age = age;
-        this.gender = gender;
-        this.heightFt = heightFt;
-        this.heightIn = heightIn;
-        this.weightLbs = weightLbs;
-        this.goal = goal;
-        this.activityLevel = activityLevel;
+        // Valid ranges are generous; anything outside becomes -1 (strings: null becomes "")
+        if (email != null) {
+            this.email = email;
+        } else {
+            this.email = "";
+        }
+        if (name != null) {
+            this.name = name;
+        } else {
+            this.name = "";
+        }
+        if (age >= 1 && age <= 120) {
+            this.age = age;
+        } else {
+            this.age = -1;
+        }
+        if (gender != null) {
+            this.gender = gender;
+        } else {
+            this.gender = "";
+        }
+        if (heightFt >= 0 && heightFt <= 9) {
+            this.heightFt = heightFt;
+        } else {
+            this.heightFt = -1;
+        }
+        if (heightIn >= 0 && heightIn <= 12) {
+            this.heightIn = heightIn;
+        } else {
+            this.heightIn = -1;
+        }
+        if (weightLbs >= 0 && weightLbs <= 1500) {
+            this.weightLbs = weightLbs;
+        } else {
+            this.weightLbs = -1;
+        }
+        if (goal != null) {
+            this.goal = goal;
+        } else {
+            this.goal = "";
+        }
+        if (activityLevel != null) {
+            this.activityLevel = activityLevel;
+        } else {
+            this.activityLevel = "";
+        }
         this.isPregnant = isPregnant;
         this.isBreastfeeding = isBreastfeeding;
         this.isRestDay = isRestDay;

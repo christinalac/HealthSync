@@ -22,7 +22,13 @@ public final class AlarmScheduler {
 
     // Unique ID per day + type, so each alarm can be cancelled independently
     private static int requestCode(int dayOfWeek, boolean isWake) {
-        return dayOfWeek * 2 + (isWake ? 1 : 0);
+        int wakeOffset = 0;
+        if (isWake) {
+            wakeOffset = 1;
+        } else {
+            wakeOffset = 0;
+        }
+        return dayOfWeek * 2 + wakeOffset;
     }
 
     private static PendingIntent pendingIntent(Context context, int dayOfWeek, int minutes, boolean isWake) {
@@ -39,24 +45,24 @@ public final class AlarmScheduler {
     }
 
     public static long nextTrigger(int dayOfWeek, int minutes) {
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.DAY_OF_WEEK, dayOfWeek);
-        cal.set(Calendar.HOUR_OF_DAY, minutes / 60);
-        cal.set(Calendar.MINUTE, minutes % 60);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.DAY_OF_WEEK, dayOfWeek);
+        calendar.set(Calendar.HOUR_OF_DAY, minutes / 60);
+        calendar.set(Calendar.MINUTE, minutes % 60);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
         // If that moment already passed this week, use next week
-        if (cal.getTimeInMillis() <= System.currentTimeMillis()) {
-            cal.add(Calendar.WEEK_OF_YEAR, 1);
+        if (calendar.getTimeInMillis() <= System.currentTimeMillis()) {
+            calendar.add(Calendar.WEEK_OF_YEAR, 1);
         }
-        return cal.getTimeInMillis();
+        return calendar.getTimeInMillis();
     }
 
     /** Returns false if exact alarms aren't allowed (and opens the settings screen). */
     public static boolean schedule(Context context, int dayOfWeek, int minutes, boolean isWake) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         long trigger = nextTrigger(dayOfWeek, minutes);
-        PendingIntent pi = pendingIntent(context, dayOfWeek, minutes, isWake);
+        PendingIntent alarmIntent = pendingIntent(context, dayOfWeek, minutes, isWake);
 
         boolean canExact = Build.VERSION.SDK_INT < Build.VERSION_CODES.S
                 || alarmManager.canScheduleExactAlarms();
@@ -65,12 +71,12 @@ public final class AlarmScheduler {
             if (canExact && isWake) {
                 PendingIntent showIntent = PendingIntent.getActivity(
                         context, 0, new Intent(context, SleepActivity.class), PendingIntent.FLAG_IMMUTABLE);
-                alarmManager.setAlarmClock(new AlarmManager.AlarmClockInfo(trigger, showIntent), pi);
+                alarmManager.setAlarmClock(new AlarmManager.AlarmClockInfo(trigger, showIntent), alarmIntent);
             } else if (canExact) {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pi);
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, alarmIntent);
             } else {
                 // No exact permission: fires close to the time, but Android may delay it
-                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pi);
+                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, alarmIntent);
             }
         } catch (SecurityException e) {
             Log.e("SleepAlarm", "Alarm not allowed", e);

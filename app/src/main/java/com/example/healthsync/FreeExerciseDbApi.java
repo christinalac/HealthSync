@@ -39,26 +39,30 @@ public class FreeExerciseDbApi {
         }
 
         Executors.newSingleThreadExecutor().execute(() -> {
+            URL url = null;
+            HttpURLConnection connection = null;
+            BufferedReader reader = null;
+            StringBuilder jsonBuilder = new StringBuilder();
+            String line = null;
+            JSONArray array = null;
+            List<ExerciseCatalog.Entry> parsedList = new ArrayList<>();
             try {
-                URL url = new URL(API_URL);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("GET");
-                conn.setRequestProperty("User-Agent", "HealthSync-Android");
-                conn.setConnectTimeout(15000);
-                conn.setReadTimeout(15000);
+                url = new URL(API_URL);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setRequestProperty("User-Agent", "HealthSync-Android");
+                connection.setConnectTimeout(15000);
+                connection.setReadTimeout(15000);
 
-                BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(conn.getInputStream())
+                reader = new BufferedReader(
+                        new InputStreamReader(connection.getInputStream())
                 );
-                StringBuilder jsonBuilder = new StringBuilder();
-                String line;
                 while ((line = reader.readLine()) != null) {
                     jsonBuilder.append(line);
                 }
                 reader.close();
 
-                JSONArray array = new JSONArray(jsonBuilder.toString());
-                List<ExerciseCatalog.Entry> parsedList = new ArrayList<>();
+                array = new JSONArray(jsonBuilder.toString());
 
                 for (int i = 0; i < array.length(); i++) {
                     JSONObject obj = array.getJSONObject(i);
@@ -73,16 +77,16 @@ public class FreeExerciseDbApi {
                     if (primary != null && primary.length() > 0) {
                         rawPrimary = primary.getString(0);
                         for (int j = 0; j < primary.length(); j++) {
-                            String m = capitalize(primary.getString(j));
-                            if (!muscles.contains(m)) muscles.add(m);
+                            String muscleName = capitalize(primary.getString(j));
+                            if (!muscles.contains(muscleName)) muscles.add(muscleName);
                         }
                     }
 
                     JSONArray secondary = obj.optJSONArray("secondaryMuscles");
                     if (secondary != null) {
                         for (int j = 0; j < secondary.length(); j++) {
-                            String m = capitalize(secondary.getString(j));
-                            if (!muscles.contains(m)) muscles.add(m);
+                            String muscleName = capitalize(secondary.getString(j));
+                            if (!muscles.contains(muscleName)) muscles.add(muscleName);
                         }
                     }
 
@@ -113,9 +117,9 @@ public class FreeExerciseDbApi {
                     callback.onSuccess(new ArrayList<>(cachedExercises));
                 });
 
-            } catch (Exception e) {
-                Log.e("FreeExerciseDbApi", "API fetch failed", e);
-                new Handler(Looper.getMainLooper()).post(() -> callback.onError(e));
+            } catch (Exception exception) {
+                Log.e("FreeExerciseDbApi", "API fetch failed", exception);
+                new Handler(Looper.getMainLooper()).post(() -> callback.onError(exception));
             }
         });
     }

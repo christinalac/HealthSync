@@ -5,10 +5,10 @@ public class Exercise {
     private final String name;
     private final String category;
     private final String setsReps;
-    private boolean checked;
+    private boolean checked = false;
     // Add these fields inside your Exercise class:
-    private String[] muscleTags;
-    private String tips;
+    private String[] muscleTags = new String[0];
+    private String tips = "";
 
     // Add these getters and setters inside your Exercise class:
     public String[] getMuscleTags() {
@@ -16,7 +16,11 @@ public class Exercise {
     }
 
     public void setMuscleTags(String[] muscleTags) {
-        this.muscleTags = muscleTags;
+        if (muscleTags != null) {
+            this.muscleTags = muscleTags;
+        } else {
+            this.muscleTags = new String[0];
+        }
     }
 
     public String getTips() {
@@ -24,13 +28,29 @@ public class Exercise {
     }
 
     public void setTips(String tips) {
-        this.tips = tips;
+        if (tips != null) {
+            this.tips = tips;
+        } else {
+            this.tips = "";
+        }
     }
 
     public Exercise(String name, String category, String setsReps) {
-        this.name = name;
-        this.category = category;
-        this.setsReps = setsReps;
+        if (name != null) {
+            this.name = name;
+        } else {
+            this.name = "";
+        }
+        if (category != null) {
+            this.category = category;
+        } else {
+            this.category = "";
+        }
+        if (setsReps != null) {
+            this.setsReps = setsReps;
+        } else {
+            this.setsReps = "";
+        }
         this.checked = false;
     }
 

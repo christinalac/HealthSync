@@ -39,7 +39,8 @@ public class SplashActivity extends AppCompatActivity {
         databaseHelper = new DatabaseHelper(this);
 
         // Grab the views from login_screen.xml by their IDs
-        email                = findViewById(R.id.email);   // field is used for email
+        // field is used for email
+        email                = findViewById(R.id.email);
         password             = findViewById(R.id.password);
         loginButton          = findViewById(R.id.buttonLogin);
         signupRedirectButton = findViewById(R.id.signupText);

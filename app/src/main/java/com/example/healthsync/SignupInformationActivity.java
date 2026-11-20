@@ -108,11 +108,11 @@ public class SignupInformationActivity extends AppCompatActivity {
                     isBreastfeeding = false;
                     pregnancyDialogShown = false;
                 }
-            } // end of onItemSelected
+            }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) { /* no-op */ }
-        }); // end of genderSpinner listener
+        });
 
         // ── Activity level spinner ─────────────────────────────
         String[] activityLevels = {
@@ -175,7 +175,7 @@ public class SignupInformationActivity extends AppCompatActivity {
                     Toast.makeText(SignupInformationActivity.this,
                             "Please enter your name", Toast.LENGTH_SHORT).show();
                     return;
-                } // end of name-empty check
+                }
 
                 // Read selected values
                 int    age           = Integer.parseInt(ageSelectorSpinner.getSelectedItem().toString());
@@ -203,10 +203,10 @@ public class SignupInformationActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(SignupInformationActivity.this,
                             "Failed to save profile. Please try again.", Toast.LENGTH_SHORT).show();
-                } // end of saved if/else
-            } // end of onClick
-        }); // end of finishRedirectButton listener
-    } // end of onCreate
+                }
+            }
+        });
+    }
 
     // ─────────────────────────────────────────────────────────
     // Pregnancy / Breastfeeding Dialog
@@ -250,6 +250,6 @@ public class SignupInformationActivity extends AppCompatActivity {
                     isBreastfeeding = false;
                 })
                 .show();
-    } // end of showPregnancyDialog
+    }
 
-} // end of class
+}

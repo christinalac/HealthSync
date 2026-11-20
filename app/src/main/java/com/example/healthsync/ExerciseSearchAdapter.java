@@ -65,16 +65,16 @@ public class ExerciseSearchAdapter
     private static final DiffUtil.ItemCallback<ExerciseCatalog.Entry> DIFF =
             new DiffUtil.ItemCallback<ExerciseCatalog.Entry>() {
                 @Override
-                public boolean areItemsTheSame(@NonNull ExerciseCatalog.Entry a,
-                                               @NonNull ExerciseCatalog.Entry b) {
-                    return a.name.equals(b.name);
+                public boolean areItemsTheSame(@NonNull ExerciseCatalog.Entry oldEntry,
+                                               @NonNull ExerciseCatalog.Entry newEntry) {
+                    return oldEntry.name.equals(newEntry.name);
                 }
 
                 @Override
-                public boolean areContentsTheSame(@NonNull ExerciseCatalog.Entry a,
-                                                  @NonNull ExerciseCatalog.Entry b) {
-                    return a.name.equals(b.name) && a.group.equals(b.group)
-                            && a.setsReps.equals(b.setsReps);
+                public boolean areContentsTheSame(@NonNull ExerciseCatalog.Entry oldEntry,
+                                                  @NonNull ExerciseCatalog.Entry newEntry) {
+                    return oldEntry.name.equals(newEntry.name) && oldEntry.group.equals(newEntry.group)
+                            && oldEntry.setsReps.equals(newEntry.setsReps);
                 }
             };
 }

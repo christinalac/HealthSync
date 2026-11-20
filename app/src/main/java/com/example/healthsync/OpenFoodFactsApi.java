@@ -57,33 +57,33 @@ public final class OpenFoodFactsApi {
         if (query.isEmpty()) return new ArrayList<>();
         try {
             return parse(get(searchALiciousUrl(query)));
-        } catch (RateLimitedException e) {
-            throw e;
-        } catch (Exception e) {
+        } catch (RateLimitedException rateLimitedException) {
+            throw rateLimitedException;
+        } catch (Exception exception) {
             // Fallback to the older endpoint
             try {
                 return parse(get(legacyUrl(query)));
-            } catch (JSONException je) {
-                throw new IOException("Bad response from Open Food Facts", je);
+            } catch (JSONException jsonException) {
+                throw new IOException("Bad response from Open Food Facts", jsonException);
             }
         }
     }
 
     // ---------- URLs ----------
-    private static String searchALiciousUrl(String q) {
+    private static String searchALiciousUrl(String searchText) {
         return new Uri.Builder()
                 .scheme("https").authority("search.openfoodfacts.org").appendPath("search")
-                .appendQueryParameter("q", q)
+                .appendQueryParameter("q", searchText)
                 .appendQueryParameter("page_size", String.valueOf(PAGE_SIZE))
                 .appendQueryParameter("fields", FIELDS)
                 .build().toString();
     }
 
-    private static String legacyUrl(String q) {
+    private static String legacyUrl(String searchText) {
         return new Uri.Builder()
                 .scheme("https").authority("world.openfoodfacts.org")
                 .appendPath("cgi").appendPath("search.pl")
-                .appendQueryParameter("search_terms", q)
+                .appendQueryParameter("search_terms", searchText)
                 .appendQueryParameter("search_simple", "1")
                 .appendQueryParameter("action", "process")
                 .appendQueryParameter("json", "1")
@@ -93,32 +93,33 @@ public final class OpenFoodFactsApi {
     }
 
     // Search-a-licious uses Lucene syntax, so strip characters that have special meaning
-    private static String sanitize(String q) {
-        if (q == null) return "";
-        return q.replaceAll("[+\\-!(){}\\[\\]^\"~*?:\\\\/&|]", " ").replaceAll("\\s+", " ").trim();
+    private static String sanitize(String rawText) {
+        if (rawText == null) return "";
+        return rawText.replaceAll("[+\\-!(){}\\[\\]^\"~*?:\\\\/&|]", " ").replaceAll("\\s+", " ").trim();
     }
 
     // ---------- HTTP ----------
     private static String get(String url) throws IOException {
-        HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+        StringBuilder responseBuilder = new StringBuilder();
+        String line = null;
+        int code = 0;
         try {
-            conn.setRequestMethod("GET");
-            conn.setConnectTimeout(10_000);
-            conn.setReadTimeout(15_000);
-            conn.setRequestProperty("User-Agent", USER_AGENT);
-            conn.setRequestProperty("Accept", "application/json");
-            int code = conn.getResponseCode();
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(10_000);
+            connection.setReadTimeout(15_000);
+            connection.setRequestProperty("User-Agent", USER_AGENT);
+            connection.setRequestProperty("Accept", "application/json");
+            code = connection.getResponseCode();
             if (code == 429) throw new RateLimitedException();
             if (code != 200) throw new IOException("HTTP " + code);
 
-            StringBuilder sb = new StringBuilder();
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) sb.append(line);
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                while ((line = reader.readLine()) != null) responseBuilder.append(line);
             }
-            return sb.toString();
+            return responseBuilder.toString();
         } finally {
-            conn.disconnect();
+            connection.disconnect();
         }
     }
 
@@ -126,109 +127,160 @@ public final class OpenFoodFactsApi {
     // Search-a-licious returns {"hits":[...]}, the legacy endpoint returns {"products":[...]}
     private static List<FoodItem> parse(String text) throws JSONException {
         JSONObject root = new JSONObject(text);
-        JSONArray arr = root.optJSONArray("hits");
-        if (arr == null) arr = root.optJSONArray("products");
-        List<FoodItem> out = new ArrayList<>();
-        if (arr == null) return out;
-        for (int i = 0; i < arr.length(); i++) {
-            JSONObject p = arr.optJSONObject(i);
-            if (p == null) continue;
-            FoodItem item = parseProduct(p);
-            if (item != null) out.add(item);
+        JSONArray productsArray = root.optJSONArray("hits");
+        List<FoodItem> foods = new ArrayList<>();
+        JSONObject product = null;
+        FoodItem item = null;
+        if (productsArray == null) productsArray = root.optJSONArray("products");
+        if (productsArray == null) return foods;
+        for (int i = 0; i < productsArray.length(); i++) {
+            product = productsArray.optJSONObject(i);
+            if (product == null) continue;
+            item = parseProduct(product);
+            if (item != null) foods.add(item);
         }
-        return out;
+        return foods;
     }
 
-    private static FoodItem parseProduct(JSONObject p) {
-        String name = p.optString("product_name", "").trim();
+    private static FoodItem parseProduct(JSONObject product) {
+        String name = product.optString("product_name", "").trim();
+        JSONObject nutriments = product.optJSONObject("nutriments");
+        Double kcal100 = null;
+        Double kilojoules = null;
+        Double carbs = null;
+        Double protein = null;
+        Double fat = null;
+        double carbs100 = 0.0;
+        double protein100 = 0.0;
+        double fat100 = 0.0;
+        String servingText = null;
+        Double servingGrams = null;
+        double servingQuantity = Double.NaN;
+        Matcher servingMatcher = null;
+        double parsedGrams = 0.0;
+        double grams = 100.0;
+        String label = "100 g";
+        double factor = 1.0;
+        String brand = "";
+        Object brandValue = null;
+        String code = "";
+
         if (name.isEmpty() || name.equals("null")) return null;
 
         // Skip products with no calorie data: they can't be tracked meaningfully
-        JSONObject n = p.optJSONObject("nutriments");
-        if (n == null) return null;
-        Double kcal100 = num(n, "energy-kcal_100g", "energy-kcal");
+        if (nutriments == null) return null;
+        kcal100 = num(nutriments, "energy-kcal_100g", "energy-kcal");
         if (kcal100 == null) {
-            Double kj = num(n, "energy_100g");      // energy_100g is in kJ
-            if (kj == null) return null;
-            kcal100 = kj / 4.184;
+            // energy_100g is in kJ
+            kilojoules = num(nutriments, "energy_100g");
+            if (kilojoules == null) return null;
+            kcal100 = kilojoules / 4.184;
         }
-        Double carbs = num(n, "carbohydrates_100g");
-        Double protein = num(n, "proteins_100g");
-        Double fat = num(n, "fat_100g");
-        double carbs100 = carbs != null ? carbs : 0.0;
-        double protein100 = protein != null ? protein : 0.0;
-        double fat100 = fat != null ? fat : 0.0;
+        carbs = num(nutriments, "carbohydrates_100g");
+        protein = num(nutriments, "proteins_100g");
+        fat = num(nutriments, "fat_100g");
+        if (carbs != null) {
+            carbs100 = carbs;
+        } else {
+            carbs100 = 0.0;
+        }
+        if (protein != null) {
+            protein100 = protein;
+        } else {
+            protein100 = 0.0;
+        }
+        if (fat != null) {
+            fat100 = fat;
+        } else {
+            fat100 = 0.0;
+        }
 
         // "1 serving" = the product's serving size if it has one, otherwise 100 g
-        String servingText = p.optString("serving_size", "").trim();
+        servingText = product.optString("serving_size", "").trim();
         if (servingText.isEmpty() || servingText.equals("null")) servingText = null;
 
-        Double servingGrams = null;
-        double q = p.optDouble("serving_quantity", Double.NaN);
-        if (!Double.isNaN(q) && q > 0) {
-            servingGrams = q;
+        servingQuantity = product.optDouble("serving_quantity", Double.NaN);
+        if (!Double.isNaN(servingQuantity) && servingQuantity > 0) {
+            servingGrams = servingQuantity;
         } else if (servingText != null) {
-            Matcher m = SERVING_REGEX.matcher(servingText);
-            if (m.find()) {
+            servingMatcher = SERVING_REGEX.matcher(servingText);
+            if (servingMatcher.find()) {
                 try {
-                    double g = Double.parseDouble(m.group(1).replace(',', '.'));
-                    if (g > 0) servingGrams = g;
+                    parsedGrams = Double.parseDouble(servingMatcher.group(1).replace(',', '.'));
+                    if (parsedGrams > 0) servingGrams = parsedGrams;
                 } catch (NumberFormatException ignored) {
                 }
             }
         }
-        double grams = servingGrams != null ? servingGrams : 100.0;
-        String label;
-        if (servingGrams == null) label = "100 g";
-        else label = servingText != null ? servingText : Format.fmt1(grams) + " g";
-        double factor = grams / 100.0;
+        if (servingGrams != null) {
+            grams = servingGrams;
+        } else {
+            grams = 100.0;
+        }
+        if (servingGrams == null) {
+            label = "100 g";
+        } else if (servingText != null) {
+            label = servingText;
+        } else {
+            label = Format.fmt1(grams) + " g";
+        }
+        factor = grams / 100.0;
 
-        String brand = "";
-        Object b = p.opt("brands");
-        if (b instanceof JSONArray) brand = ((JSONArray) b).optString(0);
-        else if (b instanceof String) brand = ((String) b).split(",")[0];
+        brandValue = product.opt("brands");
+        if (brandValue instanceof JSONArray) brand = ((JSONArray) brandValue).optString(0);
+        else if (brandValue instanceof String) brand = ((String) brandValue).split(",")[0];
         brand = brand.trim();
 
-        String code = p.optString("code", "");
-        return new FoodItem(code, name, brand, findImage(p, code), label,
+        code = product.optString("code", "");
+        return new FoodItem(code, name, brand, findImage(product, code), label,
                 kcal100 * factor, carbs100 * factor, protein100 * factor, fat100 * factor);
     }
 
     // First key that holds a real number, or null
-    private static Double num(JSONObject o, String... keys) {
-        for (String k : keys) {
-            if (o.has(k) && !o.isNull(k)) {
-                double v = o.optDouble(k, Double.NaN);
-                if (!Double.isNaN(v)) return v;
+    private static Double num(JSONObject json, String... keys) {
+        double value = Double.NaN;
+        for (String key : keys) {
+            if (json.has(key) && !json.isNull(key)) {
+                value = json.optDouble(key, Double.NaN);
+                if (!Double.isNaN(value)) return value;
             }
         }
         return null;
     }
 
-    private static String findImage(JSONObject p, String code) {
+    private static String findImage(JSONObject product, String code) {
         String[] keys = {"image_front_small_url", "image_small_url", "image_front_thumb_url",
                 "image_front_url", "image_url"};
-        for (String key : keys) {
-            String url = p.optString(key, "");
+        String key = null;
+        String rev = "";
+        JSONObject images = null;
+        JSONObject image = null;
+        Iterator<String> keyIterator = null;
+        String imageKey = null;
+        for (String candidateKey : keys) {
+            String url = product.optString(candidateKey, "");
             if (url.startsWith("http")) return url.replace("http://", "https://");
         }
 
         // Fallback: build the URL from the product's "images" object
-        JSONObject images = p.optJSONObject("images");
+        images = product.optJSONObject("images");
         if (images == null || code.isEmpty()) return null;
-        String key = null;
         if (images.has("front_en")) {
             key = "front_en";
         } else {
-            Iterator<String> it = images.keys();
-            while (it.hasNext()) {
-                String k = it.next();
-                if (k.startsWith("front_")) { key = k; break; }
+            keyIterator = images.keys();
+            while (keyIterator.hasNext()) {
+                imageKey = keyIterator.next();
+                if (imageKey.startsWith("front_")) { key = imageKey; break; }
             }
         }
         if (key == null) return null;
-        JSONObject img = images.optJSONObject(key);
-        String rev = img == null ? "" : img.optString("rev", "");
+        image = images.optJSONObject(key);
+        if (image == null) {
+            rev = "";
+        } else {
+            rev = image.optString("rev", "");
+        }
         if (rev.isEmpty()) return null;
         return "https://images.openfoodfacts.org/images/products/" + barcodeFolder(code)
                 + "/" + key + "." + rev + ".200.jpg";
@@ -237,9 +289,10 @@ public final class OpenFoodFactsApi {
     // 3017620422003 -> 301/762/042/2003 (barcodes of 8 digits or fewer are used as-is)
     private static String barcodeFolder(String code) {
         if (code.length() <= 8) return code;
-        StringBuilder c = new StringBuilder(code);
-        while (c.length() < 13) c.insert(0, '0');
-        String s = c.toString();
-        return s.substring(0, 3) + "/" + s.substring(3, 6) + "/" + s.substring(6, 9) + "/" + s.substring(9);
+        StringBuilder paddedBuilder = new StringBuilder(code);
+        String padded = "";
+        while (paddedBuilder.length() < 13) paddedBuilder.insert(0, '0');
+        padded = paddedBuilder.toString();
+        return padded.substring(0, 3) + "/" + padded.substring(3, 6) + "/" + padded.substring(6, 9) + "/" + padded.substring(9);
     }
 }

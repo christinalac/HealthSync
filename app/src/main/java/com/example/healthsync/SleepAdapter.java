@@ -35,9 +35,9 @@ public class SleepAdapter extends RecyclerView.Adapter<SleepAdapter.VH> {
     static class VH extends RecyclerView.ViewHolder {
         final ItemSleepEntryBinding b;
 
-        VH(ItemSleepEntryBinding b) {
-            super(b.getRoot());
-            this.b = b;
+        VH(ItemSleepEntryBinding itemBinding) {
+            super(itemBinding.getRoot());
+            this.b = itemBinding;
         }
     }
 
@@ -64,25 +64,38 @@ public class SleepAdapter extends RecyclerView.Adapter<SleepAdapter.VH> {
     @Override
     public void onBindViewHolder(@NonNull VH holder, int position) {
         SleepEntry entry = entries.get(position);
-        ItemSleepEntryBinding b = holder.b;
+        ItemSleepEntryBinding binding = holder.b;
 
-        b.dayLabel.setText(entry.label());
-        b.editDaysButton.setOnClickListener(v -> actions.onEditDays(entry));
-        b.removeButton.setOnClickListener(v -> actions.onRemove(entry));
+        binding.dayLabel.setText(entry.label());
+        binding.editDaysButton.setOnClickListener(v -> actions.onEditDays(entry));
+        binding.removeButton.setOnClickListener(v -> actions.onRemove(entry));
 
-        bindTime(b.bedTimeButton, b.bedAlarmSwitch, b.bedClearButton, entry, false);
-        bindTime(b.wakeTimeButton, b.wakeAlarmSwitch, b.wakeClearButton, entry, true);
+        bindTime(binding.bedTimeButton, binding.bedAlarmSwitch, binding.bedClearButton, entry, false);
+        bindTime(binding.wakeTimeButton, binding.wakeAlarmSwitch, binding.wakeClearButton, entry, true);
     }
 
     // Same setup for bedtime and wake-up, so it's written once
     private void bindTime(Button timeButton, SwitchCompat alarmSwitch, View clearButton,
                           SleepEntry entry, boolean isWake) {
         Integer minutes = entry.getMinutes(isWake);
+        String placeholder;
+        int clearVisibility;
 
-        timeButton.setText(formatTime(minutes, isWake ? "Add wake-up" : "Add bedtime"));
+        if (isWake) {
+            placeholder = "Add wake-up";
+        } else {
+            placeholder = "Add bedtime";
+        }
+        if (minutes == null) {
+            clearVisibility = View.GONE;
+        } else {
+            clearVisibility = View.VISIBLE;
+        }
+
+        timeButton.setText(formatTime(minutes, placeholder));
         timeButton.setOnClickListener(v -> actions.onPickTime(entry, isWake));
 
-        clearButton.setVisibility(minutes == null ? View.GONE : View.VISIBLE);
+        clearButton.setVisibility(clearVisibility);
         clearButton.setOnClickListener(v -> actions.onClearTime(entry, isWake));
 
         // Clear the old listener before setChecked, or reused rows fire false events
@@ -94,11 +107,24 @@ public class SleepAdapter extends RecyclerView.Adapter<SleepAdapter.VH> {
     }
 
     private String formatTime(Integer minutes, String placeholder) {
+        int hour24 = 0;
+        int minuteOfHour = 0;
+        String amPm;
+        int hour12;
+
         if (minutes == null) return placeholder;
-        int h = minutes / 60;
-        int m = minutes % 60;
-        String amPm = h < 12 ? "AM" : "PM";
-        int h12 = (h % 12 == 0) ? 12 : h % 12;
-        return String.format(Locale.getDefault(), "%d:%02d %s", h12, m, amPm);
+        hour24 = minutes / 60;
+        minuteOfHour = minutes % 60;
+        if (hour24 < 12) {
+            amPm = "AM";
+        } else {
+            amPm = "PM";
+        }
+        if (hour24 % 12 == 0) {
+            hour12 = 12;
+        } else {
+            hour12 = hour24 % 12;
+        }
+        return String.format(Locale.getDefault(), "%d:%02d %s", hour12, minuteOfHour, amPm);
     }
 }

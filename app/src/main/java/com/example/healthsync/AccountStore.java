@@ -56,8 +56,9 @@ public class AccountStore {
 
     public void setPassword(String password) {
         byte[] saltBytes = new byte[16];
+        String salt = "";
         new SecureRandom().nextBytes(saltBytes);
-        String salt = Base64.encodeToString(saltBytes, Base64.NO_WRAP);
+        salt = Base64.encodeToString(saltBytes, Base64.NO_WRAP);
         prefs.edit()
                 .putString("pw_salt", salt)
                 .putString("pw_hash", hash(salt, password))
@@ -65,12 +66,15 @@ public class AccountStore {
     }
 
     private String hash(String salt, String password) {
+        MessageDigest messageDigest = null;
+        byte[] digest = null;
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] digest = md.digest((salt + password).getBytes(StandardCharsets.UTF_8));
+            messageDigest = MessageDigest.getInstance("SHA-256");
+            digest = messageDigest.digest((salt + password).getBytes(StandardCharsets.UTF_8));
             return Base64.encodeToString(digest, Base64.NO_WRAP);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException(e); // SHA-256 is always available on Android
+        } catch (NoSuchAlgorithmException exception) {
+            // SHA-256 is always available on Android
+            throw new IllegalStateException(exception);
         }
     }
 }

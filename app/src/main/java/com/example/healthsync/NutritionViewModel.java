@@ -25,10 +25,10 @@ public class NutritionViewModel extends AndroidViewModel {
     private final DatabaseHelper db;
     private final MutableLiveData<NutritionState> state = new MutableLiveData<>();
 
-    public NutritionViewModel(@NonNull Application app) {
-        super(app);
-        repo = new NutritionRepository(app);
-        db = new DatabaseHelper(app);
+    public NutritionViewModel(@NonNull Application application) {
+        super(application);
+        repo = new NutritionRepository(application);
+        db = new DatabaseHelper(application);
         state.setValue(withGoals(repo.load()));
     }
 
@@ -37,46 +37,52 @@ public class NutritionViewModel extends AndroidViewModel {
     }
 
     private NutritionState current() {
-        NutritionState s = state.getValue();
-        return s != null ? s : NutritionState.initial();
+        NutritionState currentState = state.getValue();
+        if (currentState == null) {
+            currentState = NutritionState.initial();
+        }
+        return currentState;
     }
 
     // ----- Goals -----
     // Recalculates the calorie and water goals from the logged-in user's profile.
     // Call when the screen comes back into view, in case the profile was edited.
     public void refreshGoals() {
-        NutritionState cur = current();
-        NutritionState next = withGoals(cur);
-        if (next.calorieGoal != cur.calorieGoal || next.hydrationGoalCups != cur.hydrationGoalCups) {
-            state.setValue(next);
+        NutritionState currentState = current();
+        NutritionState nextState = withGoals(currentState);
+        if (nextState.calorieGoal != currentState.calorieGoal
+                || nextState.hydrationGoalCups != currentState.hydrationGoalCups) {
+            state.setValue(nextState);
         }
     }
 
-    private NutritionState withGoals(NutritionState s) {
+    private NutritionState withGoals(NutritionState baseState) {
         UserProfile profile = null;
         String email = Session.getEmail(getApplication());
+        DailyGoals.Goals goals = null;
         if (email != null) profile = db.getUserProfile(email);
-        DailyGoals.Goals goals = DailyGoals.forProfile(profile);
-        return s.withGoals(goals.calories, goals.waterCups);
+        goals = DailyGoals.forProfile(profile);
+        return baseState.withGoals(goals.calories, goals.waterCups);
     }
 
     // ----- Hydration (1 tap = 1 cup) -----
     public void addCup() {
-        NutritionState s = current();
-        update(s.withHydrationCups(s.hydrationCups + 1));
+        NutritionState currentState = current();
+        update(currentState.withHydrationCups(currentState.hydrationCups + 1));
     }
 
     public void removeCup() {
-        NutritionState s = current();
-        update(s.withHydrationCups(Math.max(s.hydrationCups - 1, 0)));
+        NutritionState currentState = current();
+        update(currentState.withHydrationCups(Math.max(currentState.hydrationCups - 1, 0)));
     }
 
     // ----- Meals -----
     // Adding a food that's already in today's list bumps its servings instead of duplicating it.
     public void addMeal(FoodItem food) {
-        NutritionState s = current();
-        List<LoggedMeal> meals = new ArrayList<>(s.meals);
+        NutritionState currentState = current();
+        List<LoggedMeal> meals = new ArrayList<>(currentState.meals);
         int existing = -1;
+        LoggedMeal existingMeal = null;
         for (int i = 0; i < meals.size(); i++) {
             if (!food.code.isEmpty() && food.code.equals(meals.get(i).code)) {
                 existing = i;
@@ -84,31 +90,35 @@ public class NutritionViewModel extends AndroidViewModel {
             }
         }
         if (existing >= 0) {
-            LoggedMeal m = meals.get(existing);
-            meals.set(existing, m.withServings(m.servings + 1.0));
+            existingMeal = meals.get(existing);
+            meals.set(existing, existingMeal.withServings(existingMeal.servings + 1.0));
         } else {
             meals.add(food.toMeal());
         }
-        update(s.withMeals(meals));
+        update(currentState.withMeals(meals));
     }
 
     // delta is +0.5 / -0.5 from the stepper buttons; never goes below 0.5 (use delete to remove)
     public void changeServings(String id, double delta) {
-        NutritionState s = current();
+        NutritionState currentState = current();
         List<LoggedMeal> meals = new ArrayList<>();
-        for (LoggedMeal m : s.meals) {
-            meals.add(m.id.equals(id) ? m.withServings(Math.max(m.servings + delta, 0.5)) : m);
+        for (LoggedMeal meal : currentState.meals) {
+            if (meal.id.equals(id)) {
+                meals.add(meal.withServings(Math.max(meal.servings + delta, 0.5)));
+            } else {
+                meals.add(meal);
+            }
         }
-        update(s.withMeals(meals));
+        update(currentState.withMeals(meals));
     }
 
     public void removeMeal(String id) {
-        NutritionState s = current();
+        NutritionState currentState = current();
         List<LoggedMeal> meals = new ArrayList<>();
-        for (LoggedMeal m : s.meals) {
-            if (!m.id.equals(id)) meals.add(m);
+        for (LoggedMeal meal : currentState.meals) {
+            if (!meal.id.equals(id)) meals.add(meal);
         }
-        update(s.withMeals(meals));
+        update(currentState.withMeals(meals));
     }
 
     // For testing: wipes today's meals and water

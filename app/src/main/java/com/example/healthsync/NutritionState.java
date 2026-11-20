@@ -15,16 +15,36 @@ import java.util.List;
 // Goals come from the user's profile; calories/macros are summed from today's meals.
 // Hydration is tracked in cups (1 cup = 250 ml, matching PersonalizedCalculations.litresToCups).
 public class NutritionState {
+    private static final int MAX_CALORIE_GOAL = 100_000;
+    private static final int MAX_CUPS = 10_000;
+
     public final int calorieGoal;
     public final List<LoggedMeal> meals;
     public final int hydrationCups;
     public final double hydrationGoalCups;
 
     public NutritionState(int calorieGoal, List<LoggedMeal> meals, int hydrationCups, double hydrationGoalCups) {
-        this.calorieGoal = calorieGoal;
-        this.meals = meals;
-        this.hydrationCups = hydrationCups;
-        this.hydrationGoalCups = hydrationGoalCups;
+        // Out-of-range numbers become 0 (a safe "no goal / nothing logged" value); a null list becomes empty
+        if (calorieGoal >= 0 && calorieGoal <= MAX_CALORIE_GOAL) {
+            this.calorieGoal = calorieGoal;
+        } else {
+            this.calorieGoal = 0;
+        }
+        if (meals != null) {
+            this.meals = meals;
+        } else {
+            this.meals = new ArrayList<>();
+        }
+        if (hydrationCups >= 0 && hydrationCups <= MAX_CUPS) {
+            this.hydrationCups = hydrationCups;
+        } else {
+            this.hydrationCups = 0;
+        }
+        if (hydrationGoalCups >= 0.0 && hydrationGoalCups <= MAX_CUPS) {
+            this.hydrationGoalCups = hydrationGoalCups;
+        } else {
+            this.hydrationGoalCups = 0.0;
+        }
     }
 
     public static NutritionState initial() {
@@ -48,25 +68,25 @@ public class NutritionState {
     // ----- Calories & macros (sum of meals x servings) -----
     public int getCaloriesEaten() {
         double sum = 0;
-        for (LoggedMeal m : meals) sum += m.totalKcal();
+        for (LoggedMeal meal : meals) sum += meal.totalKcal();
         return (int) Math.round(sum);
     }
 
     public int getCarbsG() {
         double sum = 0;
-        for (LoggedMeal m : meals) sum += m.totalCarbs();
+        for (LoggedMeal meal : meals) sum += meal.totalCarbs();
         return (int) Math.round(sum);
     }
 
     public int getProteinG() {
         double sum = 0;
-        for (LoggedMeal m : meals) sum += m.totalProtein();
+        for (LoggedMeal meal : meals) sum += meal.totalProtein();
         return (int) Math.round(sum);
     }
 
     public int getFatG() {
         double sum = 0;
-        for (LoggedMeal m : meals) sum += m.totalFat();
+        for (LoggedMeal meal : meals) sum += meal.totalFat();
         return (int) Math.round(sum);
     }
 

@@ -47,14 +47,14 @@ public class FoodSearchAdapter extends RecyclerView.Adapter<FoodSearchAdapter.VH
         final TextView name, brand, serving, nutrients;
         final View addButton;
 
-        VH(View v) {
-            super(v);
-            image = v.findViewById(R.id.ivFood);
-            name = v.findViewById(R.id.tvFoodName);
-            brand = v.findViewById(R.id.tvFoodBrand);
-            serving = v.findViewById(R.id.tvFoodServing);
-            nutrients = v.findViewById(R.id.tvFoodNutrients);
-            addButton = v.findViewById(R.id.btnAdd);
+        VH(View rowView) {
+            super(rowView);
+            image = rowView.findViewById(R.id.ivFood);
+            name = rowView.findViewById(R.id.tvFoodName);
+            brand = rowView.findViewById(R.id.tvFoodBrand);
+            serving = rowView.findViewById(R.id.tvFoodServing);
+            nutrients = rowView.findViewById(R.id.tvFoodNutrients);
+            addButton = rowView.findViewById(R.id.btnAdd);
         }
     }
 
@@ -66,20 +66,26 @@ public class FoodSearchAdapter extends RecyclerView.Adapter<FoodSearchAdapter.VH
     }
 
     @Override
-    public void onBindViewHolder(@NonNull VH h, int position) {
+    public void onBindViewHolder(@NonNull VH holder, int position) {
         final FoodItem food = items.get(position);
-        h.name.setText(food.name);
-        h.brand.setText(food.brand);
-        h.brand.setVisibility(food.brand.isEmpty() ? View.GONE : View.VISIBLE);
-        h.serving.setText("Per serving (" + food.servingLabel + ")");
-        h.nutrients.setText(Format.nutrientLine(food.kcal, food.carbsG, food.proteinG, food.fatG));
-        Glide.with(h.image)
+        int brandVisibility = View.VISIBLE;
+        if (food.brand.isEmpty()) {
+            brandVisibility = View.GONE;
+        } else {
+            brandVisibility = View.VISIBLE;
+        }
+        holder.name.setText(food.name);
+        holder.brand.setText(food.brand);
+        holder.brand.setVisibility(brandVisibility);
+        holder.serving.setText("Per serving (" + food.servingLabel + ")");
+        holder.nutrients.setText(Format.nutrientLine(food.kcal, food.carbsG, food.proteinG, food.fatG));
+        Glide.with(holder.image)
                 .load(food.imageUrl)
                 .placeholder(R.drawable.bg_food_placeholder)
                 .error(R.drawable.bg_food_placeholder)
                 .centerCrop()
-                .into(h.image);
-        h.addButton.setOnClickListener(v -> listener.onAdd(food));
+                .into(holder.image);
+        holder.addButton.setOnClickListener(clickedView -> listener.onAdd(food));
     }
 
     @Override

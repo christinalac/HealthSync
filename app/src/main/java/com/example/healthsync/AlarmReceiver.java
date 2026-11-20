@@ -29,9 +29,9 @@ public class AlarmReceiver extends BroadcastReceiver {
             // Android 12+ can refuse to start a foreground service from the background
             try {
                 ContextCompat.startForegroundService(context, new Intent(context, AlarmService.class));
-            } catch (RuntimeException e) {
+            } catch (RuntimeException exception) {
                 // Android refused to start the service from the background; still alert the user
-                Log.e("SleepAlarm", "Could not start alarm service", e);
+                Log.e("SleepAlarm", "Could not start alarm service", exception);
                 NotificationHelper.show(context, day, true);
             }
         } else {

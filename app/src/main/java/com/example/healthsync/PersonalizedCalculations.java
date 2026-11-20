@@ -54,7 +54,7 @@ public class PersonalizedCalculations {
         double heightCm = feetInchesToCm(heightFt, heightIn);
 
         // Step 1 — Mifflin-St Jeor BMR
-        double bmr;
+        double bmr = 0;
         if ("Male".equalsIgnoreCase(gender)) {
             // BMR = 10 × weight(kg) + 6.25 × height(cm) − 5 × age + 5
             bmr = (10 * weightKg) + (6.25 * heightCm) - (5 * age) + 5;
@@ -72,7 +72,7 @@ public class PersonalizedCalculations {
         double totalCalories = tdee + goalAdjustment;
 
         return (int) Math.round(totalCalories);
-    } // end of calculateDailyCalories
+    }
 
     /**
      * Returns the activity multiplier for TDEE calculation.
@@ -87,23 +87,30 @@ public class PersonalizedCalculations {
             case ACTIVITY_SEDENTARY:
             default:                         return 1.2;
         }
-    } // end of getActivityMultiplier
+    }
 
     /**
      * Returns the kcal adjustment based on body goal.
      * For "Improve Endurance": +300 on active days, +200 on rest days.
      */
     private static double getCalorieGoalAdjustment(String goal, boolean isRestDay) {
+        double enduranceAdjustment = 0;
         if (goal == null) return 0;
         switch (goal) {
             case GOAL_LOSE_WEIGHT:       return -400;
             case GOAL_GAIN_MUSCLE:       return  250;
-            case GOAL_IMPROVE_ENDURANCE: return isRestDay ? 200 : 300;
+            case GOAL_IMPROVE_ENDURANCE:
+                if (isRestDay) {
+                    enduranceAdjustment = 200;
+                } else {
+                    enduranceAdjustment = 300;
+                }
+                return enduranceAdjustment;
             case GOAL_MAINTAIN_WEIGHT:
             case GOAL_IMPROVE_OVERALL_HEALTH:
             default:                     return 0;
         }
-    } // end of getCalorieGoalAdjustment
+    }
 
     // ─────────────────────────────────────────────────────────
     // WATER INTAKE CALCULATIONS
@@ -148,7 +155,7 @@ public class PersonalizedCalculations {
 
         // Round to 2 decimal places
         return Math.round(base * 100.0) / 100.0;
-    } // end of calculateDailyWaterLitres
+    }
 
     /**
      * Converts the daily water intake from litres to cups.
@@ -156,7 +163,7 @@ public class PersonalizedCalculations {
      */
     public static double litresToCups(double litres) {
         return Math.round(litres * 4.0 * 10.0) / 10.0;
-    } // end of litresToCups
+    }
 
     /**
      * Returns the water adjustment (in L) for activity level.
@@ -177,7 +184,7 @@ public class PersonalizedCalculations {
             case ACTIVITY_SEDENTARY:
             default:                         return 0.0;
         }
-    } // end of getWaterActivityAdjustment
+    }
 
     /**
      * Returns the water goal adjustment in litres.
@@ -192,7 +199,7 @@ public class PersonalizedCalculations {
             case GOAL_IMPROVE_OVERALL_HEALTH:
             default:                     return 0.0;
         }
-    } // end of getWaterGoalAdjustment
+    }
 
     // ─────────────────────────────────────────────────────────
     // SLEEP SUGGESTION
@@ -222,7 +229,7 @@ public class PersonalizedCalculations {
             // 65+
             return "7 to 8 hours";
         }
-    } // end of getSleepSuggestion
+    }
 
     // ─────────────────────────────────────────────────────────
     // UNIT CONVERSION HELPERS
@@ -234,7 +241,7 @@ public class PersonalizedCalculations {
      */
     public static double lbsToKg(int lbs) {
         return lbs / 2.2046;
-    } // end of lbsToKg
+    }
 
     /**
      * Converts feet + inches to centimetres.
@@ -242,6 +249,6 @@ public class PersonalizedCalculations {
      */
     public static double feetInchesToCm(int feet, int inches) {
         return (feet * 30.48) + (inches * 2.54);
-    } // end of feetInchesToCm
+    }
 
-} // end of class PersonalizedCalculations
+}
